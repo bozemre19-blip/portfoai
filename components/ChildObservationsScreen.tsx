@@ -12,9 +12,9 @@ interface Props {
 
 const RiskPill: React.FC<{ risk?: string | null }> = ({ risk }) => {
   const map: Record<string, { label: string; cls: string }> = {
-    low: { label: 'Dusuk', cls: 'bg-green-100 text-green-700' },
+    low: { label: 'Düşük', cls: 'bg-green-100 text-green-700' },
     medium: { label: 'Orta', cls: 'bg-amber-100 text-amber-800' },
-    high: { label: 'Yuksek', cls: 'bg-red-100 text-red-700' },
+    high: { label: 'Yüksek', cls: 'bg-red-100 text-red-700' },
   };
   const item = risk ? map[String(risk)] : undefined;
   return (
@@ -94,13 +94,13 @@ const ChildObservationsScreen: React.FC<Props> = ({ childId, navigate }) => {
     <div className="max-w-6xl mx-auto">
       <div className="flex items-center justify-between mb-4">
         <button className="px-3 py-2 bg-gray-200 rounded" onClick={() => navigate('child-detail', { id: childId })}>Geri</button>
-        <h1 className="text-xl font-bold">Kaydedilen Gozlemler</h1>
+        <h1 className="text-xl font-bold">Kaydedilen Gözlemler</h1>
         <button className="px-3 py-2 bg-primary text-white rounded" onClick={() => navigate('add-observation', { childId })}>{t('addObservation')}</button>
       </div>
 
       {loading && <p>{t('loading')}</p>}
       {error && <p className="text-red-600">{error}</p>}
-      {!loading && items.length === 0 && <p className="text-gray-500">Gozlem bulunamadi.</p>}
+      {!loading && items.length === 0 && <p className="text-gray-500">Gözlem bulunamadı.</p>}
 
       <div className="grid grid-cols-1 md:grid-cols-12 gap-4">
         {/* Left filter panel */}
@@ -186,7 +186,7 @@ const ChildObservationsScreen: React.FC<Props> = ({ childId, navigate }) => {
           })}
           {/* If no domain produced output, show empty state */}
           {domainKeys.every((d) => (selected.size > 0 && !selected.has(d)) || (grouped[d] || []).length === 0) && (
-            <p className="text-gray-500">Sonuc bulunamadi.</p>
+            <p className="text-gray-500">Sonuç bulunamadı.</p>
           )}
         </section>
       </div>

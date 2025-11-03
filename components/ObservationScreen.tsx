@@ -91,7 +91,7 @@ const ObservationScreen: React.FC<ObservationScreenProps> = ({ childId, navigate
         return;
     }
     if (domains.length === 0) {
-        alert((t as any)('domainsRequired') || 'LÃ¼tfen en az bir geliÅŸim alanÄ± seÃ§in.');
+        alert((t as any)('domainsRequired') || 'Lütfen en az bir gelişim alanı seçin.');
         return;
     }
     setLoading(true);
@@ -131,7 +131,7 @@ const ObservationScreen: React.FC<ObservationScreenProps> = ({ childId, navigate
                 try {
                   const { mediaId } = await uploadMediaViaFunction(childId, attachFile, {
                     name: `Observation Photo - ${new Date().toISOString().split('T')[0]}`,
-                    description: 'Gozlem ekli fotograf',
+                    description: 'Gözlem ekli fotoğraf',
                     domain: domains[0],
                   });
                   if (mediaId) await updateObservation((created as any).id, { media_ids: [mediaId] } as any);
@@ -179,7 +179,7 @@ const ObservationScreen: React.FC<ObservationScreenProps> = ({ childId, navigate
             <button
               type="button"
               onClick={toggleRecording}
-              title={sttSupported ? (isRecording ? 'Durdur' : 'Mikrofonu BaÅŸlat') : 'iOS/Safari: Ses dosyasÄ± seÃ§ilecek'}
+              title={sttSupported ? (isRecording ? 'Durdur' : 'Mikrofonu Başlat') : 'iOS/Safari: Ses dosyası seçilecek'}
               className={`absolute right-2 bottom-2 px-2.5 py-1.5 rounded-md text-sm border ${isRecording ? 'bg-red-600 text-white border-red-600' : 'bg-gray-100 text-gray-800'}`}
             >
               {isRecording ? 'â€¢' : 'ğŸ™ï¸'}
@@ -187,13 +187,13 @@ const ObservationScreen: React.FC<ObservationScreenProps> = ({ childId, navigate
             
           </div>
           {isRecording && sessionTranscript && (
-            <div className="mt-1 text-xs text-gray-500">AnlÄ±k: {sessionTranscript}</div>
+            <div className="mt-1 text-xs text-gray-500">Anlık: {sessionTranscript}</div>
           )}
           {!sttSupported && (
-            <div className="mt-1 text-xs text-amber-700">TarayÄ±cÄ± STT desteklemiyor. Mikrofon simgesine tÄ±klayÄ±nca ses dosyasÄ± seÃ§ilir ve sunucu tarafÄ±nda Ã§Ã¶zÃ¼mlenir.</div>
+            <div className="mt-1 text-xs text-amber-700">Tarayıcı STT desteklemiyor. Mikrofon simgesine tıklayınca ses dosyası seçilir ve sunucu tarafında çözümlenir.</div>
           )}
           {isTranscribing && (
-            <div className="mt-1 text-xs text-gray-500">Ses dosyasÄ± Ã§Ã¶zÃ¼mleniyorâ€¦</div>
+            <div className="mt-1 text-xs text-gray-500">Ses dosyası çözümleniyor…</div>
           )}
           <div className="mt-3">
             <label htmlFor="attach-obs" className="block text-sm font-medium text-gray-700">Ek Fotoğraf (isteğe bağlı)</label>

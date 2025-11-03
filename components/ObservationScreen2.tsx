@@ -37,7 +37,7 @@ const ObservationScreen: React.FC<Props> = ({ childId, navigate, observationToEd
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!user || !note) { alert(t('errorOccurred')); return; }
-    if (domains.length === 0) { alert((t as any)('domainsRequired') || 'Lutfen en az bir gelisim alani secin.'); return; }
+    if (domains.length === 0) { alert((t as any)('domainsRequired') || 'Lütfen en az bir gelişim alanı seçin.'); return; }
     setLoading(true);
     const payload: any = {
       child_id: childId,
@@ -74,7 +74,7 @@ const ObservationScreen: React.FC<Props> = ({ childId, navigate, observationToEd
                 try {
                   const { mediaId } = await uploadMediaViaFunction(childId, attachFile, {
                     name: `Observation Photo - ${new Date().toISOString().split('T')[0]}`,
-                    description: 'Gozlem ekli fotograf',
+                    description: 'Gözlem ekli fotoğraf',
                     domain: domains[0],
                   });
                   if (mediaId) {
