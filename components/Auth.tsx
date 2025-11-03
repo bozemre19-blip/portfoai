@@ -66,22 +66,18 @@ const Auth: React.FC = () => {
     setLoading(false);
   };
 
+  const marqueeItems = Array.from({ length: 28 }, () => 'Gözlem · Portfolyo · Yapay Zeka');
+
   return (
     <div className="min-h-screen auth-bg flex flex-col items-center justify-center relative">
       {/* Top moving stripe */}
       <div className="marquee marquee--top">
         <div className="marquee-track">
           <div className="marquee-line">
-            <span>Gözlem · Portfolyo · Yapay Zeka</span>
-            <span>Gözlem · Portfolyo · Yapay Zeka</span>
-            <span>Gözlem · Portfolyo · Yapay Zeka</span>
-            <span>Gözlem · Portfolyo · Yapay Zeka</span>
+            {marqueeItems.map((txt, i) => (<span key={`mt1-${i}`}>{txt}</span>))}
           </div>
-          <div className="marquee-line">
-            <span>Gözlem · Portfolyo · Yapay Zeka</span>
-            <span>Gözlem · Portfolyo · Yapay Zeka</span>
-            <span>Gözlem · Portfolyo · Yapay Zeka</span>
-            <span>Gözlem · Portfolyo · Yapay Zeka</span>
+          <div className="marquee-line" aria-hidden="true">
+            {marqueeItems.map((txt, i) => (<span key={`mt2-${i}`}>{txt}</span>))}
           </div>
         </div>
       </div>
@@ -89,16 +85,10 @@ const Auth: React.FC = () => {
       <div className="marquee marquee--bottom">
         <div className="marquee-track marquee-track--reverse">
           <div className="marquee-line">
-            <span>Gözlem · Portfolyo · Yapay Zeka</span>
-            <span>Gözlem · Portfolyo · Yapay Zeka</span>
-            <span>Gözlem · Portfolyo · Yapay Zeka</span>
-            <span>Gözlem · Portfolyo · Yapay Zeka</span>
+            {marqueeItems.map((txt, i) => (<span key={`mb1-${i}`}>{txt}</span>))}
           </div>
-          <div className="marquee-line">
-            <span>Gözlem · Portfolyo · Yapay Zeka</span>
-            <span>Gözlem · Portfolyo · Yapay Zeka</span>
-            <span>Gözlem · Portfolyo · Yapay Zeka</span>
-            <span>Gözlem · Portfolyo · Yapay Zeka</span>
+          <div className="marquee-line" aria-hidden="true">
+            {marqueeItems.map((txt, i) => (<span key={`mb2-${i}`}>{txt}</span>))}
           </div>
         </div>
       </div>

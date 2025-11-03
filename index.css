@@ -75,8 +75,7 @@ html[data-theme='kids'] .tag-chip {
   display: inline-flex;
   flex-shrink: 0;
   align-items: center;
-  column-gap: 28px;
-  padding-right: 28px; /* ensure no visible seam */
+  column-gap: 24px;
   white-space: nowrap;
   font-weight: 600;
   letter-spacing: .02em;
