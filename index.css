@@ -53,28 +53,34 @@ html[data-theme='kids'] .tag-chip {
   position: fixed;
   left: 0;
   right: 0;
-  height: 40px;
+  height: 32px;
   overflow: hidden;
   pointer-events: none; /* allow clicks to pass through */
   z-index: 5;
+  background: rgba(255,255,255,0.7);
+  border-top: 1px solid rgba(17,24,39,0.08);
+  border-bottom: 1px solid rgba(17,24,39,0.08);
 }
 .marquee--top { top: 64px; }
 .marquee--bottom { bottom: 64px; }
 .marquee-track {
-  width: 200%;
   display: flex;
+  width: max-content; /* shrink-wrap so cloning is seamless */
   align-items: center;
   animation: marquee-left 22s linear infinite;
 }
 .marquee-track--reverse { animation: marquee-right 22s linear infinite; }
 .marquee-line {
-  width: 50%;
-  display: flex;
+  width: max-content;
+  display: inline-flex;
+  flex-shrink: 0;
   align-items: center;
-  gap: 28px;
+  column-gap: 28px;
+  padding-right: 28px; /* ensure no visible seam */
   white-space: nowrap;
   font-weight: 600;
   letter-spacing: .02em;
-  color: rgba(17,24,39,.55); /* gray-800 @ ~55% */
+  color: rgba(17,24,39,.55);
+  line-height: 32px;
 }
 html[data-theme='dark'] .marquee-line { color: rgba(243,244,246,.75); }
