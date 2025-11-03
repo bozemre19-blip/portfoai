@@ -95,6 +95,11 @@ const App: React.FC = () => {
   }, [isOnline]);
 
   const navigate = useCallback((page: string, params: any = {}) => {
+    try {
+      if (params && params.observation) {
+        sessionStorage.setItem('edit-observation', JSON.stringify(params.observation));
+      }
+    } catch {}
     const hash = makeHash(page, params);
     if (window.location.hash !== hash) {
       window.location.hash = hash; // creates browser history entry
@@ -118,8 +123,20 @@ const App: React.FC = () => {
         return <ChildDetailScreen childId={view.params.id} navigate={navigate} />;
       case 'add-observation':
         return <ObservationScreen childId={view.params.childId} navigate={navigate} />;
-      case 'edit-observation':
-        return <ObservationScreen childId={view.params.observation.child_id} navigate={navigate} observationToEdit={view.params.observation} />;
+      case 'edit-observation': {
+        let obs = view.params?.observation as any;
+        if (!obs) {
+          try {
+            const s = sessionStorage.getItem('edit-observation');
+            if (s) obs = JSON.parse(s);
+          } catch {}
+        }
+        const cid = view.params?.childId ?? obs?.child_id;
+        if (!cid) {
+          return <Dashboard navigate={navigate} />;
+        }
+        return <ObservationScreen childId={cid} navigate={navigate} observationToEdit={obs} />;
+      }
       case 'media':
         return <MediaScreen childId={view.params.childId} navigate={navigate} />;
       case 'child-observations':

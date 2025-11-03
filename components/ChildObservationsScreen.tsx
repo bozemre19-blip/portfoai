@@ -162,11 +162,11 @@ const ChildObservationsScreen: React.FC<Props> = ({ childId, navigate }) => {
                             </span>
                           )}
                         </div>
-                        <RiskPill risk={it.assessments?.risk as any} />
+                        {it.assessments?.risk ? (<RiskPill risk={it.assessments?.risk as any} />) : null}
                       </div>
                       <p className="mt-2 text-gray-800 whitespace-pre-wrap">{it.note}</p>
                       <div className="mt-3 flex gap-2">
-                        <button className="px-3 py-1.5 bg-gray-100 rounded" onClick={() => navigate('edit-observation', { observation: it })}>Duzenle</button>
+                        <button className="px-3 py-1.5 bg-gray-100 rounded" onClick={() => navigate('edit-observation', { observation: it, childId })}>Düzenle</button>
                       </div>
                     </div>
                   ))}
