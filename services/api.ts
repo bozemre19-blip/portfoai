@@ -739,6 +739,9 @@ const pick = <T,>(arr: T[]): T => arr[Math.floor(Math.random() * arr.length)];
 
 const turkishFirstNames = ['Emir','Ali','Eymen','Mert','Kerem','Aras','Deniz','Atlas','Can','Yiğit','Eylül','Zeynep','Elif','Defne','Asel','Naz','Mira','Ada','Ecrin','Lina'];
 const turkishLastNames = ['Yılmaz','Demir','Şahin','Çelik','Yıldız','Yıldırım','Öztürk','Aydın','Arslan','Doğan','Kaya','Koç','Polat','Işık','Uzun'];
+const adultFirstNames = ['Ayşe','Fatma','Zehra','Merve','Seda','Derya','Gizem','Tuğba','Esra','Pelin','Ahmet','Mehmet','Mustafa','Emre','Hakan','Cem','Caner','Serkan','Murat','Burak'];
+const adultLastNames = ['Kara','Yalçın','Korkmaz','Şimşek','Özkan','Aksoy','Taş','Yurt','Türkmen','Duman','Özdemir','Taşdemir'];
+const guardianRelations = ['Anne','Baba','Veli','Teyze','Amca'];
 const sampleNotes = [
   'Serbest oyunda bloklarla kule kurdu, sabırla denedi.',
   'Hikaye saatinde aktif katılım gösterdi ve sorulara cevap verdi.',
@@ -894,6 +897,45 @@ const makeDob = (): string => {
   return `${year}-${String(month).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
 };
 
+// --- Guardian/Health/Interests generation for demo seeding ---
+const makePhone = () => `+90 5${rand(0,9)}${rand(0,9)} ${rand(100,999)} ${rand(10,99)} ${rand(10,99)}`;
+const makeEmail = (name: string, last: string) => `${name}.${last}${rand(1,99)}@ornekmail.com`.toLowerCase().replace(/ğ/g,'g').replace(/ü/g,'u').replace(/ş/g,'s').replace(/ı/g,'i').replace(/ö/g,'o').replace(/ç/g,'c');
+const pickAdultName = () => ({ f: pick(adultFirstNames), l: pick(adultLastNames) });
+
+const allergyPool = ['Yumurta','Fıstık','Süt','Gluten','Polen','Arı','Domates','Kivi'];
+const interestPool = ['lego','resim','müzik','hikaye','bahçe','drama','dans','bilmece','yapboz','matematik oyunları'];
+const strengthPool = ['paylaşımcı','sabırlı','yaratıcı','iletişimi kuvvetli','detaycı','sebatlı','meraklı'];
+
+const makeChildMeta = () => {
+  // 1-2 veli
+  const gCount = rand(1,2);
+  const guardians = Array.from({ length: gCount }).map(() => {
+    const n = pickAdultName();
+    return {
+      id: uuidv4(),
+      name: `${n.f} ${n.l}`,
+      relation: pick(guardianRelations),
+      phone: makePhone(),
+      email: makeEmail(n.f, n.l),
+    };
+  });
+  const allergies = Math.random() < 0.6 ? pickManyUnique(allergyPool, rand(0,2)) : [];
+  const healthNotes = Math.random() < 0.4 ? 'Düzenli kontrol önerildi.' : '';
+  const interests = pickManyUnique(interestPool, rand(2,4));
+  const strengths = pickManyUnique(strengthPool, rand(2,3));
+  return {
+    guardians,
+    health: { allergies, notes: healthNotes },
+    interests,
+    strengths,
+  } as {
+    guardians: { id: string; name: string; relation: string; phone?: string; email?: string }[];
+    health: { allergies?: string[]; notes?: string };
+    interests: string[];
+    strengths: string[];
+  };
+};
+
 const makeImageFile = async (text: string, bg = '#e0f2fe', fg = '#1e293b'): Promise<File> => {
   const canvas = document.createElement('canvas');
   const w = 640, h = 420;
@@ -940,6 +982,7 @@ export const seedDemoData = async (userId: string, opts: SeedOptions = {}) => {
     for (let i = 0; i < perClass; i++) {
       const first = pick(turkishFirstNames);
       const last = pick(turkishLastNames);
+      const meta = makeChildMeta();
       const childPayload: Omit<Child,'id'|'user_id'|'created_at'> = {
         first_name: first,
         last_name: last,
@@ -947,15 +990,24 @@ export const seedDemoData = async (userId: string, opts: SeedOptions = {}) => {
         photo_url: undefined,
         classroom: className,
         consent_obtained: true,
-        guardians: undefined,
-        health: undefined,
-        interests: undefined,
-        strengths: undefined,
+        guardians: meta.guardians as any,
+        health: meta.health as any,
+        interests: meta.interests as any,
+        strengths: meta.strengths as any,
       } as any;
       let child: Child;
       try {
         child = await addChild(childPayload, userId);
         record.children.push(child.id);
+        // Double-write to ensure JSON/array fields persist across PostgREST/DB defaults
+        try {
+          await updateChild(child.id, {
+            guardians: (childPayload as any).guardians,
+            health: (childPayload as any).health,
+            interests: (childPayload as any).interests,
+            strengths: (childPayload as any).strengths,
+          } as any);
+        } catch (e) { console.warn('child meta update warn', e); }
       } catch (e) {
         console.error('Child insert failed', e);
         continue;
