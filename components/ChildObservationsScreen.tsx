@@ -36,6 +36,7 @@ const ChildObservationsScreen: React.FC<Props> = ({ childId, navigate }) => {
   const [error, setError] = useState<string | null>(null);
   const [search, setSearch] = useState('');
   const [selected, setSelected] = useState<Set<DevelopmentDomain>>(new Set());
+  const [riskInfo, setRiskInfo] = useState<Assessment | null>(null);
 
   useEffect(() => {
     (async () => {
@@ -162,11 +163,20 @@ const ChildObservationsScreen: React.FC<Props> = ({ childId, navigate }) => {
                             </span>
                           )}
                         </div>
-                        {it.assessments?.risk ? (<RiskPill risk={it.assessments?.risk as any} />) : null}
+                        {it.assessments?.risk ? (
+                          <button
+                            type="button"
+                            className="cursor-pointer"
+                            title="Risk açıklaması"
+                            onClick={() => setRiskInfo(it.assessments as any)}
+                          >
+                            <RiskPill risk={it.assessments?.risk as any} />
+                          </button>
+                        ) : null}
                       </div>
                       <p className="mt-2 text-gray-800 whitespace-pre-wrap">{it.note}</p>
                       <div className="mt-3 flex gap-2">
-                        <button className="px-3 py-1.5 bg-gray-100 rounded" onClick={() => navigate('edit-observation', { observation: it, childId })}>Düzenle</button>
+                        <button className="px-3 py-1.5 bg-gray-100 rounded" onClick={() => navigate('edit-observation', { observation: it, childId })}>{t('edit')}</button>
                       </div>
                     </div>
                   ))}
@@ -180,9 +190,51 @@ const ChildObservationsScreen: React.FC<Props> = ({ childId, navigate }) => {
           )}
         </section>
       </div>
+      {riskInfo && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center">
+          <div className="absolute inset-0 bg-black/40" onClick={() => setRiskInfo(null)} />
+          <div className="relative bg-white rounded-lg shadow-xl w-full max-w-lg mx-4 p-5">
+            <div className="flex items-center justify-between mb-3">
+              <h3 className="text-lg font-semibold">Risk açıklaması</h3>
+              <button className="px-2 py-1 text-sm bg-gray-100 rounded" onClick={() => setRiskInfo(null)}>Kapat</button>
+            </div>
+            <div className="space-y-3 text-sm text-gray-700">
+              <div className="flex items-center gap-2">
+                <span className="font-medium">Risk:</span>
+                <RiskPill risk={riskInfo?.risk as any} />
+              </div>
+              {riskInfo?.summary ? (
+                <div>
+                  <div className="font-medium mb-1">Özet</div>
+                  <p className="whitespace-pre-wrap">{riskInfo.summary}</p>
+                </div>
+              ) : null}
+              {riskInfo?.domain_scores && Object.keys(riskInfo.domain_scores).length > 0 ? (
+                <div>
+                  <div className="font-medium mb-1">Alan puanları</div>
+                  <ul className="list-disc list-inside space-y-1">
+                    {Object.entries(riskInfo.domain_scores).map(([k, v]) => (
+                      <li key={k}>{(DEVELOPMENT_DOMAINS as any)[k] || k}: {String(v)}</li>
+                    ))}
+                  </ul>
+                </div>
+              ) : null}
+              {Array.isArray(riskInfo?.suggestions) && riskInfo!.suggestions.length > 0 ? (
+                <div>
+                  <div className="font-medium mb-1">Öneriler</div>
+                  <ul className="list-disc list-inside space-y-1">
+                    {riskInfo!.suggestions.map((s, i) => (
+                      <li key={i}>{s}</li>
+                    ))}
+                  </ul>
+                </div>
+              ) : null}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
 
 export default ChildObservationsScreen;
-

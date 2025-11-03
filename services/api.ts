@@ -265,15 +265,7 @@ export const addObservation = async (observation: Omit<Observation, 'id'|'user_i
     if (!navigator.onLine) {
         return addObservationOffline(observation, mediaFiles);
     }
-    
-    let media_ids: string[] | undefined;
-    if (mediaFiles && mediaFiles.length > 0) {
-        // In a real app, you'd upload and get IDs. Here we just note the attempt.
-        // For simplicity, we are not implementing the full media upload in this snippet.
-        console.log("Media files would be uploaded here.");
-    }
-    
-    const { data, error } = await supabase.from('observations').insert({ ...observation, user_id: userId, media_ids }).select();
+    const { data, error } = await supabase.from('observations').insert({ ...observation, user_id: userId }).select();
     if (error) throw error;
     dispatchDataChangedEvent();
     return data[0] as Observation;
@@ -651,7 +643,7 @@ export const uploadMediaViaFunction = async (
   childId: string,
   file: File,
   fields: { name: string; description?: string; domain?: DevelopmentDomain }
-): Promise<{ path: string }> => {
+): Promise<{ path: string; mediaId?: string }> => {
   const dataUrl = await fileToBase64(file);
   const payload = {
     childId,
@@ -666,7 +658,7 @@ export const uploadMediaViaFunction = async (
     body: payload,
   });
   if (error) throw new Error(error.message || 'Upload failed');
-  return { path: (data as any)?.path };
+  return { path: (data as any)?.path, mediaId: (data as any)?.media?.id };
 };
 
 // Server-side ASR kaldÄ±rÄ±ldÄ±
@@ -864,15 +856,40 @@ const domainSuggestions: Record<DevelopmentDomain, string[]> = {
 };
 
 const makeSeedAssessment = (note: string, domains: DevelopmentDomain[]) => {
-  // Lightweight scoring 2..4; risk mostly low
+  // Heuristic sentiment → risk determination for demo data
+  const text = (note || '').toLocaleLowerCase('tr-TR');
+  const positives = ['başar', 'heves', 'bağımsız', 'doğru', 'katılım', 'katıldı', 'sürdür', 'ilerle', 'arttı', 'paylaş', 'işbirliği', 'sakin', 'dikkatle', 'düzenli'];
+  const warnings = ['zorlan', 'yardım', 'hatırlatma', 'az', 'sınırlı', 'kaçın', 'tereddüt', 'uyarı', 'desteğe', 'zorluk', 'müdahale', 'huzursuz', 'odaklanamad', 'dikkati dağıld', 'kurala uymadı'];
+  const severe = ['kavga', 'vur', 'ısır', 'fırlatt', 'kendine zarar', 'şiddet', 'yaral'];
+  const posCount = positives.filter(w => text.includes(w)).length;
+  const warnCount = warnings.filter(w => text.includes(w)).length;
+  const severeHit = severe.some(w => text.includes(w));
+
+  let risk: 'low'|'medium'|'high';
+  // Yüksek risk sadece ağır durumlarda ve pozitif yoksa
+  if (severeHit && posCount === 0) {
+    risk = 'high';
+  } else if ((warnCount >= 2 && posCount === 0) || (warnCount >= 3)) {
+    risk = 'medium';
+  } else {
+    // Pozitif işaretleri varsa düşük olsun
+    risk = 'low';
+  }
+
+  // Domain scores aligned with risk level
   const domain_scores: Record<string, number> = {};
-  for (const d of domains) domain_scores[d] = rand(2, 4);
-  const risk: 'low'|'medium'|'high' = Math.random() < 0.75 ? 'low' : (Math.random() < 0.8 ? 'medium' : 'high');
-  // Pick 3 suggestions weighted by provided domains
+  for (const d of domains) {
+    if (risk === 'high') domain_scores[d] = rand(1, 2);
+    else if (risk === 'medium') domain_scores[d] = rand(2, 3);
+    else domain_scores[d] = rand(3, 5);
+  }
+
+  // Suggestions — weighted by domains
   const pool: string[] = [];
   for (const d of domains) pool.push(...domainSuggestions[d]);
   if (pool.length < 3) pool.push(...Object.values(domainSuggestions).flat());
   const suggestions = pickManyUnique(pool, 3);
+
   const trRisk = risk === 'low' ? 'düşük' : risk === 'medium' ? 'orta' : 'yüksek';
   const domainText = domains.map(d => (
     d === 'cognitive' ? 'bilişsel' :
@@ -881,7 +898,7 @@ const makeSeedAssessment = (note: string, domains: DevelopmentDomain[]) => {
     d === 'fine_motor' ? 'ince motor' :
     d === 'gross_motor' ? 'kaba motor' : 'öz bakım'
   )).join(', ');
-  const summary = `Durum değerlendirmesi: Son gözlemde ${domainText} alanlarında yaş düzeyine uygun katılım gözlendi. Genel risk: ${trRisk}.`;
+  const summary = `Durum değerlendirmesi: Son gözlemde ${domainText} alanlarında katılım değerlendirildi. Genel risk: ${trRisk}.`;
   return { summary, domain_scores, risk, suggestions };
 };
 

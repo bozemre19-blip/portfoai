@@ -1,7 +1,7 @@
 ﻿
 import React, { useState, useEffect, useRef } from 'react';
 import { useAuth } from '../App';
-import { addObservation, updateObservation, getAiAnalysis, addAssessmentForObservation } from '../services/api';
+import { addObservation, updateObservation, getAiAnalysis, addAssessmentForObservation, uploadMediaViaFunction } from '../services/api';
 import type { DevelopmentDomain, ObservationContext, Observation } from '../types';
 import { t, DEVELOPMENT_DOMAINS, OBSERVATION_CONTEXTS } from '../constants.clean';
 
@@ -18,6 +18,7 @@ const ObservationScreen: React.FC<ObservationScreenProps> = ({ childId, navigate
   const [context, setContext] = useState<ObservationContext>('classroom');
   const [tags, setTags] = useState('');
   const [loading, setLoading] = useState(false);
+  const [attachFile, setAttachFile] = useState<File | null>(null);
   const [isRecording, setIsRecording] = useState(false);
   const recognitionRef = useRef<any | null>(null);
   const [sttSupported, setSttSupported] = useState<boolean>(false);
@@ -95,13 +96,27 @@ const ObservationScreen: React.FC<ObservationScreenProps> = ({ childId, navigate
     }
     setLoading(true);
     
-    const observationData = {
+    const observationData: any = {
       child_id: childId,
       note,
       domains,
       context,
       tags: tags.split(',').map(t => t.trim()).filter(Boolean),
     };
+
+    // Optional attachment upload first
+    try {
+      if (false && attachFile) {
+        const { mediaId } = await uploadMediaViaFunction(childId, attachFile, {
+          name: `Gözlem Fotoğrafı - ${new Date().toLocaleDateString('tr-TR')}`,
+          description: 'Gözlem ekli fotoğraf',
+          domain: domains[0],
+        });
+        if (mediaId) observationData.media_ids = [mediaId];
+      }
+    } catch (e) {
+      console.error('Attachment upload failed', e);
+    }
 
     try {
       if (isEditMode) {
@@ -112,6 +127,16 @@ const ObservationScreen: React.FC<ObservationScreenProps> = ({ childId, navigate
         if (navigator.onLine && created && (created as any).id) {
           (async () => {
             try {
+              if (attachFile) {
+                try {
+                  const { mediaId } = await uploadMediaViaFunction(childId, attachFile, {
+                    name: `Observation Photo - ${new Date().toISOString().split('T')[0]}`,
+                    description: 'Gozlem ekli fotograf',
+                    domain: domains[0],
+                  });
+                  if (mediaId) await updateObservation((created as any).id, { media_ids: [mediaId] } as any);
+                } catch (upErr) { console.error('Attachment upload failed (background):', upErr); }
+              }
               const analysis = await getAiAnalysis(note, domains);
               await addAssessmentForObservation((created as any).id, user.id, {
                 summary: analysis.summary,
@@ -170,6 +195,10 @@ const ObservationScreen: React.FC<ObservationScreenProps> = ({ childId, navigate
           {isTranscribing && (
             <div className="mt-1 text-xs text-gray-500">Ses dosyasÄ± Ã§Ã¶zÃ¼mleniyorâ€¦</div>
           )}
+          <div className="mt-3">
+            <label htmlFor="attach-obs" className="block text-sm font-medium text-gray-700">Ek Fotoğraf (isteğe bağlı)</label>
+            <input id="attach-obs" type="file" accept="image/*" onChange={(e)=> setAttachFile(e.target.files?.[0] || null)} className="mt-1 block w-full text-sm" />
+          </div>
         </div>
 
         <div>

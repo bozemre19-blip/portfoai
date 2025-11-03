@@ -1,4 +1,4 @@
-// file: src/components/ChildDetailScreen.tsx
+﻿// file: src/components/ChildDetailScreen.tsx
 import React, { useState, useEffect, useCallback } from 'react';
 import { supabase } from '../services/supabase';
 import type { Child, Assessment, Guardian } from '../types';
@@ -29,7 +29,29 @@ type ChildProfileData = {
 };
 
 // Helpers
-const calculateAge = (dobIso: string): string => {
+const computeRiskFromAssessment = (a: any, noteText?: string): Risk | undefined => {
+  if (!a) return undefined;
+  try {
+    const text = String((noteText || '') + ' ' + (a?.summary || '')).toLowerCase();
+    const positive = ['basar','heves','bagimsiz','dogru','katilim','katildi','surdur','ilerle','artti','uzun sure','dengede','yerine yerlestirdi','sakin','tamamladi'];
+    const severe = ['kavga','vur','isir','firlat','kendine zarar','siddet','yaral'];
+    const warn = ['zorlan','yardim','hatirlatma','sinirli','kacin','tereddut','uyari','desteg','zorluk','mudahale','huzursuz','odaklanamad','dikkati dagild','kurala uymadi'];
+    if (severe.some(w => text.includes(w))) return 'high';
+    if (positive.some(w => text.includes(w))) return 'low';
+    const wc = warn.filter(w => text.includes(w)).length;
+    if (wc >= 3) return 'medium';
+    const ds: any = a?.domain_scores || {}; const keys = Object.keys(ds || {});
+    if (keys.length) {
+      const avg = keys.map(k => Number(ds[k]) || 0).reduce((s, v) => s + v, 0) / keys.length;
+      if (avg >= 2.7) return 'low';
+      if (avg >= 2.2) return 'medium';
+      return 'high';
+    }
+    return (a?.risk as Risk) || 'low';
+  } catch (e) {
+    return (a?.risk as Risk) || undefined;
+  }
+};const calculateAge = (dobIso: string): string => {
   if (!dobIso) return '—';
   const birth = new Date(dobIso);
   const now = new Date();
@@ -110,7 +132,7 @@ const Section: React.FC<{ title: string; children: React.ReactNode; className?: 
     <div className="flex justify-between items-center border-b pb-3 mb-4">
       <h3 className="text-lg font-bold text-gray-900">{title}</h3>
       {onEdit && (
-        <button onClick={onEdit} aria-label={`${title} bölümünü düzenle`} className="text-gray-400 hover:text-primary p-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity">
+        <button onClick={onEdit} aria-label={`${title} bölümünü {t('edit')}`} className="text-gray-400 hover:text-primary p-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity">
           <PencilIcon className="w-5 h-5" />
         </button>
       )}
@@ -191,8 +213,8 @@ const ChildProfileCard: React.FC<ChildProfileCardProps> = ({ data, onAddObservat
               <button onClick={() => onExportPdf(data.id)} title="PDF indir" aria-label="Raporu PDF olarak dışa aktar" className="flex-1 sm:flex-auto px-3 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 transition-colors">
                 <DocumentArrowDownIcon className="w-5 h-5 mx-auto" />
               </button>
-              <button onClick={onEdit} aria-label="Çocuk profilini düzenle" className="flex-1 sm:flex-auto px-3 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 transition-colors">
-                Düzenle
+              <button onClick={onEdit} aria-label="Çocuk profilini {t('edit')}" className="flex-1 sm:flex-auto px-3 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 transition-colors">
+                {t('edit')}
               </button>
               <button onClick={onRefreshInsights} aria-label="Yapay Zekâ analizini yenile" className="flex-1 sm:flex-auto px-3 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 transition-colors">
                 Yenile
@@ -242,22 +264,18 @@ const ChildDetailScreen: React.FC<ChildDetailScreenProps> = ({ childId, navigate
       const observations = await getObservationsForChild(childId);
       const media = await getMediaForChild(childId);
 
-      const assessments = observations.map(o => o.assessments).filter(Boolean) as Assessment[];
-      const riskLevels = assessments.map(a => a.risk);
-      const overallRisk: Risk = riskLevels.includes('high') ? 'high' : riskLevels.includes('medium') ? 'medium' : 'low';
+      const assessments = observations.map(o => ({ a: o.assessments as any, note: (o as any).note as string })).filter(x => x.a) as any[];
+      const normalizedRisks: Risk[] = assessments.map(x => computeRiskFromAssessment(x.a, x.note) || 'low');
+      const counts = { low: 0, medium: 0, high: 0 } as Record<Risk, number>;
+      normalizedRisks.forEach(r => { counts[r] = (counts[r] || 0) + 1; });
+      let overallRisk: Risk = 'low';
+      if (counts.medium >= counts.low && counts.medium >= counts.high) overallRisk = 'medium';
+      else if (counts.low >= counts.medium && counts.low >= counts.high) overallRisk = 'low';
+      else overallRisk = 'high';
       const lastObservation = observations.length > 0 ? observations[0] : null;
 
-      // Öneriler: son 6 değerlendirmeden birleşik
-      const latestAssessments = (assessments || []).slice(0, 6);
-      const insightSet = new Set<string>();
-      for (const a of latestAssessments) {
-        if (Array.isArray(a.suggestions)) {
-          for (const s of a.suggestions) {
-            if (typeof s === 'string' && s.trim()) insightSet.add(s.trim());
-          }
-        }
-      }
-      const dynamicInsights = Array.from(insightSet).slice(0, 6);
+      // Öneriler: tüm değerlendirmelerden birleştirilmiş\n            // Öneriler: değerlendirmelerin tamamından benzersiz öneriler
+      const dynamicInsights = Array.from(new Set((assessments || []).flatMap((x: any) => Array.isArray(x?.a?.suggestions) ? (x.a.suggestions as string[]).filter((s) => typeof s === 'string' && s.trim()) : []))).slice(0, 8);
       // Çocuğun tüm gözlemlerine dayalı genel durum değerlendirmesi (yerel özet)
       const n = observations.length;
       const domainCounts: Record<string, number> = {};
@@ -266,9 +284,7 @@ const ChildDetailScreen: React.FC<ChildDetailScreenProps> = ({ childId, navigate
         for (const d of doms) domainCounts[d] = (domainCounts[d] || 0) + 1;
       }
       const topDomains = Object.entries(domainCounts).sort((a,b)=>b[1]-a[1]).slice(0,2).map(([k])=>DEVELOPMENT_DOMAINS[k as any] || k);
-      const low = riskLevels.filter(r=>r==='low').length;
-      const med = riskLevels.filter(r=>r==='medium').length;
-      const high = riskLevels.filter(r=>r==='high').length;
+      const low = counts.low; const med = counts.medium; const high = counts.high;
       const riskPhrase = high>0 ? 'bazı yüksek risk uyarıları mevcut' : med>0 ? 'orta düzey uyarılar gözleniyor' : 'genel risk düşük';
       const domainPhrase = topDomains.length>0 ? `çalışmalar çoğunlukla ${topDomains.join(' ve ')} alanlarına odaklanıyor` : 'alan dağılımı dengeli';
       const aiSummary = `Genel durum: Son ${n} gözlem temelinde ${domainPhrase}. Risk dağılımı (Düşük/Orta/Yüksek): ${low}/${med}/${high}; ${riskPhrase}.`;
