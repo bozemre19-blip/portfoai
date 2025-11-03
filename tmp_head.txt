@@ -1,0 +1,250 @@
+// file: src/components/ChildDetailScreen.tsx
+import React, { useState, useEffect, useCallback } from 'react';
+import { supabase } from '../services/supabase';
+import type { Child, Observation, Assessment, Media, Guardian } from '../types';
+import { getObservationsForChild, exportChildData, getMediaForChild, updateChild, uploadChildPhoto, getAiAnalysis, addAssessmentForObservation } from '../services/api';
+import { generatePdf } from './PdfReport';
+import { t } from '../constants';
+import { useAuth } from '../App';
+import { ChildForm } from './ChildForm';
+
+// --- YENİ PROFİL KARTI BİLEŞENİ VE YARDIMCILARI ---
+
+// TypeScript Türleri
+type Risk = 'low' | 'medium' | 'high';
+type ChildProfileData = {
+  id: string;
+  firstName: string;
+  lastName: string;
+  dob: string; // ISO
+  classroom?: string;
+  photoUrl?: string;
+  consentObtained: boolean;
+  enrolledAt?: string; // ISO
+  guardians?: Guardian[];
+  health?: { allergies?: string[]; notes?: string };
+  interests?: string[];
+  strengths?: string[];
+  lastObservationAt?: string; // ISO
+  stats?: { observations: number; products: number; risk?: Risk };
+  aiInsights?: string[];
+};
+
+// Yardımcı Fonksiyonlar
+const calculateAge = (dobIso: string): string => {
+  const birthDate = new Date(dobIso);
+  const today = new Date();
+  let ageYears = today.getFullYear() - birthDate.getFullYear();
+  let ageMonths = today.getMonth() - birthDate.getMonth();
+  if (ageMonths < 0 || (ageMonths === 0 && today.getDate() < birthDate.getDate())) {
+    ageYears--;
+    ageMonths = 12 + ageMonths;
+  }
+  return `${ageYears} yaş, ${ageMonths} ay`;
+};
+
+const formatDate = (isoDate?: string): string => {
+  if (!isoDate) return '—';
+  return new Date(isoDate).toLocaleDateString('tr-TR', {
+    day: '2-digit',
+    month: 'long',
+    year: 'numeric',
+  });
+};
+
+const formatDateTime = (isoDate?: string): string => {
+    if (!isoDate) return '—';
+    return new Date(isoDate).toLocaleString('tr-TR', {
+      day: '2-digit',
+      month: 'long',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+};
+
+
+// Ikon Bileşenleri (Inline SVG)
+const PlusIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" {...props}><path d="M10.75 4.75a.75.75 0 00-1.5 0v4.5h-4.5a.75.75 0 000 1.5h4.5v4.5a.75.75 0 001.5 0v-4.5h4.5a.75.75 0 000-1.5h-4.5v-4.5z" /></svg>
+);
+const DocumentArrowDownIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" {...props}><path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm.75-11.25a.75.75 0 00-1.5 0v4.59L7.3 9.7a.75.75 0 00-1.1 1.02l3.25 3.5a.75.75 0 001.1 0l3.25-3.5a.75.75 0 10-1.1-1.02l-1.95 2.1V6.75z" clipRule="evenodd" /></svg>
+);
+const CodeBracketIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" {...props}><path fillRule="evenodd" d="M6.28 5.22a.75.75 0 010 1.06L2.81 10l3.47 3.72a.75.75 0 11-1.06 1.06l-4-4.25a.75.75 0 010-1.06l4-4.25a.75.75 0 011.06 0zm7.44 0a.75.75 0 011.06 0l4 4.25a.75.75 0 010 1.06l-4 4.25a.75.75 0 11-1.06-1.06L17.19 10l-3.47-3.72a.75.75 0 010-1.06zM11.378 2.011a.75.75 0 01.612.867l-2.5 14.5a.75.75 0 01-1.48-.256l2.5-14.5a.75.75 0 01.868-.611z" clipRule="evenodd" /></svg>
+);
+const PencilIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" {...props}><path d="M17.414 2.586a2 2 0 00-2.828 0L7 10.172V13h2.828l7.586-7.586a2 2 0 000-2.828z" /><path fillRule="evenodd" d="M2 6a2 2 0 012-2h4a1 1 0 010 2H4v10h10v-4a1 1 0 112 0v4a2 2 0 01-2 2H4a2 2 0 01-2-2V6z" clipRule="evenodd" /></svg>
+);
+
+// Alt Bileşenler
+const Avatar: React.FC<{ photoUrl?: string; firstName: string; lastName: string; className?: string }> = ({ photoUrl, firstName, lastName, className = 'w-24 h-24' }) => {
+    const initials = `${firstName?.charAt(0) ?? ''}${lastName?.charAt(0) ?? ''}`.toUpperCase();
+    return (
+        <div className={`flex-shrink-0 rounded-full bg-gray-200 flex items-center justify-center overflow-hidden ${className}`}>
+            {photoUrl ? (
+                <img src={photoUrl} alt={`${firstName} ${lastName}`} className="w-full h-full object-cover" />
+            ) : (
+                <span className="text-4xl font-bold text-gray-500">{initials}</span>
+            )}
+        </div>
+    );
+};
+
+const Badge: React.FC<{ children: React.ReactNode; className?: string }> = ({ children, className }) => (
+    <span className={`inline-flex items-center rounded-md px-2.5 py-1 text-xs font-semibold ring-1 ring-inset ${className}`}>
+        {children}
+    </span>
+);
+
+const RiskBadge: React.FC<{ risk?: Risk }> = ({ risk }) => {
+    const riskStyles: Record<Risk, { label: string; className: string }> = {
+        low: { label: 'Düşük Risk', className: 'bg-green-100 text-green-700 ring-green-600/20' },
+        medium: { label: 'Orta Risk', className: 'bg-amber-100 text-amber-800 ring-amber-600/20' },
+        high: { label: 'Yüksek Risk', className: 'bg-red-100 text-red-700 ring-red-600/20' },
+    };
+    const { label, className } = risk ? riskStyles[risk] : { label: 'Belirsiz', className: 'bg-gray-100 text-gray-700 ring-gray-600/20' };
+    return <Badge className={className}>{label}</Badge>;
+};
+
+const StatCard: React.FC<{ label: string; value: string | number }> = ({ label, value }) => (
+    <div className="flex-1 rounded-lg bg-gray-50 px-4 py-3 text-center">
+        <p className="text-sm font-medium text-gray-500">{label}</p>
+        <p className="mt-1 text-2xl font-semibold text-gray-900">{value}</p>
+    </div>
+);
+
+const Section: React.FC<{ title: string; children: React.ReactNode; className?: string; onEdit?: () => void; }> = ({ title, children, className, onEdit }) => (
+    <div className={`bg-white rounded-lg shadow p-6 group ${className}`}>
+        <div className="flex justify-between items-center border-b pb-3 mb-4">
+            <h3 className="text-lg font-bold text-gray-900">{title}</h3>
+            {onEdit && (
+                <button onClick={onEdit} aria-label={`${title} bölümünü düzenle`} className="text-gray-400 hover:text-primary p-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity">
+                    <PencilIcon className="w-5 h-5" />
+                </button>
+            )}
+        </div>
+        {children}
+    </div>
+);
+
+
+const InfoRow: React.FC<{ label: string; value?: string | React.ReactNode }> = ({ label, value }) => (
+    <div className="flex justify-between py-2 border-b border-gray-100">
+        <dt className="text-sm font-medium text-gray-500">{label}</dt>
+        <dd className="text-sm text-gray-900 text-right">{value || '—'}</dd>
+    </div>
+);
+
+const TagList: React.FC<{ tags?: string[] }> = ({ tags }) => {
+    if (!tags || tags.length === 0) return <p className="text-sm text-gray-500 italic">Henüz eklenmedi.</p>;
+    return (
+        <div className="flex flex-wrap gap-2">
+            {tags.map((tag, index) => (
+                <span key={index} className="rounded-full bg-primary/10 px-3 py-1 text-sm font-medium text-primary">
+                    {tag}
+                </span>
+            ))}
+        </div>
+    );
+};
+
+const GuardianCard: React.FC<{ guardian: Guardian }> = ({ guardian }) => (
+    <div className="rounded-md border p-3">
+        <p className="font-semibold text-gray-800">{guardian.name} <span className="text-sm font-normal text-gray-500">({guardian.relation})</span></p>
+        {guardian.phone && <a href={`tel:${guardian.phone}`} className="text-sm text-primary hover:underline block mt-1">{guardian.phone}</a>}
+        {guardian.email && <a href={`mailto:${guardian.email}`} className="text-sm text-primary hover:underline block">{guardian.email}</a>}
+    </div>
+);
+
+
+interface ChildProfileCardProps {
+    data: ChildProfileData;
+    onAddObservation: (childId: string) => void;
+    onExportPdf: (childId: string) => void;
+    onExportJson: (childId: string) => void;
+    onEdit: () => void;
+    onChangePhoto: (file: File) => void;
+    onRefreshInsights: () => void;
+    onOpenMedia?: () => void;
+}
+
+const ChildProfileCard: React.FC<ChildProfileCardProps> = ({ data, onAddObservation, onExportPdf, onExportJson, onEdit, onChangePhoto, onRefreshInsights, onOpenMedia }) => {
+    return (
+        <div className="max-w-7xl mx-auto space-y-6">
+            {/* 1. Hero Şeridi */}
+            <div className="bg-white rounded-lg shadow p-6">
+                <div className="flex flex-col sm:flex-row items-center gap-6">
+                    <div className="relative">
+                        <Avatar photoUrl={data.photoUrl} firstName={data.firstName} lastName={data.lastName} />
+                        <label className="absolute -bottom-2 right-0 bg-white/90 border rounded-md px-2 py-1 text-xs shadow cursor-pointer hover:bg-white">
+                            Fotoğrafı Değiştir
+                            <input type="file" accept="image/*" className="hidden" onChange={(e) => { if (e.target.files && e.target.files[0]) onChangePhoto(e.target.files[0]); }} />
+                        </label>
+                    </div>
+                    <div className="flex-grow text-center sm:text-left">
+                        <h1 className="text-3xl md:text-4xl font-bold text-gray-900">{data.firstName} {data.lastName}</h1>
+                        <div className="mt-3 flex flex-wrap justify-center sm:justify-start gap-2">
+                            <Badge className="bg-gray-100 text-gray-700 ring-gray-600/20">{calculateAge(data.dob)}</Badge>
+                            {data.classroom && <Badge className="bg-gray-100 text-gray-700 ring-gray-600/20">Sınıf: {data.classroom}</Badge>}
+                            <Badge className={data.consentObtained ? "bg-blue-100 text-blue-700 ring-blue-600/20" : "bg-yellow-100 text-yellow-800 ring-yellow-600/20"}>
+                                Veli Onamı: {data.consentObtained ? 'Var' : 'Bekliyor'}
+                            </Badge>
+                             <RiskBadge risk={data.stats?.risk} />
+                        </div>
+                    </div>
+                    <div className="flex-shrink-0 flex flex-col sm:items-end gap-2 w-full sm:w-auto">
+                        <button onClick={() => onAddObservation(data.id)} className="w-full sm:w-auto flex items-center justify-center gap-2 px-4 py-2 bg-primary text-white rounded-md shadow-sm hover:bg-primary/90 transition-colors">
+                            <PlusIcon className="w-5 h-5" /> Gözlem Ekle
+                        </button>
+                        <div className="flex gap-2 w-full sm:w-auto">
+                            <button onClick={() => onExportPdf(data.id)} aria-label="Raporu PDF olarak dışa aktar" className="flex-1 sm:flex-auto px-3 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 transition-colors">
+                                <DocumentArrowDownIcon className="w-5 h-5 mx-auto" />
+                            </button>
+                            <button onClick={() => onExportJson(data.id)} aria-label="Verileri JSON olarak dışa aktar" className="flex-1 sm:flex-auto px-3 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 transition-colors">
+                                <CodeBracketIcon className="w-5 h-5 mx-auto" />
+                            </button>
+                            <button onClick={() => onOpenMedia && onOpenMedia()} aria-label="Products" className="flex-1 sm:flex-auto px-3 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 transition-colors">
+                                {t('products')}
+                            </button>
+                            <button onClick={onRefreshInsights} aria-label="Yapay Zeka analizini yenile" className="flex-1 sm:flex-auto px-3 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 transition-colors">
+                                Yenile
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {/* 2. İstatistik Barı */}
+            <div className="flex flex-col sm:flex-row gap-4">
+                <StatCard label="Toplam Gözlem" value={data.stats?.observations ?? '—'} />
+                <StatCard label="Ürün/Medya Sayısı" value={data.stats?.products ?? '—'} />
+                <StatCard label="Son Gözlem" value={formatDate(data.lastObservationAt)} />
+            </div>
+
+            {/* 3. İki Sütunlu Gövde */}
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                {/* Sol Sütun */}
+                <div className="lg:col-span-5 flex flex-col gap-6">
+                    <Section title="Temel Bilgiler" onEdit={onEdit}>
+                        <dl>
+                            <InfoRow label="Adı Soyadı" value={`${data.firstName} ${data.lastName}`} />
+                            <InfoRow label="Doğum Tarihi" value={formatDate(data.dob)} />
+                            <InfoRow label="Yaş" value={calculateAge(data.dob)} />
+                            <InfoRow label="Sınıf" value={data.classroom} />
+                             <InfoRow label="Kayıt Tarihi" value={formatDate(data.enrolledAt)} />
+                        </dl>
+                    </Section>
+                    <Section title="İlgi Alanları">
+                        <TagList tags={data.interests} />
+                    </Section>
+                    <Section title="Güçlü Yönler">
+                        <TagList tags={data.strengths} />
+                    </Section>
+                </div>
+
+                {/* Sağ Sütun */}
+                <div className="lg:col-span-7 flex flex-col gap-6">
+                     <Section title="Veli ve İletişim Bilgileri">
+                        {data.guardians && data.guardians.length > 0 ? (

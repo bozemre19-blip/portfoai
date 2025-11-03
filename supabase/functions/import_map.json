@@ -1,0 +1,5 @@
+{
+  "imports": {
+    "@google/genai": "https://esm.sh/@google/genai@0.14.2"
+  }
+}

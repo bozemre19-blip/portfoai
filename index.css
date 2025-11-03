@@ -1,0 +1,41 @@
+/* Kids theme helper classes and soft animations */
+
+html[data-theme='kids'] .card-bouncy {
+  transition: transform .15s ease, box-shadow .2s ease;
+}
+html[data-theme='kids'] .card-bouncy:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 24px rgba(124,58,237,.12), 0 4px 10px rgba(34,197,94,.08);
+}
+
+/* Cute divider */
+.rainbow-divider {
+  height: 4px;
+  background: linear-gradient(90deg,#fca5a5,#f9a8d4,#c4b5fd,#93c5fd,#86efac);
+  border-radius: 999px;
+}
+
+/* Tag badges in kids theme */
+html[data-theme='kids'] .tag-chip {
+  background: #eef2ff;
+  color: #4f46e5;
+  border: 1px solid #e9d5ff;
+}
+
+/* Auth page background image */
+.auth-bg {
+  /* soft white glow in center over the image for readability */
+  background-image:
+    radial-gradient(ellipse at center,
+      rgba(255,255,255,0.35) 0%,
+      rgba(255,255,255,0.25) 45%,
+      rgba(255,255,255,0.15) 65%,
+      rgba(255,255,255,0.00) 100%),
+    url('/portfoai-auth-bg.png'),
+    url('/portfoai-auth-bg.svg');
+  background-size: 100% 100%, cover, 800px auto;
+  background-repeat: no-repeat, no-repeat, repeat;
+  background-position: center, center, top left;
+  background-attachment: fixed, fixed, fixed;
+  background-color: #f8fafc; /* fallback color */
+}

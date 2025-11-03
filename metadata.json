@@ -1,0 +1,5 @@
+{
+  "name": "Okul Gözlem Asistanı",
+  "description": "Okul öncesi öğretmenleri için çocuk gözlemlerini kaydetmek, yapay zeka ile analiz etmek ve gelişim raporları oluşturmak için tasarlanmış bir web uygulaması.",
+  "requestFramePermissions": []
+}
