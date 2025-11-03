@@ -321,6 +321,44 @@ export const getAiAnalysis = async (observationNote: string, domains: Developmen
     return data.assessment as Assessment;
 };
 
+// Recompute AI assessments for all observations of current user
+export const recomputeAssessmentsForUser = async (
+  userId: string,
+  opts: { limit?: number; onProgress?: (m: string) => void } = {}
+) => {
+  const say = (m: string) => opts.onProgress?.(m);
+  const limit = opts.limit ?? 60; // safety cap
+  // Pull observations with embedded assessments
+  const { data, error } = await supabase
+    .from('observations')
+    .select('id, child_id, note, domains, assessments(summary)')
+    .eq('user_id', userId)
+    .order('created_at', { ascending: false })
+    .limit(limit);
+  if (error) throw error;
+  const items = (data || []) as any[];
+  let done = 0;
+  for (const row of items) {
+    const hasAssessment = Array.isArray(row.assessments) && row.assessments.length > 0;
+    const isFallback = hasAssessment && String(row.assessments[0]?.summary || '').startsWith('Bu, yapay zeka servisi');
+    if (!hasAssessment || isFallback) {
+      try {
+        say?.(`Analiz ediliyor: ${++done}/${items.length}`);
+        const analysis = await getAiAnalysis(row.note, row.domains || []);
+        await addAssessmentForObservation(row.id, userId, {
+          summary: analysis.summary,
+          risk: analysis.risk as any,
+          suggestions: analysis.suggestions || [],
+          domain_scores: analysis.domain_scores as any,
+        });
+      } catch (e) {
+        console.warn('Recompute failed for', row.id, e);
+      }
+    }
+  }
+  say?.('Tamamlandı');
+};
+
 // Class-level AI suggestions: aggregate recent observations/assessments and ask the AI for class-wide advice
 export const getClassAiSuggestions = async (
   userId: string,
@@ -787,6 +825,63 @@ const makeObservationNote = (fullName: string, domains: DevelopmentDomain[], con
   return parts.join(' ');
 };
 
+// Fast, local "AI-like" assessment used only when seeding demo data.
+// Avoids calling the edge function hundreds of times and keeps seeding fast.
+const domainSuggestions: Record<DevelopmentDomain, string[]> = {
+  cognitive: [
+    'Eşleştirme ve sınıflama oyunlarına kısa günlük oturumlar ekleyin.',
+    '3 adımlı yönergelerle küçük görevler verin.',
+    'Yapboz parçalarını birlikte strateji geliştirerek tamamlayın.',
+  ],
+  language: [
+    'Günlük rutinde açık uçlu sorular sorun ve yanıtları genişletin.',
+    'Günlük bir kitap okuma saati belirleyin ve resimlerden çıkarım yaptırın.',
+    'Yeni kelimeleri gün içinde cümle içinde kullanmasını teşvik edin.',
+  ],
+  social_emotional: [
+    'Sıra bekleme ve paylaşım içeren işbirlikli oyunlar planlayın.',
+    'Duygularını ifade edebileceği “duygu kartları” kullanın.',
+    'Rol oyunu ile çatışmaları konuşarak çözme pratikleri yapın.',
+  ],
+  fine_motor: [
+    'Makasla çizgi boyunca kesme ve çizgi tamamlama etkinlikleri yapın.',
+    'Boncuk dizme ve mandal takma gibi iki el koordinasyonu gerektiren çalışmalara yer verin.',
+    'Kalem tutuşunu güçlendirmek için büyükten küçüğe çizgi çalışmaları yapın.',
+  ],
+  gross_motor: [
+    'Denge tahtası, sek sek ve hedefe atma oyunlarına zaman ayırın.',
+    'Ritim eşliğinde zıplama-çömelme istasyonları kurun.',
+    'Top yakalama/atmada mesafeyi kademeli artırın.',
+  ],
+  self_care: [
+    'El yıkama adımlarını posterle hatırlatın ve pekiştirin.',
+    'Fermuar-düğme çalışmalarıyla giyinme becerisini destekleyin.',
+    'Yemek öncesi/sonrası sorumlulukları (masa hazırlama-toplama) verin.',
+  ],
+};
+
+const makeSeedAssessment = (note: string, domains: DevelopmentDomain[]) => {
+  // Lightweight scoring 2..4; risk mostly low
+  const domain_scores: Record<string, number> = {};
+  for (const d of domains) domain_scores[d] = rand(2, 4);
+  const risk: 'low'|'medium'|'high' = Math.random() < 0.75 ? 'low' : (Math.random() < 0.8 ? 'medium' : 'high');
+  // Pick 3 suggestions weighted by provided domains
+  const pool: string[] = [];
+  for (const d of domains) pool.push(...domainSuggestions[d]);
+  if (pool.length < 3) pool.push(...Object.values(domainSuggestions).flat());
+  const suggestions = pickManyUnique(pool, 3);
+  const trRisk = risk === 'low' ? 'düşük' : risk === 'medium' ? 'orta' : 'yüksek';
+  const domainText = domains.map(d => (
+    d === 'cognitive' ? 'bilişsel' :
+    d === 'language' ? 'dil' :
+    d === 'social_emotional' ? 'sosyal-duygusal' :
+    d === 'fine_motor' ? 'ince motor' :
+    d === 'gross_motor' ? 'kaba motor' : 'öz bakım'
+  )).join(', ');
+  const summary = `Durum değerlendirmesi: Son gözlemde ${domainText} alanlarında yaş düzeyine uygun katılım gözlendi. Genel risk: ${trRisk}.`;
+  return { summary, domain_scores, risk, suggestions };
+};
+
 const domainList: DevelopmentDomain[] = ['cognitive','language','social_emotional','fine_motor','gross_motor','self_care'];
 const contextList: ObservationContext[] = ['classroom','outdoor','home','other'];
 
@@ -902,7 +997,21 @@ export const seedDemoData = async (userId: string, opts: SeedOptions = {}) => {
             domains,
             tags,
           } as any, userId);
-          if (created && (created as any).id) record.observations.push((created as any).id);
+          if (created && (created as any).id) {
+            record.observations.push((created as any).id);
+            // Seed fast "AI" assessment locally to ensure suggestions are present immediately
+            try {
+              const analysis = makeSeedAssessment(note, domains as DevelopmentDomain[]);
+              await addAssessmentForObservation((created as any).id, userId, {
+                summary: analysis.summary,
+                risk: analysis.risk as any,
+                suggestions: analysis.suggestions,
+                domain_scores: analysis.domain_scores as any,
+              });
+            } catch (e) {
+              console.warn('Seed assessment failed:', e);
+            }
+          }
         } catch (e) {
           console.warn('Observation insert skipped:', e);
         }

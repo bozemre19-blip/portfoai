@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { useAuth } from '../App';
 import { supabase } from '../services/supabase';
 import { t } from '../constants.clean';
-import { seedDemoData, removeDemoData } from '../services/api';
+import { seedDemoData, removeDemoData, recomputeAssessmentsForUser } from '../services/api';
 
 const SettingsScreen: React.FC = () => {
   const { user } = useAuth();
@@ -24,6 +24,8 @@ const SettingsScreen: React.FC = () => {
   const [classNames, setClassNames] = useState<string[]>(defaultClassNames);
   const [removing, setRemoving] = useState(false);
   const [removeMsg, setRemoveMsg] = useState('');
+  const [recomputeMsg, setRecomputeMsg] = useState('');
+  const [recomputing, setRecomputing] = useState(false);
 
   const handleSaveProfile = async () => {
     setSaving(true);
@@ -219,6 +221,30 @@ const SettingsScreen: React.FC = () => {
               </a>
             </li>
           </ul>
+        </div>
+
+        <div className="bg-white p-6 rounded-lg shadow">
+          <h2 className="text-xl font-semibold text-gray-800">Yapay Zekâ Öngörüleri</h2>
+          <p className="mt-2 text-gray-600">Hesabınızdaki gözlemler için eksik/yer tutucu (fallback) analizleri yeniden oluşturur.</p>
+          {recomputeMsg && <p className="mt-2 text-sm text-gray-600">{recomputeMsg}</p>}
+          <div className="mt-3 flex gap-2">
+            <button
+              className="px-4 py-2 bg-primary text-white rounded disabled:bg-gray-400"
+              disabled={recomputing || !user}
+              onClick={async ()=>{
+                if (!user) return;
+                setRecomputing(true); setRecomputeMsg('Başlıyor...');
+                try {
+                  await recomputeAssessmentsForUser(user.id, { onProgress: (m)=>setRecomputeMsg(m) });
+                  setRecomputeMsg('Tamamlandı. Çocuk sayfalarında Yenile’ye gerek kalmadan öneriler görünür.');
+                } catch (e:any) {
+                  setRecomputeMsg('Hata: ' + (e?.message||'bilinmiyor'));
+                } finally { setRecomputing(false); }
+              }}
+            >
+              {recomputing ? 'Oluşturuluyor...' : 'Tüm Çocuklar İçin Yeniden Oluştur'}
+            </button>
+          </div>
         </div>
       </div>
     </div>

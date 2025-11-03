@@ -4,7 +4,7 @@ import { supabase } from '../services/supabase';
 import type { Child, Assessment, Guardian } from '../types';
 import { getObservationsForChild, getMediaForChild, updateChild, uploadChildPhoto, getAiAnalysis, addAssessmentForObservation, getSignedUrlForMedia } from '../services/api';
 import { generatePdf } from './PdfReport';
-import { t } from '../constants.clean';
+import { t, DEVELOPMENT_DOMAINS } from '../constants.clean';
 import { useAuth } from '../App';
 import { ChildForm } from './ChildForm';
 
@@ -25,6 +25,7 @@ type ChildProfileData = {
   lastObservationAt?: string; // ISO
   stats: { observations: number; products: number; risk?: Risk };
   aiInsights: string[];
+  aiSummary?: string;
 };
 
 // Helpers
@@ -246,7 +247,8 @@ const ChildDetailScreen: React.FC<ChildDetailScreenProps> = ({ childId, navigate
       const overallRisk: Risk = riskLevels.includes('high') ? 'high' : riskLevels.includes('medium') ? 'medium' : 'low';
       const lastObservation = observations.length > 0 ? observations[0] : null;
 
-      const latestAssessments = (assessments || []).slice(0, 3);
+      // Öneriler: son 6 değerlendirmeden birleşik
+      const latestAssessments = (assessments || []).slice(0, 6);
       const insightSet = new Set<string>();
       for (const a of latestAssessments) {
         if (Array.isArray(a.suggestions)) {
@@ -255,7 +257,21 @@ const ChildDetailScreen: React.FC<ChildDetailScreenProps> = ({ childId, navigate
           }
         }
       }
-      const dynamicInsights = Array.from(insightSet).slice(0, 5);
+      const dynamicInsights = Array.from(insightSet).slice(0, 6);
+      // Çocuğun tüm gözlemlerine dayalı genel durum değerlendirmesi (yerel özet)
+      const n = observations.length;
+      const domainCounts: Record<string, number> = {};
+      for (const o of observations as any[]) {
+        const doms = Array.isArray(o?.domains) ? (o.domains as string[]) : [];
+        for (const d of doms) domainCounts[d] = (domainCounts[d] || 0) + 1;
+      }
+      const topDomains = Object.entries(domainCounts).sort((a,b)=>b[1]-a[1]).slice(0,2).map(([k])=>DEVELOPMENT_DOMAINS[k as any] || k);
+      const low = riskLevels.filter(r=>r==='low').length;
+      const med = riskLevels.filter(r=>r==='medium').length;
+      const high = riskLevels.filter(r=>r==='high').length;
+      const riskPhrase = high>0 ? 'bazı yüksek risk uyarıları mevcut' : med>0 ? 'orta düzey uyarılar gözleniyor' : 'genel risk düşük';
+      const domainPhrase = topDomains.length>0 ? `çalışmalar çoğunlukla ${topDomains.join(' ve ')} alanlarına odaklanıyor` : 'alan dağılımı dengeli';
+      const aiSummary = `Genel durum: Son ${n} gözlem temelinde ${domainPhrase}. Risk dağılımı (Düşük/Orta/Yüksek): ${low}/${med}/${high}; ${riskPhrase}.`;
 
       const data: ChildProfileData = {
         id: childData.id,
@@ -272,7 +288,8 @@ const ChildDetailScreen: React.FC<ChildDetailScreenProps> = ({ childId, navigate
         health: childData.health || { allergies: [], notes: '' },
         interests: childData.interests || [],
         strengths: childData.strengths || [],
-        aiInsights: dynamicInsights,
+        aiInsights: aiSummary ? [aiSummary, ...dynamicInsights] : dynamicInsights,
+        aiSummary,
       };
 
       setProfileData(data);
@@ -445,4 +462,3 @@ const ChildDetailScreen: React.FC<ChildDetailScreenProps> = ({ childId, navigate
 };
 
 export default ChildDetailScreen;
-
