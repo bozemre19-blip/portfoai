@@ -76,7 +76,7 @@ const Auth: React.FC = () => {
           draggable={false}
         />
       </div>
-      <div className="w-full flex items-center justify-center px-4 sm:px-6 lg:px-8">
+      <div className="w-full flex items-center justify-center px-4 sm:px-6 lg:px-8 -mt-4 md:-mt-6">
         <div className="max-w-md w-full space-y-8 p-10 bg-white rounded-xl shadow-lg">
           <div>
           <h2 className="mt-2 text-center text-3xl font-extrabold text-gray-900">
