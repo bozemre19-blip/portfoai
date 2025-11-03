@@ -90,6 +90,17 @@ const ChildObservationsScreen: React.FC<Props> = ({ childId, navigate }) => {
   };
 
   const clearFilters = () => { setSearch(''); setSelected(new Set()); };
+  // Yalnızca not metnine göre risk (alan puanları dikkate alınmaz)
+  function computeRiskFromNote(noteText: string): 'low' | 'medium' | 'high' {
+    const text = (noteText || '').toLocaleLowerCase('tr-TR');
+    const severe = ['kavga','vur','ısır','fırlat','kendine zarar','şiddet','yaral'];
+    const warn   = ['zorlan','yardım','hatırlatma','sınırlı','kaçın','tereddüt','uyarı','destek','zorluk','müdahale','huzursuz','odaklanamad','dikkati dağıld','kurala uymadı'];
+    const has = (list: string[]) => list.some(w => text.includes(w));
+    const warnCount = warn.filter(w => text.includes(w)).length;
+    if (has(severe)) return 'high';
+    if (warnCount >= 3) return 'medium';
+    return 'low';
+  }
   // Risk explanation builder (ASCII to avoid encoding issues)
   const buildRiskExplanation = (a: Assessment | null, noteText: string): { header: string; reasons: string[] } => {
     if (!a) return { header: '', reasons: [] };
@@ -105,17 +116,13 @@ const ChildObservationsScreen: React.FC<Props> = ({ childId, navigate }) => {
       const warnFound = found(warn);
       const positiveFound = found(positive);
 
-      const ds: any = a.domain_scores || {};
-      const lowDomains = Object.entries(ds).filter(([_, v]) => (Number(v) || 0) < 2.2).map(([k]) => (DEVELOPMENT_DOMAINS as any)[k] || k);
-      const midDomains = Object.entries(ds).filter(([_, v]) => (Number(v) || 0) >= 2.2 && (Number(v) || 0) < 2.7).map(([k]) => (DEVELOPMENT_DOMAINS as any)[k] || k);
 
-      const riskLabel = a.risk === 'high' ? 'yüksek' : a.risk === 'medium' ? 'orta' : 'düşük';
+      const riskLabel = (function(){ const c = computeRiskFromNote(noteText); return c === 'high' ? 'yüksek' : c === 'medium' ? 'orta' : 'düşük'; })();
 
       if (severeFound.length > 0) reasons.push(`Notta şu ciddi ifadeler bulundu: ${severeFound.join(", ")}`);
-      if (warnFound.length > 0 && a.risk !== "low") reasons.push(`Notta şu uyarı işaretleri görüldü: ${warnFound.join(", ")}`);
-      if (positiveFound.length > 0 && a.risk === "low") reasons.push(`Olumlu ifadeler ağırlıkta: ${positiveFound.join(", ")}`);
-      if (lowDomains.length > 0) reasons.push(`Aşağıdaki alan puanları düşük: ${lowDomains.join(", ")}`);
-      else if (midDomains.length > 0 && a.risk !== "low") reasons.push(`Bazı alan puanları orta düzeyde: ${midDomains.join(", ")}`);
+      if (warnFound.length > 0) reasons.push(`Notta şu uyarı işaretleri görüldü: ${warnFound.join(", ")}`);
+      if (positiveFound.length > 0) reasons.push(`Olumlu ifadeler ağırlıkta: ${positiveFound.join(", ")}`);
+
 
       if (reasons.length === 0) {
         if (a.risk === 'low') reasons.push('Olumlu göstergeler ve dengeli alan puanları.');
@@ -207,7 +214,7 @@ const ChildObservationsScreen: React.FC<Props> = ({ childId, navigate }) => {
                             title="Risk açıklaması"
                             onClick={() => setRiskInfo(it.assessments as any)}
                           >
-                            <RiskPill risk={it.assessments?.risk as any} />
+                            <RiskPill risk={computeRiskFromNote(it.note)} />
                           </button>
                         ) : null}
                       </div>
@@ -238,7 +245,7 @@ const ChildObservationsScreen: React.FC<Props> = ({ childId, navigate }) => {
             <div className="space-y-3 text-sm text-gray-700">
               <div className="flex items-center gap-2">
                 <span className="font-medium">Risk:</span>
-                <RiskPill risk={riskInfo?.risk as any} />
+                <RiskPill risk={computeRiskFromNote(riskNote)} />
               {(() => { const exp = buildRiskExplanation(riskInfo, riskNote); return (
                 <div>
                   <div className="font-medium mb-1\">Gerekçe</div>
@@ -284,6 +291,7 @@ const ChildObservationsScreen: React.FC<Props> = ({ childId, navigate }) => {
 };
 
 export default ChildObservationsScreen;
+
 
 
 
