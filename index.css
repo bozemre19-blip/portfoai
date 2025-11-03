@@ -39,3 +39,42 @@ html[data-theme='kids'] .tag-chip {
   background-attachment: fixed, fixed, fixed;
   background-color: #f8fafc; /* fallback color */
 }
+
+/* Marquee strips (auth page) */
+@keyframes marquee-left {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+@keyframes marquee-right {
+  0% { transform: translateX(-50%); }
+  100% { transform: translateX(0); }
+}
+.marquee {
+  position: fixed;
+  left: 0;
+  right: 0;
+  height: 40px;
+  overflow: hidden;
+  pointer-events: none; /* allow clicks to pass through */
+  z-index: 5;
+}
+.marquee--top { top: 64px; }
+.marquee--bottom { bottom: 64px; }
+.marquee-track {
+  width: 200%;
+  display: flex;
+  align-items: center;
+  animation: marquee-left 22s linear infinite;
+}
+.marquee-track--reverse { animation: marquee-right 22s linear infinite; }
+.marquee-line {
+  width: 50%;
+  display: flex;
+  align-items: center;
+  gap: 28px;
+  white-space: nowrap;
+  font-weight: 600;
+  letter-spacing: .02em;
+  color: rgba(17,24,39,.55); /* gray-800 @ ~55% */
+}
+html[data-theme='dark'] .marquee-line { color: rgba(243,244,246,.75); }

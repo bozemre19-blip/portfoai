@@ -67,7 +67,41 @@ const Auth: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen auth-bg flex flex-col items-center justify-center">
+    <div className="min-h-screen auth-bg flex flex-col items-center justify-center relative">
+      {/* Top moving stripe */}
+      <div className="marquee marquee--top">
+        <div className="marquee-track">
+          <div className="marquee-line">
+            <span>Gözlem · Portfolyo · Yapay Zeka</span>
+            <span>Gözlem · Portfolyo · Yapay Zeka</span>
+            <span>Gözlem · Portfolyo · Yapay Zeka</span>
+            <span>Gözlem · Portfolyo · Yapay Zeka</span>
+          </div>
+          <div className="marquee-line">
+            <span>Gözlem · Portfolyo · Yapay Zeka</span>
+            <span>Gözlem · Portfolyo · Yapay Zeka</span>
+            <span>Gözlem · Portfolyo · Yapay Zeka</span>
+            <span>Gözlem · Portfolyo · Yapay Zeka</span>
+          </div>
+        </div>
+      </div>
+      {/* Bottom moving stripe */}
+      <div className="marquee marquee--bottom">
+        <div className="marquee-track marquee-track--reverse">
+          <div className="marquee-line">
+            <span>Gözlem · Portfolyo · Yapay Zeka</span>
+            <span>Gözlem · Portfolyo · Yapay Zeka</span>
+            <span>Gözlem · Portfolyo · Yapay Zeka</span>
+            <span>Gözlem · Portfolyo · Yapay Zeka</span>
+          </div>
+          <div className="marquee-line">
+            <span>Gözlem · Portfolyo · Yapay Zeka</span>
+            <span>Gözlem · Portfolyo · Yapay Zeka</span>
+            <span>Gözlem · Portfolyo · Yapay Zeka</span>
+            <span>Gözlem · Portfolyo · Yapay Zeka</span>
+          </div>
+        </div>
+      </div>
       <div className="w-full flex justify-center mb-6 md:mb-8">
         <img
           src="/portfoai-logo.svg"
