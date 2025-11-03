@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+﻿import React, { useEffect, useMemo, useState } from 'react';
 import { getObservationsForChild } from '../services/api';
 import type { Observation, Assessment, DevelopmentDomain } from '../types';
 import { DEVELOPMENT_DOMAINS, t } from '../constants.clean';
@@ -12,14 +12,14 @@ interface Props {
 
 const RiskPill: React.FC<{ risk?: string | null }> = ({ risk }) => {
   const map: Record<string, { label: string; cls: string }> = {
-    low: { label: 'D���k', cls: 'bg-green-100 text-green-700' },
+    low: { label: 'Düşük', cls: 'bg-green-100 text-green-700' },
     medium: { label: 'Orta', cls: 'bg-amber-100 text-amber-800' },
-    high: { label: 'Y�ksek', cls: 'bg-red-100 text-red-700' },
+    high: { label: 'Yüksek', cls: 'bg-red-100 text-red-700' },
   };
   const item = risk ? map[String(risk)] : undefined;
   return (
     <span className={`inline-block px-2 py-0.5 rounded-full text-xs ${item ? item.cls : 'bg-gray-100 text-gray-700'}`}>
-      {item ? item.label : '—'}
+      {item ? item.label : 'â€”'}
     </span>
   );
 };
@@ -109,21 +109,21 @@ const ChildObservationsScreen: React.FC<Props> = ({ childId, navigate }) => {
       const lowDomains = Object.entries(ds).filter(([_, v]) => (Number(v) || 0) < 2.2).map(([k]) => (DEVELOPMENT_DOMAINS as any)[k] || k);
       const midDomains = Object.entries(ds).filter(([_, v]) => (Number(v) || 0) >= 2.2 && (Number(v) || 0) < 2.7).map(([k]) => (DEVELOPMENT_DOMAINS as any)[k] || k);
 
-      const riskLabel = a.risk === 'high' ? 'yuksek' : a.risk === 'medium' ? 'orta' : 'dusuk';
+      const riskLabel = a.risk === 'high' ? 'yüksek' : a.risk === 'medium' ? 'orta' : 'düşük';
 
-      if (severeFound.length > 0) reasons.push(`Notta su ciddi ifadeler bulundu: ${severeFound.join(", ")}`);
-      if (warnFound.length > 0 && a.risk !== "low") reasons.push(`Notta su uyari isaretleri goruldu: ${warnFound.join(", ")}`);
-      if (positiveFound.length > 0 && a.risk === "low") reasons.push(`Olumlu ifadeler agirlikta: ${positiveFound.join(", ")}`);
-      if (lowDomains.length > 0) reasons.push(`Asagidaki alan puanlari dusuk: ${lowDomains.join(", ")}`);
-      else if (midDomains.length > 0 && a.risk !== "low") reasons.push(`Bazi alan puanlari orta duzeyde: ${midDomains.join(", ")}`);
+      if (severeFound.length > 0) reasons.push(`Notta şu ciddi ifadeler bulundu: ${severeFound.join(", ")}`);
+      if (warnFound.length > 0 && a.risk !== "low") reasons.push(`Notta şu uyarı işaretleri görüldü: ${warnFound.join(", ")}`);
+      if (positiveFound.length > 0 && a.risk === "low") reasons.push(`Olumlu ifadeler ağırlıkta: ${positiveFound.join(", ")}`);
+      if (lowDomains.length > 0) reasons.push(`Aşağıdaki alan puanları düşük: ${lowDomains.join(", ")}`);
+      else if (midDomains.length > 0 && a.risk !== "low") reasons.push(`Bazı alan puanları orta düzeyde: ${midDomains.join(", ")}`);
 
       if (reasons.length === 0) {
-        if (a.risk === 'low') reasons.push('Olumlu gostergeler ve dengeli alan puanlari.');
-        if (a.risk === 'medium') reasons.push('Bazi uyari isaretleri ve/veya orta duzey alan puanlari.');
-        if (a.risk === 'high') reasons.push('Ciddi davranis gostergeleri ve/veya dusuk alan puanlari.');
+        if (a.risk === 'low') reasons.push('Olumlu göstergeler ve dengeli alan puanları.');
+        if (a.risk === 'medium') reasons.push('Bazı uyarı işaretleri ve/veya orta düzey alan puanları.');
+        if (a.risk === 'high') reasons.push('Ciddi davranış göstergeleri ve/veya düşük alan puanları.');
       }
 
-      return { header: `Bu nedenle ${riskLabel} risk verilmistir.`, reasons };
+      return { header: `Bu nedenle ${riskLabel} risk verilmiştir.`, reasons };
     } catch { return { header: '', reasons: [] }; }
   };
 
@@ -131,13 +131,13 @@ const ChildObservationsScreen: React.FC<Props> = ({ childId, navigate }) => {
     <div className="max-w-6xl mx-auto">
       <div className="flex items-center justify-between mb-4">
         <button className="px-3 py-2 bg-gray-200 rounded" onClick={() => navigate('child-detail', { id: childId })}>Geri</button>
-        <h1 className="text-xl font-bold">Kaydedilen G�zlemler</h1>
+        <h1 className="text-xl font-bold">Kaydedilen Gözlemler</h1>
         <button className="px-3 py-2 bg-primary text-white rounded" onClick={() => navigate('add-observation', { childId })}>{t('addObservation')}</button>
       </div>
 
       {loading && <p>{t('loading')}</p>}
       {error && <p className="text-red-600">{error}</p>}
-      {!loading && items.length === 0 && <p className="text-gray-500">G�zlem bulunamad�.</p>}
+      {!loading && items.length === 0 && <p className="text-gray-500">Gözlem bulunamadı.</p>}
 
       <div className="grid grid-cols-1 md:grid-cols-12 gap-4">
         {/* Left filter panel */}
@@ -204,7 +204,7 @@ const ChildObservationsScreen: React.FC<Props> = ({ childId, navigate }) => {
                           <button
                             type="button"
                             className="cursor-pointer"
-                            title="Risk aciklamasi"
+                            title="Risk açıklaması"
                             onClick={() => setRiskInfo(it.assessments as any)}
                           >
                             <RiskPill risk={it.assessments?.risk as any} />
@@ -223,7 +223,7 @@ const ChildObservationsScreen: React.FC<Props> = ({ childId, navigate }) => {
           })}
           {/* If no domain produced output, show empty state */}
           {domainKeys.every((d) => (selected.size > 0 && !selected.has(d)) || (grouped[d] || []).length === 0) && (
-            <p className="text-gray-500">Sonu� bulunamad�.</p>
+            <p className="text-gray-500">Sonuç bulunamadı.</p>
           )}
         </section>
       </div>
@@ -232,7 +232,7 @@ const ChildObservationsScreen: React.FC<Props> = ({ childId, navigate }) => {
           <div className="absolute inset-0 bg-black/40" onClick={() => setRiskInfo(null)} />
           <div className="relative bg-white rounded-lg shadow-xl w-full max-w-lg mx-4 p-5">
             <div className="flex items-center justify-between mb-3">
-              <h3 className="text-lg font-semibold">Risk a��klamas�</h3>
+              <h3 className="text-lg font-semibold">Risk açıklaması</h3>
               <button className="px-2 py-1 text-sm bg-gray-100 rounded" onClick={() => setRiskInfo(null)}>Kapat</button>
             </div>
             <div className="space-y-3 text-sm text-gray-700">
@@ -241,7 +241,7 @@ const ChildObservationsScreen: React.FC<Props> = ({ childId, navigate }) => {
                 <RiskPill risk={riskInfo?.risk as any} />
               {(() => { const exp = buildRiskExplanation(riskInfo, riskNote); return (
                 <div>
-                  <div className="font-medium mb-1\">Gerekce</div>
+                  <div className="font-medium mb-1\">Gerekçe</div>
                   <ul className="list-disc list-inside space-y-1\">
                     {exp.reasons.map((r, i) => <li key={i}>{r}</li>)}
                   </ul>
@@ -251,13 +251,13 @@ const ChildObservationsScreen: React.FC<Props> = ({ childId, navigate }) => {
               </div>
               {riskInfo?.summary ? (
                 <div>
-                  <div className="font-medium mb-1">�zet</div>
+                  <div className="font-medium mb-1">Özet</div>
                   <p className="whitespace-pre-wrap">{riskInfo.summary}</p>
                 </div>
               ) : null}
               {riskInfo?.domain_scores && Object.keys(riskInfo.domain_scores).length > 0 ? (
                 <div>
-                  <div className="font-medium mb-1">Alan puanlar�</div>
+                  <div className="font-medium mb-1">Alan puanları</div>
                   <ul className="list-disc list-inside space-y-1">
                     {Object.entries(riskInfo.domain_scores).map(([k, v]) => (
                       <li key={k}>{(DEVELOPMENT_DOMAINS as any)[k] || k}: {String(v)}</li>
@@ -267,7 +267,7 @@ const ChildObservationsScreen: React.FC<Props> = ({ childId, navigate }) => {
               ) : null}
               {Array.isArray(riskInfo?.suggestions) && riskInfo!.suggestions.length > 0 ? (
                 <div>
-                  <div className="font-medium mb-1">�neriler</div>
+                  <div className="font-medium mb-1">Öneriler</div>
                   <ul className="list-disc list-inside space-y-1">
                     {riskInfo!.suggestions.map((s, i) => (
                       <li key={i}>{s}</li>
@@ -284,4 +284,6 @@ const ChildObservationsScreen: React.FC<Props> = ({ childId, navigate }) => {
 };
 
 export default ChildObservationsScreen;
+
+
 
