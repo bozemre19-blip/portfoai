@@ -67,8 +67,8 @@ const Auth: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen auth-bg">
-      <div className="w-full flex justify-center pt-10 sm:pt-12">
+    <div className="min-h-screen auth-bg flex flex-col items-center justify-center">
+      <div className="w-full flex justify-center mb-6 md:mb-8">
         <img
           src="/portfoai-logo.svg"
           alt="PortfoAI"
@@ -76,8 +76,8 @@ const Auth: React.FC = () => {
           draggable={false}
         />
       </div>
-      <div className="flex items-start justify-center px-4 sm:px-6 lg:px-8 pb-12">
-        <div className="max-w-md w-full space-y-8 p-10 bg-white rounded-xl shadow-lg mt-4">
+      <div className="w-full flex items-center justify-center px-4 sm:px-6 lg:px-8">
+        <div className="max-w-md w-full space-y-8 p-10 bg-white rounded-xl shadow-lg">
           <div>
           <h2 className="mt-2 text-center text-3xl font-extrabold text-gray-900">
             {isSignUp ? t('signUpTitle') : t('signInTitle')}
