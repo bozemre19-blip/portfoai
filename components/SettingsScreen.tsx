@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { useAuth } from '../App';
 import { supabase } from '../services/supabase';
 import { t } from '../constants.clean';
-import { seedDemoData, removeDemoData, recomputeAssessmentsForUser } from '../services/api';
+import { seedDemoData, removeDemoData, recomputeAssessmentsForUser, getChildren, exportChildData } from '../services/api';
 
 const SettingsScreen: React.FC = () => {
   const { user } = useAuth();
@@ -26,6 +26,9 @@ const SettingsScreen: React.FC = () => {
   const [removeMsg, setRemoveMsg] = useState('');
   const [recomputeMsg, setRecomputeMsg] = useState('');
   const [recomputing, setRecomputing] = useState(false);
+  const [showAdvanced, setShowAdvanced] = useState(false);
+  const [exportingJSON, setExportingJSON] = useState(false);
+  const [exportMsg, setExportMsg] = useState('');
 
   const handleSaveProfile = async () => {
     setSaving(true);
@@ -249,7 +252,7 @@ const SettingsScreen: React.FC = () => {
                 setRecomputing(true); setRecomputeMsg('Başlıyor...');
                 try {
                   await recomputeAssessmentsForUser(user.id, { onProgress: (m)=>setRecomputeMsg(m) });
-                  setRecomputeMsg('Tamamlandı. Çocuk sayfalarında Yenile’ye gerek kalmadan öneriler görünür.');
+                  setRecomputeMsg('Tamamlandı. Çocuk sayfalarında Yenile'ye gerek kalmadan öneriler görünür.');
                 } catch (e:any) {
                   setRecomputeMsg('Hata: ' + (e?.message||'bilinmiyor'));
                 } finally { setRecomputing(false); }
@@ -258,6 +261,65 @@ const SettingsScreen: React.FC = () => {
               {recomputing ? 'Oluşturuluyor...' : 'Tüm Çocuklar İçin Yeniden Oluştur'}
             </button>
           </div>
+        </div>
+
+        {/* Gelişmiş İşlemler - Gizli */}
+        <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">
+          <button
+            onClick={() => setShowAdvanced(!showAdvanced)}
+            className="flex items-center gap-2 text-sm text-gray-500 hover:text-gray-700 transition-colors"
+          >
+            <span className="text-xs">⚙️</span>
+            <span className="font-medium">Gelişmiş İşlemler</span>
+            <span className="text-xs">{showAdvanced ? '▲' : '▼'}</span>
+          </button>
+          
+          {showAdvanced && (
+            <div className="mt-4 pt-4 border-t border-gray-200 space-y-4">
+              <div>
+                <h3 className="text-sm font-semibold text-gray-700 mb-2">📦 Veri Yedekleme (JSON)</h3>
+                <p className="text-xs text-gray-500 mb-3">
+                  Tüm çocuk verilerinizi JSON formatında dışa aktarın. Geliştiriciler için veri yedekleme, 
+                  başka sisteme aktarma veya analiz amaçlı kullanılır.
+                </p>
+                {exportMsg && <p className="text-xs text-gray-600 mb-2">{exportMsg}</p>}
+                <button
+                  onClick={async () => {
+                    if (!user) return;
+                    setExportingJSON(true);
+                    setExportMsg('Veriler hazırlanıyor...');
+                    try {
+                      const children = await getChildren(user.id);
+                      if (children.length === 0) {
+                        setExportMsg('Dışa aktarılacak çocuk bulunamadı.');
+                        return;
+                      }
+                      
+                      setExportMsg(`${children.length} çocuk için veri indiriliyor...`);
+                      for (let i = 0; i < children.length; i++) {
+                        await exportChildData(children[i].id);
+                        setExportMsg(`İndiriliyor: ${i + 1}/${children.length}`);
+                        // Küçük gecikme - tarayıcının donmaması için
+                        await new Promise(r => setTimeout(r, 500));
+                      }
+                      setExportMsg(`✅ Tamamlandı! ${children.length} çocuk için JSON dosyaları indirildi.`);
+                    } catch (e: any) {
+                      setExportMsg('❌ Hata: ' + (e?.message || 'Bilinmeyen hata'));
+                    } finally {
+                      setExportingJSON(false);
+                    }
+                  }}
+                  disabled={exportingJSON || !user}
+                  className="px-3 py-1.5 text-xs bg-gray-200 text-gray-700 rounded hover:bg-gray-300 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                >
+                  {exportingJSON ? '⏳ İndiriliyor...' : '📥 Tüm Çocuklar için JSON İndir'}
+                </button>
+                <p className="text-xs text-gray-400 mt-2 italic">
+                  * Her çocuk için ayrı bir JSON dosyası indirilecektir.
+                </p>
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </div>
