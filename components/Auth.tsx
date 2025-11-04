@@ -70,34 +70,34 @@ const Auth: React.FC = () => {
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center relative overflow-hidden">
-      {/* Animasyonlu gradient arka plan */}
-      <div className="absolute inset-0 bg-gradient-to-br from-purple-500 via-pink-500 to-blue-500 opacity-90"></div>
+      {/* Animasyonlu gradient arka plan - Kurumsal tonlar */}
+      <div className="absolute inset-0 bg-gradient-to-br from-indigo-900 via-purple-900 to-blue-900"></div>
       
-      {/* Hareketli shape'ler */}
+      {/* Hareketli shape'ler - Daha subtle */}
       <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute top-0 -left-4 w-72 h-72 bg-purple-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob"></div>
-        <div className="absolute top-0 -right-4 w-72 h-72 bg-yellow-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-2000"></div>
-        <div className="absolute -bottom-8 left-20 w-72 h-72 bg-pink-300 rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-4000"></div>
+        <div className="absolute top-0 -left-4 w-72 h-72 bg-indigo-500 rounded-full mix-blend-soft-light filter blur-3xl opacity-30 animate-blob"></div>
+        <div className="absolute top-0 -right-4 w-72 h-72 bg-purple-500 rounded-full mix-blend-soft-light filter blur-3xl opacity-30 animate-blob animation-delay-2000"></div>
+        <div className="absolute -bottom-8 left-20 w-72 h-72 bg-blue-500 rounded-full mix-blend-soft-light filter blur-3xl opacity-30 animate-blob animation-delay-4000"></div>
       </div>
 
       {/* Top moving stripe */}
-      <div className="marquee marquee--top" style={{ background: 'rgba(255,255,255,0.9)' }}>
+      <div className="marquee marquee--top" style={{ background: 'rgba(255,255,255,0.15)', backdropFilter: 'blur(10px)' }}>
         <div className="marquee-track">
-          <div className="marquee-line" style={{ color: '#7c3aed', fontWeight: 'bold' }}>
+          <div className="marquee-line" style={{ color: '#ffffff', fontWeight: 'bold', textShadow: '0 2px 4px rgba(0,0,0,0.3)' }}>
             {marqueeItems.map((txt, i) => (<span key={`mt1-${i}`} className="inline-flex items-center gap-2">✨ {txt}</span>))}
           </div>
-          <div className="marquee-line" aria-hidden="true" style={{ color: '#7c3aed', fontWeight: 'bold' }}>
+          <div className="marquee-line" aria-hidden="true" style={{ color: '#ffffff', fontWeight: 'bold', textShadow: '0 2px 4px rgba(0,0,0,0.3)' }}>
             {marqueeItems.map((txt, i) => (<span key={`mt2-${i}`} className="inline-flex items-center gap-2">✨ {txt}</span>))}
           </div>
         </div>
       </div>
       {/* Bottom moving stripe */}
-      <div className="marquee marquee--bottom" style={{ background: 'rgba(255,255,255,0.9)' }}>
+      <div className="marquee marquee--bottom" style={{ background: 'rgba(255,255,255,0.15)', backdropFilter: 'blur(10px)' }}>
         <div className="marquee-track marquee-track--reverse">
-          <div className="marquee-line" style={{ color: '#ec4899', fontWeight: 'bold' }}>
+          <div className="marquee-line" style={{ color: '#ffffff', fontWeight: 'bold', textShadow: '0 2px 4px rgba(0,0,0,0.3)' }}>
             {marqueeItems.map((txt, i) => (<span key={`mb1-${i}`} className="inline-flex items-center gap-2">🎨 {txt}</span>))}
           </div>
-          <div className="marquee-line" aria-hidden="true" style={{ color: '#ec4899', fontWeight: 'bold' }}>
+          <div className="marquee-line" aria-hidden="true" style={{ color: '#ffffff', fontWeight: 'bold', textShadow: '0 2px 4px rgba(0,0,0,0.3)' }}>
             {marqueeItems.map((txt, i) => (<span key={`mb2-${i}`} className="inline-flex items-center gap-2">🎨 {txt}</span>))}
           </div>
         </div>
@@ -105,7 +105,7 @@ const Auth: React.FC = () => {
       
       <div className="relative z-10 w-full flex justify-center mb-6 md:mb-8">
         <div className="relative group animate-float">
-          <div className="absolute -inset-2 bg-gradient-to-r from-purple-600 via-pink-600 to-blue-600 rounded-full blur-2xl opacity-75 group-hover:opacity-100 transition duration-500 animate-pulse"></div>
+          <div className="absolute -inset-2 bg-gradient-to-r from-indigo-400 via-purple-400 to-blue-400 rounded-full blur-2xl opacity-40 group-hover:opacity-60 transition duration-500"></div>
           <img
             src="/portfoai-logo.svg"
             alt="PortfoAI"
@@ -115,9 +115,9 @@ const Auth: React.FC = () => {
         </div>
       </div>
       <div className="relative z-10 w-full flex items-center justify-center px-4 sm:px-6 lg:px-8 -mt-4 md:-mt-6">
-        <div className="max-w-md w-full space-y-8 p-10 bg-white/95 backdrop-blur-xl rounded-2xl shadow-2xl border-2 border-white/50 animate-slide-up">
+        <div className="max-w-md w-full space-y-8 p-10 bg-white/98 backdrop-blur-xl rounded-2xl shadow-2xl border border-white/30 animate-slide-up">
           <div>
-          <h2 className="mt-2 text-center text-3xl font-extrabold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
+          <h2 className="mt-2 text-center text-3xl font-extrabold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
             {isSignUp ? '🌟 ' + t('signUpTitle') : '👋 ' + t('signInTitle')}
           </h2>
           <p className="mt-2 text-center text-sm text-gray-600 font-medium">
@@ -137,7 +137,7 @@ const Auth: React.FC = () => {
                       type="text"
                       autoComplete="given-name"
                       required={isSignUp}
-                      className="appearance-none relative block w-full px-4 py-3 border-2 border-purple-200 placeholder-gray-400 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200 hover:border-purple-300 sm:text-sm"
+                      className="appearance-none relative block w-full px-4 py-3 border-2 border-indigo-200 placeholder-gray-400 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-200 hover:border-indigo-300 sm:text-sm"
                       placeholder={"👤 " + t('teacherFirstName')}
                       value={firstName}
                       onChange={(e) => setFirstName(e.target.value)}
@@ -151,7 +151,7 @@ const Auth: React.FC = () => {
                       type="text"
                       autoComplete="family-name"
                       required={isSignUp}
-                      className="appearance-none relative block w-full px-4 py-3 border-2 border-purple-200 placeholder-gray-400 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200 hover:border-purple-300 sm:text-sm"
+                      className="appearance-none relative block w-full px-4 py-3 border-2 border-indigo-200 placeholder-gray-400 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-200 hover:border-indigo-300 sm:text-sm"
                       placeholder={"👤 " + t('teacherLastName')}
                       value={lastName}
                       onChange={(e) => setLastName(e.target.value)}
@@ -166,7 +166,7 @@ const Auth: React.FC = () => {
                     type="text"
                     autoComplete="organization"
                     required={isSignUp}
-                    className="appearance-none relative block w-full px-4 py-3 border-2 border-purple-200 placeholder-gray-400 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200 hover:border-purple-300 sm:text-sm"
+                    className="appearance-none relative block w-full px-4 py-3 border-2 border-indigo-200 placeholder-gray-400 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-200 hover:border-indigo-300 sm:text-sm"
                     placeholder={"🏫 " + t('schoolName')}
                     value={schoolName}
                     onChange={(e) => setSchoolName(e.target.value)}
@@ -207,7 +207,7 @@ const Auth: React.FC = () => {
             <button
               type="submit"
               disabled={loading}
-              className="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-bold rounded-xl text-white bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 disabled:from-gray-400 disabled:to-gray-400 transform transition-all duration-200 hover:scale-105 hover:shadow-xl disabled:hover:scale-100"
+              className="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-bold rounded-xl text-white bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:from-gray-400 disabled:to-gray-400 transform transition-all duration-200 hover:scale-105 hover:shadow-xl disabled:hover:scale-100"
             >
               <span className="flex items-center gap-2">
                 {loading ? '⏳ ' + t('loading') : (isSignUp ? '🚀 ' + t('signUpAction') : '✨ ' + t('signInAction'))}
@@ -226,7 +226,7 @@ const Auth: React.FC = () => {
           </p>
         )}
         <div className="text-sm text-center">
-            <a href="#" onClick={(e) => { e.preventDefault(); setIsSignUp(!isSignUp); setMessage(''); setError(''); }} className="font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 transition-all duration-200">
+            <a href="#" onClick={(e) => { e.preventDefault(); setIsSignUp(!isSignUp); setMessage(''); setError(''); }} className="font-bold text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 transition-all duration-200">
                 {isSignUp ? `${t('haveAccountPrompt')} ${t('switchToSignIn')}` : `${t('noAccountPrompt')} ${t('switchToSignUp')}`}
             </a>
         </div>
