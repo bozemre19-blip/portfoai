@@ -252,7 +252,7 @@ const SettingsScreen: React.FC = () => {
                 setRecomputing(true); setRecomputeMsg('Başlıyor...');
                 try {
                   await recomputeAssessmentsForUser(user.id, { onProgress: (m)=>setRecomputeMsg(m) });
-                  setRecomputeMsg('Tamamlandı. Çocuk sayfalarında Yenile'ye gerek kalmadan öneriler görünür.');
+                  setRecomputeMsg('Tamamlandı. Çocuk sayfalarında Yenile\'ye gerek kalmadan öneriler görünür.');
                 } catch (e:any) {
                   setRecomputeMsg('Hata: ' + (e?.message||'bilinmiyor'));
                 } finally { setRecomputing(false); }
