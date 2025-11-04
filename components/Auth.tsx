@@ -1,6 +1,213 @@
-﻿import React, { useState } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import { supabase } from '../services/supabase';
 import { t } from '../constants.clean';
+
+// Çocuk Karakterleri Bileşeni
+const KidsCharacters: React.FC<{ mouseX: number; mouseY: number }> = ({ mouseX, mouseY }) => {
+  const kids = [
+    { x: 65, y: 25, color: '#FF6B9D', hairColor: '#8B4789', name: 'Ayşe', skin: '#FFE4C4' },
+    { x: 85, y: 30, color: '#4A90E2', hairColor: '#2C3E50', name: 'Ahmet', skin: '#F5D5C3' },
+    { x: 70, y: 65, color: '#50C878', hairColor: '#CD853F', name: 'Zeynep', skin: '#FFDAB9' },
+    { x: 88, y: 70, color: '#FFB347', hairColor: '#8B7355', name: 'Mehmet', skin: '#F4E4D7' },
+  ];
+
+  const calculateHeadRotation = (kidX: number, kidY: number) => {
+    // Convert percentage to pixels
+    const kidPosX = (kidX / 100) * window.innerWidth * 0.5;
+    const kidPosY = (kidY / 100) * window.innerHeight;
+    
+    // Fare ile çocuk arasındaki açıyı hesapla
+    const angle = Math.atan2(mouseY - kidPosY, mouseX - kidPosX);
+    const degrees = angle * (180 / Math.PI);
+    
+    // Rotasyonu yuvarla (5'erin katları) - daha smooth
+    const roundedDegrees = Math.round(degrees / 5) * 5;
+    
+    // Göz hareketini sınırla ve yuvarla
+    const eyeDistance = 6;
+    const rawEyeX = Math.cos(angle) * eyeDistance;
+    const rawEyeY = Math.sin(angle) * eyeDistance;
+    
+    // Göz pozisyonunu yuvarla (0.5'lik adımlar)
+    const eyeX = Math.round(rawEyeX * 2) / 2;
+    const eyeY = Math.round(rawEyeY * 2) / 2;
+    
+    return { rotation: roundedDegrees, eyeX, eyeY };
+  };
+
+  return (
+    <div className="absolute inset-0 pointer-events-none">
+      {kids.map((kid) => {
+        const { rotation, eyeX, eyeY } = calculateHeadRotation(kid.x, kid.y);
+        
+        return (
+          <div
+            key={kid.name}
+            className="absolute"
+            style={{
+              left: `${kid.x}%`,
+              top: `${kid.y}%`,
+              transform: 'translate(-50%, -50%)',
+            }}
+          >
+            <div 
+              className="kid-float-wrapper"
+              style={{
+                animationDelay: `${Math.random() * 2}s`,
+              }}
+            >
+              <svg 
+                width="160" 
+                height="180" 
+                viewBox="0 0 160 180" 
+                className="drop-shadow-2xl filter hover:drop-shadow-[0_0_25px_rgba(255,255,255,0.3)]"
+              >
+              <defs>
+                {/* Saç gradyanı */}
+                <linearGradient id={`hair-${kid.name}`} x1="0%" y1="0%" x2="0%" y2="100%">
+                  <stop offset="0%" stopColor={kid.hairColor} stopOpacity="1" />
+                  <stop offset="100%" stopColor={kid.hairColor} stopOpacity="0.7" />
+                </linearGradient>
+                {/* Ten gradyanı */}
+                <radialGradient id={`skin-${kid.name}`}>
+                  <stop offset="0%" stopColor={kid.skin} />
+                  <stop offset="100%" stopColor={kid.skin} stopOpacity="0.9" />
+                </radialGradient>
+                {/* Kıyafet gradyanı */}
+                <linearGradient id={`clothes-${kid.name}`} x1="0%" y1="0%" x2="0%" y2="100%">
+                  <stop offset="0%" stopColor={kid.color} />
+                  <stop offset="100%" stopColor={kid.color} stopOpacity="0.8" />
+                </linearGradient>
+              </defs>
+
+              {/* Vücut (sabit - dönmüyor) */}
+              <g>
+                {/* Gövde */}
+                <path
+                  d="M 60 120 L 50 115 Q 45 110 45 125 L 45 160 Q 45 165 50 165 L 110 165 Q 115 165 115 160 L 115 125 Q 115 110 110 115 L 100 120"
+                  fill={`url(#clothes-${kid.name})`}
+                  stroke="white"
+                  strokeWidth="2"
+                />
+                
+                {/* Sol Kol */}
+                <path
+                  d="M 50 120 Q 30 125 28 145 Q 28 150 32 150 L 45 145"
+                  fill={kid.skin}
+                  stroke="white"
+                  strokeWidth="2"
+                />
+                
+                {/* Sağ Kol */}
+                <path
+                  d="M 110 120 Q 130 125 132 145 Q 132 150 128 150 L 115 145"
+                  fill={kid.skin}
+                  stroke="white"
+                  strokeWidth="2"
+                />
+                
+                {/* Eller */}
+                <circle cx="30" cy="150" r="8" fill={kid.skin} stroke="white" strokeWidth="2"/>
+                <circle cx="130" cy="150" r="8" fill={kid.skin} stroke="white" strokeWidth="2"/>
+              </g>
+
+              {/* Baş (DÖNEN KISIM - Fareyi takip ediyor!) */}
+              <g transform={`rotate(${rotation * 0.08}, 80, 70)`} className="kid-head-smooth">
+                {/* Boyun */}
+                <rect x="70" y="95" width="20" height="20" rx="5" fill={kid.skin} stroke="white" strokeWidth="2"/>
+                
+                {/* Saç (arka) */}
+                <ellipse cx="80" cy="45" rx="45" ry="38" fill={`url(#hair-${kid.name})`} opacity="0.95"/>
+                <path
+                  d="M 40 50 Q 35 40 40 35 Q 45 30 50 35"
+                  fill={`url(#hair-${kid.name})`}
+                  opacity="0.9"
+                />
+                <path
+                  d="M 120 50 Q 125 40 120 35 Q 115 30 110 35"
+                  fill={`url(#hair-${kid.name})`}
+                  opacity="0.9"
+                />
+                
+                {/* Yüz */}
+                <ellipse cx="80" cy="70" rx="38" ry="42" fill={`url(#skin-${kid.name})`} stroke="white" strokeWidth="3"/>
+                
+                {/* Kulaklar */}
+                <ellipse cx="45" cy="70" rx="8" ry="12" fill={kid.skin} stroke="white" strokeWidth="2"/>
+                <ellipse cx="115" cy="70" rx="8" ry="12" fill={kid.skin} stroke="white" strokeWidth="2"/>
+                
+                {/* Sol Göz Beyazı */}
+                <ellipse cx="65" cy="65" rx="10" ry="11" fill="white" stroke="#2C3E50" strokeWidth="2.5" className="kid-blink"/>
+                {/* Sol Göz Bebeği */}
+                <circle
+                  cx={65 + eyeX}
+                  cy={65 + eyeY}
+                  r="5"
+                  fill="#2C3E50"
+                  className="kid-blink"
+                />
+                {/* Sol Göz Parlama */}
+                <circle cx={67 + eyeX} cy={63 + eyeY} r="2" fill="white" opacity="0.8" className="kid-blink"/>
+                {/* Sol Kirpikler */}
+                <path d="M 58 60 L 55 58" stroke="#2C3E50" strokeWidth="2" strokeLinecap="round" className="kid-blink"/>
+                <path d="M 72 60 L 75 58" stroke="#2C3E50" strokeWidth="2" strokeLinecap="round" className="kid-blink"/>
+                
+                {/* Sağ Göz Beyazı */}
+                <ellipse cx="95" cy="65" rx="10" ry="11" fill="white" stroke="#2C3E50" strokeWidth="2.5" className="kid-blink"/>
+                {/* Sağ Göz Bebeği */}
+                <circle
+                  cx={95 + eyeX}
+                  cy={65 + eyeY}
+                  r="5"
+                  fill="#2C3E50"
+                  className="kid-blink"
+                />
+                {/* Sağ Göz Parlama */}
+                <circle cx={97 + eyeX} cy={63 + eyeY} r="2" fill="white" opacity="0.8" className="kid-blink"/>
+                {/* Sağ Kirpikler */}
+                <path d="M 88 60 L 85 58" stroke="#2C3E50" strokeWidth="2" strokeLinecap="round" className="kid-blink"/>
+                <path d="M 102 60 L 105 58" stroke="#2C3E50" strokeWidth="2" strokeLinecap="round" className="kid-blink"/>
+                
+                {/* Kaşlar */}
+                <path d="M 55 55 Q 65 52 75 55" stroke="#8B7355" strokeWidth="3" fill="none" strokeLinecap="round"/>
+                <path d="M 85 55 Q 95 52 105 55" stroke="#8B7355" strokeWidth="3" fill="none" strokeLinecap="round"/>
+                
+                {/* Burun */}
+                <path d="M 80 72 L 78 80 L 82 80 Z" fill="#FFB6A3" opacity="0.6"/>
+                
+                {/* Mutlu Gülümseme */}
+                <path
+                  d="M 60 85 Q 80 95 100 85"
+                  stroke="#FF6B9D"
+                  strokeWidth="3.5"
+                  fill="none"
+                  strokeLinecap="round"
+                />
+                
+                {/* Yanaklar (allık) */}
+                <ellipse cx="55" cy="78" rx="8" ry="6" fill="#FFB6C1" opacity="0.5"/>
+                <ellipse cx="105" cy="78" rx="8" ry="6" fill="#FFB6C1" opacity="0.5"/>
+                
+                {/* Saç detayları (ön) */}
+                <path
+                  d="M 50 45 Q 55 35 65 40"
+                  fill={kid.hairColor}
+                  opacity="0.8"
+                />
+                <path
+                  d="M 110 45 Q 105 35 95 40"
+                  fill={kid.hairColor}
+                  opacity="0.8"
+                />
+              </g>
+              </svg>
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  );
+};
 
 const Auth: React.FC = () => {
   const [isSignUp, setIsSignUp] = useState(false);
@@ -13,6 +220,28 @@ const Auth: React.FC = () => {
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   const [schoolName, setSchoolName] = useState('');
+  // Mouse tracking for kids animation
+  const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
+
+  // Track mouse position with throttle
+  useEffect(() => {
+    let timeoutId: NodeJS.Timeout | null = null;
+    
+    const handleMouseMove = (e: MouseEvent) => {
+      if (timeoutId) return; // Throttle: ignore if already scheduled
+      
+      timeoutId = setTimeout(() => {
+        setMousePos({ x: e.clientX, y: e.clientY });
+        timeoutId = null;
+      }, 50); // Update every 50ms max
+    };
+    
+    window.addEventListener('mousemove', handleMouseMove);
+    return () => {
+      window.removeEventListener('mousemove', handleMouseMove);
+      if (timeoutId) clearTimeout(timeoutId);
+    };
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -75,6 +304,9 @@ const Auth: React.FC = () => {
           <div className="absolute top-20 left-20 w-64 h-64 bg-blue-400/10 rounded-full blur-3xl animate-pulse"></div>
           <div className="absolute bottom-20 right-20 w-96 h-96 bg-cyan-400/10 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }}></div>
         </div>
+
+        {/* Animated Kids Characters */}
+        <KidsCharacters mouseX={mousePos.x} mouseY={mousePos.y} />
 
         {/* Content */}
         <div className="relative z-10 flex flex-col justify-center px-16 text-white">

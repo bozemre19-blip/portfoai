@@ -455,3 +455,36 @@ html[data-theme='kids'] .tag-chip {
   line-height: 32px;
 }
 html[data-theme='dark'] .marquee-line { color: rgba(243,244,246,.75); }
+
+/* Çocuk karakterleri için animasyonlar */
+@keyframes float {
+  0%, 100% { 
+    transform: translateY(0px); 
+  }
+  50% { 
+    transform: translateY(-20px); 
+  }
+}
+
+@keyframes blink {
+  0%, 90%, 100% { opacity: 1; }
+  95% { opacity: 0; }
+}
+
+.kid-float-wrapper {
+  animation: float 4s ease-in-out infinite;
+  will-change: transform;
+  transition: transform 0.2s ease-out;
+}
+
+.kid-float-wrapper:hover {
+  transform: scale(1.1);
+}
+
+.kid-head-smooth {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.kid-blink {
+  animation: blink 5s ease-in-out infinite;
+}
