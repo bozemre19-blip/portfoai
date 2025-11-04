@@ -94,7 +94,20 @@ const SettingsScreen: React.FC = () => {
               {saving ? t('loading') : t('saveProfile')}
             </button>
             <button
-              onClick={() => supabase.auth.signOut()}
+              onClick={async () => {
+                try { await supabase.auth.signOut(); } catch {}
+                try {
+                  sessionStorage.clear();
+                  const keys: string[] = [];
+                  for (let i = 0; i < localStorage.length; i++) {
+                    const k = localStorage.key(i);
+                    if (k && (k.startsWith('sb-') || k.includes('supabase'))) keys.push(k);
+                  }
+                  keys.forEach(k => localStorage.removeItem(k));
+                } catch {}
+                try { window.location.hash = ''; } catch {}
+                window.location.reload();
+              }}
               className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600"
             >
               {t('signOut')}

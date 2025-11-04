@@ -83,6 +83,22 @@ const Layout: React.FC<LayoutProps> = ({ children, navigate }) => {
     };
   }, [theme]);
 
+  const signOutNow = async () => {
+    try { await supabase.auth.signOut(); } catch {}
+    try {
+      // Clear possible cached items
+      sessionStorage.clear();
+      const keys: string[] = [];
+      for (let i = 0; i < localStorage.length; i++) {
+        const k = localStorage.key(i);
+        if (k && (k.startsWith('sb-') || k.includes('supabase'))) keys.push(k);
+      }
+      keys.forEach(k => localStorage.removeItem(k));
+    } catch {}
+    try { window.location.hash = ''; } catch {}
+    window.location.reload();
+  };
+
   const sidebarContent = (
     <div className="flex flex-col h-full">
       <div className={`p-4 border-b ${colors.headerBorder}`}>
@@ -139,7 +155,7 @@ const Layout: React.FC<LayoutProps> = ({ children, navigate }) => {
           </div>
         </div>
         <button
-          onClick={() => supabase.auth.signOut()}
+          onClick={signOutNow}
           className={`w-full text-left flex items-center px-4 py-2 rounded-md ${colors.signOut}`}
         >
           {t('signOut')}
