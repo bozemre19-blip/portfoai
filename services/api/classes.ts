@@ -1,5 +1,5 @@
 import { supabase } from '../supabase';
-import { dispatchDataChangedEvent } from './common';
+import { dispatchDataChangedEvent, setCache, getCache, CACHED_CLASSES_KEY } from './common';
 
 // Sınıf veri tipi
 export type ClassItem = {
@@ -24,22 +24,37 @@ const normalizeClassName = (name: string) =>
     .replace(/\s+/g, ' ')
     .replace(/(^|\s)\S/g, (s) => s.toLocaleUpperCase('tr-TR'));
 
-// Kullanıcının tüm sınıflarını getir
+// Kullanıcının tüm sınıflarını getir (cache destekli)
 export const getClasses = async (userId: string): Promise<ClassItem[]> => {
-  const { data, error } = await supabase
-    .from('classes')
-    .select('*')
-    .eq('user_id', userId)
-    .order('name', { ascending: true });
+  try {
+    const { data, error } = await supabase
+      .from('classes')
+      .select('*')
+      .eq('user_id', userId)
+      .order('name', { ascending: true });
 
-  if (error) {
-    // Tablo yoksa daha açıklayıcı hata mesajı
-    if ((error as any).message?.includes('relation') && (error as any).message?.includes('does not exist')) {
-      throw new Error("'classes' tablosu bulunamadı. Lütfen Supabase'de sınıflar için tabloyu oluşturun.");
+    if (error) {
+      // Tablo yoksa daha açıklayıcı hata mesajı
+      if ((error as any).message?.includes('relation') && (error as any).message?.includes('does not exist')) {
+        throw new Error("'classes' tablosu bulunamadı. Lütfen Supabase'de sınıflar için tabloyu oluşturun.");
+      }
+      throw error;
     }
+    
+    // Başarılı yanıt gelirse cache'i güncelle
+    const classes = (data || []) as ClassItem[];
+    setCache(`${CACHED_CLASSES_KEY}:${userId}`, classes);
+    return classes;
+  } catch (error) {
+    // Hata durumunda (offline gibi), cache'den dene
+    console.log('Çevrimdışı mod - cache\'den sınıflar getiriliyor');
+    const cached = getCache<ClassItem[]>(`${CACHED_CLASSES_KEY}:${userId}`);
+    if (cached) {
+      return cached;
+    }
+    // Cache de yoksa hatayı fırlat
     throw error;
   }
-  return (data || []) as ClassItem[];
 };
 
 // Yeni sınıf oluştur (aynı ada sahip sınıf varsa mevcut olanı döndürür)

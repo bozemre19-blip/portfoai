@@ -1,28 +1,55 @@
 import { supabase } from '../supabase';
 import type { Child } from '../../types';
-import { dispatchDataChangedEvent } from './common';
+import { dispatchDataChangedEvent, setCache, getCache, CACHED_CHILDREN_KEY } from './common';
 
-// Kullanıcının tüm çocuklarını getir
+// Kullanıcının tüm çocuklarını getir (cache destekli)
 export const getChildren = async (userId: string) => {
-  const { data, error } = await supabase
-    .from('children')
-    .select('*')
-    .eq('user_id', userId)
-    .order('created_at', { ascending: false });
-  if (error) throw error;
-  return data as Child[];
+  try {
+    const { data, error } = await supabase
+      .from('children')
+      .select('*')
+      .eq('user_id', userId)
+      .order('created_at', { ascending: false });
+    
+    if (error) throw error;
+    
+    // Başarılı yanıt gelirse cache'i güncelle
+    const children = data as Child[];
+    setCache(`${CACHED_CHILDREN_KEY}:${userId}`, children);
+    return children;
+  } catch (error) {
+    // Hata durumunda (offline gibi), cache'den dene
+    console.log('Çevrimdışı mod - cache\'den çocuklar getiriliyor');
+    const cached = getCache<Child[]>(`${CACHED_CHILDREN_KEY}:${userId}`);
+    if (cached) {
+      return cached;
+    }
+    // Cache de yoksa hatayı fırlat
+    throw error;
+  }
 };
 
 // Belirli bir sınıftaki çocukları getir (performans için sadece gerekli kolonlar)
 export const getChildrenByClassroom = async (userId: string, classroom: string) => {
-  const { data, error } = await supabase
-    .from('children')
-    .select('id, first_name, last_name, classroom, photo_url, dob')
-    .eq('user_id', userId)
-    .eq('classroom', classroom)
-    .order('created_at', { ascending: false});
-  if (error) throw error;
-  return (data || []) as Pick<Child, 'id' | 'first_name' | 'last_name' | 'classroom' | 'photo_url' | 'dob'>[] as Child[];
+  try {
+    const { data, error } = await supabase
+      .from('children')
+      .select('id, first_name, last_name, classroom, photo_url, dob')
+      .eq('user_id', userId)
+      .eq('classroom', classroom)
+      .order('created_at', { ascending: false});
+    
+    if (error) throw error;
+    return (data || []) as Pick<Child, 'id' | 'first_name' | 'last_name' | 'classroom' | 'photo_url' | 'dob'>[] as Child[];
+  } catch (error) {
+    // Hata durumunda tüm cache'den filtrele
+    console.log('Çevrimdışı mod - sınıf çocukları cache\'den getiriliyor');
+    const allChildren = getCache<Child[]>(`${CACHED_CHILDREN_KEY}:${userId}`);
+    if (allChildren) {
+      return allChildren.filter(c => c.classroom === classroom);
+    }
+    throw error;
+  }
 };
 
 // Yeni çocuk ekle
