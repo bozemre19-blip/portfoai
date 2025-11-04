@@ -69,63 +69,58 @@ const Auth: React.FC = () => {
   return (
     <div className="min-h-screen flex">
       {/* Sol Taraf - Bilgilendirme & Branding */}
-      <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-indigo-600 via-purple-600 to-blue-600 relative overflow-hidden">
+      <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-slate-800 via-blue-900 to-indigo-900 relative overflow-hidden">
         {/* Animated background shapes */}
         <div className="absolute inset-0">
-          <div className="absolute top-20 left-20 w-64 h-64 bg-white/10 rounded-full blur-3xl animate-pulse"></div>
-          <div className="absolute bottom-20 right-20 w-96 h-96 bg-emerald-400/10 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }}></div>
+          <div className="absolute top-20 left-20 w-64 h-64 bg-blue-400/10 rounded-full blur-3xl animate-pulse"></div>
+          <div className="absolute bottom-20 right-20 w-96 h-96 bg-cyan-400/10 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }}></div>
         </div>
 
         {/* Content */}
         <div className="relative z-10 flex flex-col justify-center px-16 text-white">
-          <div className="mb-8">
-            <div className="inline-block bg-white/15 backdrop-blur-md rounded-2xl p-6 shadow-2xl">
+          <div className="mb-12">
+            <div className="inline-block bg-white/20 backdrop-blur-md rounded-3xl p-8 shadow-2xl border border-white/10">
               <img
                 src="/portfoai-logo.svg"
                 alt="PortfoAI"
-                className="h-24 drop-shadow-2xl"
+                className="h-32 drop-shadow-2xl"
                 draggable={false}
               />
             </div>
           </div>
           
-          <h1 className="text-5xl font-bold mb-6 leading-tight">
-            Erken Çocukluk<br />
-            <span className="text-emerald-300">Gözlem Asistanı</span>
-          </h1>
-          
-          <p className="text-xl text-white/90 mb-8 leading-relaxed max-w-md">
+          <p className="text-2xl text-white/95 mb-10 leading-relaxed max-w-md font-light">
             Yapay zeka destekli gözlem, analiz ve portfolyo yönetimi ile çocukların gelişimini profesyonelce takip edin.
           </p>
 
-          <div className="space-y-4 max-w-md">
-            <div className="flex items-start gap-3">
-              <div className="w-10 h-10 rounded-lg bg-emerald-400/20 backdrop-blur-sm flex items-center justify-center flex-shrink-0">
+          <div className="space-y-5 max-w-md">
+            <div className="flex items-start gap-4 group">
+              <div className="w-12 h-12 rounded-xl bg-blue-400/20 backdrop-blur-sm flex items-center justify-center flex-shrink-0 group-hover:bg-blue-400/30 transition-all">
                 <span className="text-2xl">📊</span>
               </div>
               <div>
-                <h3 className="font-semibold mb-1">Akıllı Gözlem Analizi</h3>
-                <p className="text-white/80 text-sm">Yapay zeka ile otomatik değerlendirme ve öneriler</p>
+                <h3 className="font-semibold mb-1 text-lg">Akıllı Gözlem Analizi</h3>
+                <p className="text-white/85 text-base">Yapay zeka ile otomatik değerlendirme ve öneriler</p>
               </div>
             </div>
 
-            <div className="flex items-start gap-3">
-              <div className="w-10 h-10 rounded-lg bg-emerald-400/20 backdrop-blur-sm flex items-center justify-center flex-shrink-0">
+            <div className="flex items-start gap-4 group">
+              <div className="w-12 h-12 rounded-xl bg-blue-400/20 backdrop-blur-sm flex items-center justify-center flex-shrink-0 group-hover:bg-blue-400/30 transition-all">
                 <span className="text-2xl">🎨</span>
               </div>
               <div>
-                <h3 className="font-semibold mb-1">Dijital Portfolyo</h3>
-                <p className="text-white/80 text-sm">Çocukların ürünlerini ve gelişimini dijital ortamda saklayın</p>
+                <h3 className="font-semibold mb-1 text-lg">Dijital Portfolyo</h3>
+                <p className="text-white/85 text-base">Çocukların ürünlerini ve gelişimini dijital ortamda saklayın</p>
               </div>
             </div>
 
-            <div className="flex items-start gap-3">
-              <div className="w-10 h-10 rounded-lg bg-emerald-400/20 backdrop-blur-sm flex items-center justify-center flex-shrink-0">
+            <div className="flex items-start gap-4 group">
+              <div className="w-12 h-12 rounded-xl bg-blue-400/20 backdrop-blur-sm flex items-center justify-center flex-shrink-0 group-hover:bg-blue-400/30 transition-all">
                 <span className="text-2xl">📱</span>
               </div>
               <div>
-                <h3 className="font-semibold mb-1">Her Yerden Erişim</h3>
-                <p className="text-white/80 text-sm">Telefon, tablet veya bilgisayardan kolayca ulaşın</p>
+                <h3 className="font-semibold mb-1 text-lg">Her Yerden Erişim</h3>
+                <p className="text-white/85 text-base">Telefon, tablet veya bilgisayardan kolayca ulaşın</p>
               </div>
             </div>
           </div>
