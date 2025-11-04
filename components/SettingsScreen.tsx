@@ -119,17 +119,6 @@ const SettingsScreen: React.FC = () => {
         </div>
 
         <div className="bg-white p-6 rounded-lg shadow">
-          <h2 className="text-xl font-semibold text-gray-800">{t('exportData')}</h2>
-          <p className="mt-2 text-gray-600">
-            {t('exportDataDescription')}
-          </p>
-          {/* Export functionality for all data could be added here */}
-           <button className="mt-4 px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600">
-            {t('exportAllData')}
-          </button>
-        </div>
-
-        <div className="bg-white p-6 rounded-lg shadow">
           <h2 className="text-xl font-semibold text-gray-800">Demo Verisi Oluştur</h2>
           <p className="mt-2 text-gray-600">Mevcut hesabınıza örnek sınıf, çocuk, gözlem ve ürün fotoğrafları ekler.</p>
           <div className="mt-4 grid grid-cols-1 sm:grid-cols-3 gap-3">
