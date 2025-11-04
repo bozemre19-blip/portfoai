@@ -69,28 +69,38 @@ const ClassesScreen: React.FC<ClassesScreenProps> = ({ navigate }) => {
   return (
     <div className="max-w-4xl mx-auto px-4">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-6">
-        <h1 className="text-2xl font-bold text-gray-900">Sınıflar</h1>
+        <h1 className="text-2xl font-bold text-gradient-purple">🏫 Sınıflar</h1>
         <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto">
-          <input className="border rounded px-2 py-2 flex-1 min-w-0 w-full sm:w-64" placeholder="Yeni sınıf adı" value={newClass} onChange={(e)=>setNewClass(e.target.value)} />
-          <button className="px-3 py-2 bg-primary text-white rounded disabled:bg-gray-400 whitespace-nowrap" onClick={onCreate} disabled={creating || !newClass.trim()}>Sınıf Oluştur</button>
-          <button className="px-3 py-2 bg-gray-200 rounded whitespace-nowrap" onClick={() => navigate('children')}>Tüm Çocuklar</button>
+          <input className="border border-gray-300 rounded-lg px-3 py-2 flex-1 min-w-0 w-full sm:w-64 focus:ring-2 focus:ring-primary focus:border-transparent" placeholder="Yeni sınıf adı" value={newClass} onChange={(e)=>setNewClass(e.target.value)} />
+          <button className="px-4 py-2 rounded-lg disabled:bg-gray-400 whitespace-nowrap btn-gradient-success" onClick={onCreate} disabled={creating || !newClass.trim()}>Sınıf Oluştur</button>
+          <button className="px-4 py-2 bg-gray-200 hover:bg-gray-300 rounded-lg whitespace-nowrap transition" onClick={() => navigate('children')}>Tüm Çocuklar</button>
         </div>
       </div>
-      {loading && <p>Yükleniyor…</p>}
-      {error && <p className="text-red-600">{error}</p>}
-      {!loading && groups.length === 0 && <p className="text-gray-500">Sınıf bulunamadı. Üstten yeni sınıf oluşturabilirsiniz.</p>}
+      {loading && <p className="text-gray-600 font-medium">Yükleniyor…</p>}
+      {error && <p className="text-red-600 bg-red-50 p-3 rounded-lg border border-red-200">{error}</p>}
+      {!loading && groups.length === 0 && <p className="text-gray-500 bg-gray-50 p-4 rounded-lg">Sınıf bulunamadı. Üstten yeni sınıf oluşturabilirsiniz.</p>}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-        {groups.map(([name, count]) => (
-          <button
-            key={name}
-            onClick={() => navigate('class-detail', { classroom: name === '—' ? '' : name })}
-            className="bg-white rounded-lg shadow p-4 text-left hover:shadow-md transition"
-          >
-            <div className="text-sm text-gray-500">Sınıf</div>
-            <div className="text-xl font-semibold text-gray-900 truncate" title={name}>{name}</div>
-            <div className="mt-1 text-gray-700">{count} öğrenci</div>
-          </button>
-        ))}
+        {groups.map(([name, count], idx) => {
+          const cardColors = ['card-colorful-purple', 'card-colorful-blue', 'card-colorful-green', 'card-colorful-pink', 'card-colorful-orange'];
+          const iconColors = ['text-purple-600', 'text-blue-600', 'text-green-600', 'text-pink-600', 'text-orange-600'];
+          return (
+            <button
+              key={name}
+              onClick={() => navigate('class-detail', { classroom: name === '—' ? '' : name })}
+              className={`bg-white rounded-lg shadow p-5 text-left hover:shadow-xl transition-all card-colorful ${cardColors[idx % cardColors.length]}`}
+            >
+              <div className="flex items-center justify-between">
+                <div className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Sınıf</div>
+                <div className={`text-2xl ${iconColors[idx % iconColors.length]}`}>📚</div>
+              </div>
+              <div className="text-2xl font-bold text-gray-900 mt-2 truncate" title={name}>{name}</div>
+              <div className="mt-2 flex items-center gap-1">
+                <span className="text-lg font-semibold text-gray-700">{count}</span>
+                <span className="text-sm text-gray-500">öğrenci</span>
+              </div>
+            </button>
+          );
+        })}
       </div>
     </div>
   );

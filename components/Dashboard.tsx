@@ -126,7 +126,7 @@ const Dashboard: React.FC<DashboardProps> = ({ navigate }) => {
 
   return (
     <div>
-      <h1 className="text-3xl font-bold text-gray-900">{t('welcome')}, {displayName}{teacherSchool}</h1>
+      <h1 className="text-3xl font-bold text-gradient-purple">{t('welcome')}, {displayName}{teacherSchool}</h1>
       <div className="rainbow-divider mt-2 w-28"></div>
 
       {/* Quick Actions */}
@@ -135,35 +135,36 @@ const Dashboard: React.FC<DashboardProps> = ({ navigate }) => {
         <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
           <button
             onClick={() => navigate('children', { screen: 'add-child' })}
-            className="flex items-center justify-center p-6 bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow card-bouncy"
+            className="flex items-center justify-center p-6 rounded-lg shadow-md btn-gradient-primary card-bouncy"
           >
-            <PlusIcon className="w-8 h-8 text-primary" />
-            <span className="ml-4 text-xl font-semibold text-gray-800">{t('addChild')}</span>
+            <PlusIcon className="w-8 h-8 text-white" />
+            <span className="ml-4 text-xl font-semibold text-white">{t('addChild')}</span>
           </button>
           <button
             onClick={() => navigate('children')}
-            className="flex items-center justify-center p-6 bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow card-bouncy"
+            className="flex items-center justify-center p-6 rounded-lg shadow-md btn-gradient-success card-bouncy"
           >
-            <UserGroupIcon className="w-8 h-8 text-secondary" />
-            <span className="ml-4 text-xl font-semibold text-gray-800">{t('childList')}</span>
+            <UserGroupIcon className="w-8 h-8 text-white" />
+            <span className="ml-4 text-xl font-semibold text-white">{t('childList')}</span>
           </button>
         </div>
       </div>
 
       {/* Activity (7 days) */}
-      <div className="mt-6 bg-white rounded-lg shadow p-4">
+      <div className="mt-6 bg-white rounded-lg shadow p-4 card-colorful card-colorful-blue">
         <div className="flex items-center justify-between mb-2">
-          <h2 className="text-lg font-medium text-gray-900">Aktivite (7 gün)</h2>
+          <h2 className="text-lg font-semibold text-gray-900">📊 Aktivite (7 gün)</h2>
         </div>
         <div className="grid grid-cols-7 gap-2 items-end h-28">
           {activityDays.map((d, i) => {
             const max = Math.max(1, ...activityDays.map(x => x.obs + x.media));
             const total = d.obs + d.media;
             const h = Math.round((total / max) * 88) + 8; // min 8px
+            const colors = ['#8b5cf6', '#ec4899', '#3b82f6', '#10b981', '#f59e0b', '#6366f1', '#14b8a6'];
             return (
               <div key={i} className="flex flex-col items-center">
-                <div className="w-6 bg-blue-200 rounded-t" style={{ height: `${h}px` }} title={`${d.label}: ${d.obs} gözlem, ${d.media} ürün`} />
-                <div className="mt-1 text-xs text-gray-500">{d.label}</div>
+                <div className="w-6 rounded-t transition-all hover:scale-110" style={{ height: `${h}px`, backgroundColor: colors[i % colors.length] }} title={`${d.label}: ${d.obs} gözlem, ${d.media} ürün`} />
+                <div className="mt-1 text-xs text-gray-500 font-medium">{d.label}</div>
               </div>
             );
           })}
@@ -173,20 +174,22 @@ const Dashboard: React.FC<DashboardProps> = ({ navigate }) => {
       {/* Pinned children */}
       {pinnedIds.length > 0 && (
         <div className="mt-6">
-          <h2 className="text-lg font-medium text-gray-900">Sabitlenen Çocuklar</h2>
+          <h2 className="text-lg font-semibold text-gray-900">📌 Sabitlenen Çocuklar</h2>
           <div className="mt-3 grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-4 gap-3">
-            {children.filter((c) => pinnedIds.includes(c.id)).slice(0, 8).map((c) => {
+            {children.filter((c) => pinnedIds.includes(c.id)).slice(0, 8).map((c, idx) => {
               const initials = `${(c.first_name||'')[0]||''}${(c.last_name||'')[0]||''}`.toUpperCase();
+              const cardColors = ['card-colorful-purple', 'card-colorful-blue', 'card-colorful-green', 'card-colorful-pink', 'card-colorful-orange'];
+              const avatarColors = ['bg-purple-200 text-purple-700', 'bg-blue-200 text-blue-700', 'bg-green-200 text-green-700', 'bg-pink-200 text-pink-700', 'bg-orange-200 text-orange-700'];
               return (
-                <div key={c.id} className="bg-white rounded-lg shadow p-4 flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center text-gray-600 font-bold">{initials}</div>
+                <div key={c.id} className={`bg-white rounded-lg shadow p-4 flex items-center gap-3 card-colorful ${cardColors[idx % cardColors.length]}`}>
+                  <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold ${avatarColors[idx % avatarColors.length]}`}>{initials}</div>
                   <div className="flex-1 min-w-0">
                     <div className="font-medium text-gray-900 truncate">{c.first_name} {c.last_name}</div>
                     <div className="text-xs text-gray-500 truncate">{c.classroom || ''}</div>
                   </div>
                   <div className="flex flex-col gap-1">
-                    <button className="text-primary text-sm hover:underline" onClick={() => navigate('child-detail', { id: c.id })}>Profil</button>
-                    <button className="text-primary text-sm hover:underline" onClick={() => navigate('add-observation', { childId: c.id })}>Gözlem</button>
+                    <button className="text-primary text-sm hover:underline font-medium" onClick={() => navigate('child-detail', { id: c.id })}>Profil</button>
+                    <button className="text-secondary text-sm hover:underline font-medium" onClick={() => navigate('add-observation', { childId: c.id })}>Gözlem</button>
                   </div>
                 </div>
               );
@@ -197,39 +200,42 @@ const Dashboard: React.FC<DashboardProps> = ({ navigate }) => {
 
       {/* Recent observations */}
       <div className="mt-8">
-        <h2 className="text-lg font-medium text-gray-900">{t('recentObservations')}</h2>
-        <div className="mt-4 bg-white rounded-lg shadow-md p-6">
+        <h2 className="text-lg font-semibold text-gray-900">🔍 {t('recentObservations')}</h2>
+        <div className="mt-4 bg-white rounded-lg shadow-md p-6 card-colorful card-colorful-purple">
           {loading ? (
             <p className="text-gray-500">{t('loading')}</p>
           ) : recent.length === 0 ? (
             <p className="text-gray-500">{t('noRecentObservations')}</p>
           ) : (
             <ul className="space-y-3">
-              {recent.map((r) => (
-                <li key={r.id} className="border rounded p-3">
-                  <div className="flex items-center justify-between text-sm text-gray-500">
-                    <div>
-                      {new Date(r.created_at).toLocaleString('tr-TR')} - {children.find(c => c.id===r.child_id)?.first_name} {children.find(c => c.id===r.child_id)?.last_name}
+              {recent.map((r, idx) => {
+                const cardColors = ['border-l-purple-500', 'border-l-blue-500', 'border-l-green-500', 'border-l-pink-500', 'border-l-orange-500'];
+                return (
+                  <li key={r.id} className={`border-l-4 ${cardColors[idx % cardColors.length]} border rounded-lg p-4 bg-gradient-to-r from-gray-50 to-white hover:shadow-md transition-shadow`}>
+                    <div className="flex items-center justify-between text-sm text-gray-600">
+                      <div className="font-medium">
+                        {new Date(r.created_at).toLocaleString('tr-TR')} - <span className="text-gray-900">{children.find(c => c.id===r.child_id)?.first_name} {children.find(c => c.id===r.child_id)?.last_name}</span>
+                      </div>
+                      {r.assessment_risk && (
+                        <span className={`px-3 py-1 rounded-full font-semibold text-xs ${r.assessment_risk === 'high' ? 'bg-red-500 text-white' : r.assessment_risk === 'medium' ? 'bg-amber-400 text-white' : 'bg-green-500 text-white'}`}>
+                          {r.assessment_risk === 'high' ? '🔴 Yüksek' : r.assessment_risk === 'medium' ? '🟡 Orta' : '🟢 Düşük'}
+                        </span>
+                      )}
                     </div>
-                    {r.assessment_risk && (
-                      <span className={`px-2 py-0.5 rounded-full ${r.assessment_risk === 'high' ? 'bg-red-100 text-red-700' : r.assessment_risk === 'medium' ? 'bg-amber-100 text-amber-800' : 'bg-green-100 text-green-700'}`}>
-                        {r.assessment_risk === 'high' ? 'Yüksek' : r.assessment_risk === 'medium' ? 'Orta' : 'Düşük'}
-                      </span>
+                    <div className="mt-2 text-gray-800 line-clamp-3 whitespace-pre-wrap">{r.note}</div>
+                    {r.domains && r.domains.length > 0 && (
+                      <div className="mt-3 flex flex-wrap gap-2">
+                        {r.domains.map((d, i) => (
+                          <span key={i} className="text-xs bg-gradient-to-r from-blue-50 to-indigo-50 text-blue-700 border border-blue-200 rounded-full px-3 py-1 font-medium">{DOMAIN_TR[d] || d}</span>
+                        ))}
+                      </div>
                     )}
-                  </div>
-                  <div className="mt-2 text-gray-800 line-clamp-3 whitespace-pre-wrap">{r.note}</div>
-                  {r.domains && r.domains.length > 0 && (
-                    <div className="mt-2 flex flex-wrap gap-1">
-                      {r.domains.map((d, i) => (
-                        <span key={i} className="text-xs bg-blue-50 text-blue-700 border border-blue-100 rounded-full px-2 py-0.5">{DOMAIN_TR[d] || d}</span>
-                      ))}
+                    <div className="mt-3">
+                      <button className="px-3 py-1 bg-primary text-white rounded-md hover:bg-opacity-90 text-sm font-medium" onClick={() => navigate('child-detail', { id: r.child_id })}>Çocuğa Git →</button>
                     </div>
-                  )}
-                  <div className="mt-2">
-                    <button className="text-primary hover:underline text-sm" onClick={() => navigate('child-detail', { id: r.child_id })}>Çocuğa Git</button>
-                  </div>
-                </li>
-              ))}
+                  </li>
+                );
+              })}
             </ul>
           )}
         </div>

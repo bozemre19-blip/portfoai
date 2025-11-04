@@ -125,8 +125,8 @@ const ChildrenScreen: React.FC<ChildrenScreenProps> = ({ navigate }) => {
   return (
     <div>
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-3xl font-bold text-gray-900">{t('childList')}</h1>
-        <button onClick={() => setShowForm(!showForm)} className="px-4 py-2 bg-primary text-white rounded-lg shadow hover:bg-primary/90">
+        <h1 className="text-3xl font-bold text-gradient-purple">{t('childList')}</h1>
+        <button onClick={() => setShowForm(!showForm)} className="px-4 py-2 rounded-lg shadow btn-gradient-primary">
             {showForm ? t('cancel') : t('addChild')}
         </button>
       </div>
@@ -160,33 +160,37 @@ const ChildrenScreen: React.FC<ChildrenScreenProps> = ({ navigate }) => {
       )}
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {filteredChildren.map((child) => (
-          <div key={child.id} className="bg-white rounded-lg shadow-md p-5 transition-shadow relative group">
-             <button 
-                onClick={(e) => { e.stopPropagation(); handleDeleteRequest(child); }}
-                className="absolute top-2 right-2 p-2 rounded-full bg-gray-100 text-gray-500 opacity-0 group-hover:opacity-100 hover:bg-red-100 hover:text-red-600 transition-opacity z-10"
-                aria-label={`Delete ${child.first_name}`}
-            >
-                <TrashIcon className="w-5 h-5" />
-            </button>
-            <div onClick={() => navigate('child-detail', { id: child.id })} className="cursor-pointer">
-              <div className="flex items-center space-x-4">
-                 {child.photo_url ? (
-                      <img src={child.photo_url} alt={`${child.first_name}`} className="w-16 h-16 rounded-full object-cover bg-gray-200" />
-                  ) : (
-                      <div className="w-16 h-16 bg-gray-200 rounded-full flex items-center justify-center text-2xl font-bold text-gray-500">
-                          {child.first_name.charAt(0)}{child.last_name.charAt(0)}
-                      </div>
-                  )}
-                <div>
-                  <h3 className="text-lg font-bold text-gray-800">{child.first_name} {child.last_name}</h3>
-                  <p className="text-sm text-gray-500">{t('age')}: {calculateAge(child.dob)}</p>
-                  {child.classroom && <p className="text-sm text-gray-500">{t('classroom')}: {child.classroom}</p>}
+        {filteredChildren.map((child, idx) => {
+          const cardColors = ['card-colorful-purple', 'card-colorful-blue', 'card-colorful-green', 'card-colorful-pink', 'card-colorful-orange'];
+          const avatarColors = ['bg-purple-200 text-purple-700', 'bg-blue-200 text-blue-700', 'bg-green-200 text-green-700', 'bg-pink-200 text-pink-700', 'bg-orange-200 text-orange-700'];
+          return (
+            <div key={child.id} className={`bg-white rounded-lg shadow-md p-5 transition-all relative group hover:shadow-xl card-colorful ${cardColors[idx % cardColors.length]}`}>
+              <button 
+                  onClick={(e) => { e.stopPropagation(); handleDeleteRequest(child); }}
+                  className="absolute top-2 right-2 p-2 rounded-full bg-gray-100 text-gray-500 opacity-0 group-hover:opacity-100 hover:bg-red-100 hover:text-red-600 transition-opacity z-10"
+                  aria-label={`Delete ${child.first_name}`}
+              >
+                  <TrashIcon className="w-5 h-5" />
+              </button>
+              <div onClick={() => navigate('child-detail', { id: child.id })} className="cursor-pointer">
+                <div className="flex items-center space-x-4">
+                  {child.photo_url ? (
+                        <img src={child.photo_url} alt={`${child.first_name}`} className="w-16 h-16 rounded-full object-cover border-2 border-white shadow-md" />
+                    ) : (
+                        <div className={`w-16 h-16 rounded-full flex items-center justify-center text-2xl font-bold shadow-md ${avatarColors[idx % avatarColors.length]}`}>
+                            {child.first_name.charAt(0)}{child.last_name.charAt(0)}
+                        </div>
+                    )}
+                  <div>
+                    <h3 className="text-lg font-bold text-gray-900">{child.first_name} {child.last_name}</h3>
+                    <p className="text-sm text-gray-600 font-medium">{t('age')}: {calculateAge(child.dob)}</p>
+                    {child.classroom && <p className="text-sm text-gray-600 font-medium">{t('classroom')}: {child.classroom}</p>}
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
       
       {isDeleteModalOpen && childToDelete && (

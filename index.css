@@ -15,6 +15,122 @@ html[data-theme='kids'] .card-bouncy:hover {
   border-radius: 999px;
 }
 
+/* Renkli butonlar */
+.btn-gradient-primary {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+.btn-gradient-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+}
+
+.btn-gradient-success {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  color: white;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+.btn-gradient-success:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(16, 185, 129, 0.4);
+}
+
+.btn-gradient-info {
+  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+  color: white;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+.btn-gradient-info:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(59, 130, 246, 0.4);
+}
+
+/* Renkli kartlar */
+.card-colorful {
+  transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
+  border-left: 4px solid transparent;
+}
+
+.card-colorful-purple {
+  border-left-color: #8b5cf6;
+}
+.card-colorful-purple:hover {
+  border-left-color: #7c3aed;
+  transform: translateX(4px);
+  box-shadow: 0 8px 24px rgba(139, 92, 246, 0.15);
+}
+
+.card-colorful-blue {
+  border-left-color: #3b82f6;
+}
+.card-colorful-blue:hover {
+  border-left-color: #2563eb;
+  transform: translateX(4px);
+  box-shadow: 0 8px 24px rgba(59, 130, 246, 0.15);
+}
+
+.card-colorful-green {
+  border-left-color: #10b981;
+}
+.card-colorful-green:hover {
+  border-left-color: #059669;
+  transform: translateX(4px);
+  box-shadow: 0 8px 24px rgba(16, 185, 129, 0.15);
+}
+
+.card-colorful-pink {
+  border-left-color: #ec4899;
+}
+.card-colorful-pink:hover {
+  border-left-color: #db2777;
+  transform: translateX(4px);
+  box-shadow: 0 8px 24px rgba(236, 72, 153, 0.15);
+}
+
+.card-colorful-orange {
+  border-left-color: #f59e0b;
+}
+.card-colorful-orange:hover {
+  border-left-color: #d97706;
+  transform: translateX(4px);
+  box-shadow: 0 8px 24px rgba(245, 158, 11, 0.15);
+}
+
+/* İstatistik kartları */
+.stat-card-purple {
+  background: linear-gradient(135deg, #f3e8ff 0%, #e9d5ff 100%);
+  border: 2px solid #c084fc;
+}
+
+.stat-card-blue {
+  background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+  border: 2px solid #60a5fa;
+}
+
+.stat-card-green {
+  background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+  border: 2px solid #34d399;
+}
+
+.stat-card-pink {
+  background: linear-gradient(135deg, #fce7f3 0%, #fbcfe8 100%);
+  border: 2px solid #f472b6;
+}
+
+.stat-card-orange {
+  background: linear-gradient(135deg, #fed7aa 0%, #fdba74 100%);
+  border: 2px solid #fb923c;
+}
+
+/* Gradient başlık */
+.text-gradient-purple {
+  background: linear-gradient(135deg, #8b5cf6 0%, #ec4899 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
 /* Tag badges in kids theme */
 html[data-theme='kids'] .tag-chip {
   background: #eef2ff;
