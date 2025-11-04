@@ -78,12 +78,13 @@ const Auth: React.FC = () => {
 
         {/* Content */}
         <div className="relative z-10 flex flex-col justify-center px-16 text-white">
-          <div className="mb-12">
-            <div className="inline-block bg-white/20 backdrop-blur-md rounded-3xl p-8 shadow-2xl border border-white/10">
+          <div className="mb-12 relative">
+            <div className="absolute -inset-8 bg-gradient-to-r from-blue-400/20 to-cyan-400/20 rounded-full blur-3xl"></div>
+            <div className="relative">
               <img
                 src="/portfoai-logo.svg"
                 alt="PortfoAI"
-                className="h-32 drop-shadow-2xl"
+                className="h-36 drop-shadow-[0_0_40px_rgba(96,165,250,0.5)]"
                 draggable={false}
               />
             </div>
@@ -132,11 +133,12 @@ const Auth: React.FC = () => {
         <div className="w-full max-w-md">
           {/* Logo - Mobile */}
           <div className="lg:hidden mb-8 text-center">
-            <div className="inline-block bg-gradient-to-br from-indigo-50 to-purple-50 rounded-2xl p-4 shadow-lg">
+            <div className="inline-block relative">
+              <div className="absolute -inset-4 bg-gradient-to-r from-indigo-200/40 to-blue-200/40 rounded-full blur-2xl"></div>
               <img
                 src="/portfoai-logo.svg"
                 alt="PortfoAI"
-                className="h-16 mx-auto"
+                className="h-20 mx-auto relative drop-shadow-xl"
                 draggable={false}
               />
             </div>
