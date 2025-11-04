@@ -23,14 +23,19 @@ const Layout: React.FC<LayoutProps> = ({ children, navigate }) => {
       : (user?.email?.split('@')[0] || '')
   );
   const [isSidebarOpen, setSidebarOpen] = useState(false);
-  const [theme, setTheme] = useState<string>(() => localStorage.getItem('theme') || 'dark');
+  const [theme, setTheme] = useState<string>(() => {
+    const savedTheme = localStorage.getItem('theme');
+    // Kids teması kaldırıldı, varsa light'a çevir
+    if (savedTheme === 'kids') return 'light';
+    return savedTheme || 'light';
+  });
 
   useEffect(() => {
     localStorage.setItem('theme', theme);
     document.documentElement.setAttribute('data-theme', theme);
   }, [theme]);
 
-  // Inject minimal CSS overrides at runtime to ensure dark/kids themes are readable
+  // Inject minimal CSS overrides at runtime to ensure dark theme is readable
   useEffect(() => {
     const id = 'dark-theme-overrides';
     if (document.getElementById(id)) return;
@@ -49,13 +54,6 @@ const Layout: React.FC<LayoutProps> = ({ children, navigate }) => {
       html[data-theme='dark'] .bg-white .text-gray-700,
       html[data-theme='dark'] .bg-white .text-gray-600,
       html[data-theme='dark'] .bg-white .text-black { color: #0f172a !important; }
-
-      /* Kids theme */
-      html[data-theme='kids'] body { background: linear-gradient(180deg, #fff7ed 0%, #fdf2f8 50%, #eff6ff 100%); }
-      html[data-theme='kids'] .bg-white { background: #ffffffcc !important; backdrop-filter: saturate(120%) blur(2px); border: 1px solid #fde68a33; }
-      html[data-theme='kids'] .text-gray-900 { color: #111827 !important; }
-      html[data-theme='kids'] .shadow { box-shadow: 0 6px 20px rgba(124,58,237,0.08), 0 2px 8px rgba(56,189,248,0.08) !important; }
-      html[data-theme='kids'] .chip, html[data-theme='kids'] .badge { filter: saturate(115%); }
     `;
     document.head.appendChild(style);
   }, []);
@@ -70,16 +68,15 @@ const Layout: React.FC<LayoutProps> = ({ children, navigate }) => {
 
   const colors = useMemo(() => {
     const dark = theme === 'dark';
-    const kids = theme === 'kids';
     return {
-      sidebarBg: dark ? 'bg-gray-800' : kids ? 'bg-white/90 border-r border-yellow-100' : 'bg-white/95 backdrop-blur-sm border-r border-gray-200',
-      headerBorder: dark ? 'border-gray-700' : kids ? 'border-yellow-200' : 'border-gray-200',
+      sidebarBg: dark ? 'bg-gray-800' : 'bg-white/95 backdrop-blur-sm border-r border-gray-200',
+      headerBorder: dark ? 'border-gray-700' : 'border-gray-200',
       headerTitle: dark ? 'text-white' : 'text-gray-900',
       headerSub: dark ? 'text-gray-400' : 'text-gray-500',
-      navItem: dark ? 'text-gray-300 hover:bg-gray-700 hover:text-white' : kids ? 'text-gray-700 hover:bg-yellow-50 hover:text-violet-700' : 'text-gray-700 hover:bg-gray-100 hover:text-gray-900',
-      signOut: dark ? 'text-gray-300 hover:bg-gray-700 hover:text-white' : kids ? 'text-gray-700 hover:bg-yellow-50 hover:text-violet-700' : 'text-gray-700 hover:bg-gray-100 hover:text-gray-900',
-      footerBorder: dark ? 'border-gray-700' : kids ? 'border-yellow-200' : 'border-gray-200',
-      appBg: dark ? 'bg-gray-900' : kids ? 'bg-transparent' : 'bg-transparent',
+      navItem: dark ? 'text-gray-300 hover:bg-gray-700 hover:text-white' : 'text-gray-700 hover:bg-gray-100 hover:text-gray-900',
+      signOut: dark ? 'text-gray-300 hover:bg-gray-700 hover:text-white' : 'text-gray-700 hover:bg-gray-100 hover:text-gray-900',
+      footerBorder: dark ? 'border-gray-700' : 'border-gray-200',
+      appBg: dark ? 'bg-gray-900' : 'bg-transparent',
     };
   }, [theme]);
 
@@ -163,27 +160,20 @@ const Layout: React.FC<LayoutProps> = ({ children, navigate }) => {
       <div className={`p-4 border-t ${colors.footerBorder}`}>
         <div className="mb-3">
           <div className={`text-xs mb-2 font-semibold ${theme === 'dark' ? 'text-gray-300' : 'text-gray-600'}`}>🎨 Tema</div>
-          <div className="flex gap-2">
+          <div className="flex gap-3">
             <button
-              className={`flex-1 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${theme === 'light' ? 'bg-gradient-to-r from-blue-500 to-blue-600 text-white shadow-md scale-105' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`}
+              className={`flex-1 px-4 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 ${theme === 'light' ? 'bg-gradient-to-r from-blue-500 to-blue-600 text-white shadow-lg scale-105' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`}
               onClick={() => setTheme('light')}
             >
-              <span className="block">☀️</span>
-              <span className="text-xs">Açık</span>
+              <span className="block text-xl mb-1">☀️</span>
+              <span className="text-xs font-semibold">Açık</span>
             </button>
             <button
-              className={`flex-1 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${theme === 'dark' ? 'bg-gradient-to-r from-gray-700 to-gray-900 text-white shadow-md scale-105' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`}
+              className={`flex-1 px-4 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 ${theme === 'dark' ? 'bg-gradient-to-r from-gray-700 to-gray-900 text-white shadow-lg scale-105' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`}
               onClick={() => setTheme('dark')}
             >
-              <span className="block">🌙</span>
-              <span className="text-xs">Koyu</span>
-            </button>
-            <button
-              className={`flex-1 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${theme === 'kids' ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-md scale-105' : 'bg-gradient-to-r from-yellow-100 to-pink-100 text-purple-700 hover:from-yellow-200 hover:to-pink-200'}`}
-              onClick={() => setTheme('kids')}
-            >
-              <span className="block">🌈</span>
-              <span className="text-xs">Renkli</span>
+              <span className="block text-xl mb-1">🌙</span>
+              <span className="text-xs font-semibold">Koyu</span>
             </button>
           </div>
         </div>
