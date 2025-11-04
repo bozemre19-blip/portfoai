@@ -144,23 +144,26 @@ const Auth: React.FC = () => {
             </div>
           </div>
 
-          <div className="bg-white rounded-2xl shadow-xl p-8">
-            <div className="mb-8">
-              <h2 className="text-3xl font-bold text-gray-900 mb-2">
+          <div className="bg-white rounded-3xl shadow-2xl p-10 border border-gray-100 relative overflow-hidden">
+            {/* Decorative gradient */}
+            <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-indigo-500 via-purple-500 to-blue-500"></div>
+            
+            <div className="mb-10">
+              <h2 className="text-4xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent mb-3">
                 {isSignUp ? 'Hesap Oluştur' : 'Hoş Geldiniz'}
               </h2>
-              <p className="text-gray-600">
+              <p className="text-gray-600 text-lg">
                 {isSignUp ? 'Yeni bir hesap oluşturun ve başlayın' : 'Hesabınıza giriş yapın'}
               </p>
             </div>
 
-            <form onSubmit={handleSubmit} className="space-y-5">
+            <form onSubmit={handleSubmit} className="space-y-6">
               {isSignUp && (
                 <>
                   <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <label htmlFor="teacher-first-name" className="block text-sm font-medium text-gray-700 mb-2">
-                        Adınız
+                    <div className="relative group">
+                      <label htmlFor="teacher-first-name" className="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
+                        <span className="text-indigo-600">👤</span> Adınız
                       </label>
                       <input
                         id="teacher-first-name"
@@ -168,15 +171,15 @@ const Auth: React.FC = () => {
                         type="text"
                         autoComplete="given-name"
                         required={isSignUp}
-                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all text-gray-900"
+                        className="w-full px-4 py-3.5 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all text-gray-900 placeholder-gray-400 hover:border-indigo-300 hover:shadow-md"
                         placeholder="Adınız"
                         value={firstName}
                         onChange={(e) => setFirstName(e.target.value)}
                       />
                     </div>
-                    <div>
-                      <label htmlFor="teacher-last-name" className="block text-sm font-medium text-gray-700 mb-2">
-                        Soyadınız
+                    <div className="relative group">
+                      <label htmlFor="teacher-last-name" className="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
+                        <span className="text-indigo-600">👤</span> Soyadınız
                       </label>
                       <input
                         id="teacher-last-name"
@@ -184,7 +187,7 @@ const Auth: React.FC = () => {
                         type="text"
                         autoComplete="family-name"
                         required={isSignUp}
-                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all text-gray-900"
+                        className="w-full px-4 py-3.5 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all text-gray-900 placeholder-gray-400 hover:border-indigo-300 hover:shadow-md"
                         placeholder="Soyadınız"
                         value={lastName}
                         onChange={(e) => setLastName(e.target.value)}
@@ -192,9 +195,9 @@ const Auth: React.FC = () => {
                     </div>
                   </div>
 
-                  <div>
-                    <label htmlFor="school-name" className="block text-sm font-medium text-gray-700 mb-2">
-                      Okul Adı
+                  <div className="relative group">
+                    <label htmlFor="school-name" className="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
+                      <span className="text-indigo-600">🏫</span> Okul Adı
                     </label>
                     <input
                       id="school-name"
@@ -202,7 +205,7 @@ const Auth: React.FC = () => {
                       type="text"
                       autoComplete="organization"
                       required={isSignUp}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all text-gray-900"
+                      className="w-full px-4 py-3.5 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all text-gray-900 placeholder-gray-400 hover:border-indigo-300 hover:shadow-md"
                       placeholder="Okul adı"
                       value={schoolName}
                       onChange={(e) => setSchoolName(e.target.value)}
@@ -211,9 +214,9 @@ const Auth: React.FC = () => {
                 </>
               )}
 
-              <div>
-                <label htmlFor="email-address" className="block text-sm font-medium text-gray-700 mb-2">
-                  E-posta Adresi
+              <div className="relative group">
+                <label htmlFor="email-address" className="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
+                  <span className="text-indigo-600">📧</span> E-posta Adresi
                 </label>
                 <input
                   id="email-address"
@@ -221,16 +224,16 @@ const Auth: React.FC = () => {
                   type="email"
                   autoComplete="email"
                   required
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all text-gray-900"
+                  className="w-full px-4 py-3.5 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all text-gray-900 placeholder-gray-400 hover:border-indigo-300 hover:shadow-md"
                   placeholder="ornek@email.com"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                 />
               </div>
 
-              <div>
-                <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">
-                  Şifre
+              <div className="relative group">
+                <label htmlFor="password" className="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
+                  <span className="text-indigo-600">🔒</span> Şifre
                 </label>
                 <input
                   id="password"
@@ -238,7 +241,7 @@ const Auth: React.FC = () => {
                   type="password"
                   autoComplete={isSignUp ? "new-password" : "current-password"}
                   required
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all text-gray-900"
+                  className="w-full px-4 py-3.5 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all text-gray-900 placeholder-gray-400 hover:border-indigo-300 hover:shadow-md"
                   placeholder="••••••••"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
@@ -246,33 +249,69 @@ const Auth: React.FC = () => {
               </div>
 
               {message && (
-                <div className="p-4 bg-emerald-50 border border-emerald-200 text-emerald-700 rounded-lg text-sm font-medium">
-                  ✓ {message}
+                <div className="p-4 bg-gradient-to-r from-emerald-50 to-green-50 border-2 border-emerald-300 text-emerald-700 rounded-xl text-sm font-semibold flex items-center gap-3 animate-bounce-once shadow-lg">
+                  <span className="text-2xl">✓</span>
+                  <span>{message}</span>
                 </div>
               )}
 
               {error && (
-                <div className="p-4 bg-red-50 border border-red-200 text-red-700 rounded-lg text-sm font-medium">
-                  ✕ {error}
+                <div className="p-4 bg-gradient-to-r from-red-50 to-pink-50 border-2 border-red-300 text-red-700 rounded-xl text-sm font-semibold flex items-center gap-3 animate-shake shadow-lg">
+                  <span className="text-2xl">✕</span>
+                  <span>{error}</span>
                 </div>
               )}
 
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full py-3 px-4 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-semibold rounded-lg shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+                className="group relative w-full py-4 px-4 bg-gradient-to-r from-indigo-600 via-purple-600 to-blue-600 hover:from-indigo-700 hover:via-purple-700 hover:to-blue-700 text-white font-bold rounded-xl shadow-xl hover:shadow-2xl transform hover:-translate-y-1 hover:scale-[1.02] transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none overflow-hidden"
               >
-                {loading ? 'Yükleniyor...' : (isSignUp ? 'Hesap Oluştur' : 'Giriş Yap')}
+                <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/20 to-white/0 transform -skew-x-12 -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>
+                <span className="relative flex items-center justify-center gap-2 text-lg">
+                  {loading ? (
+                    <>
+                      <svg className="animate-spin h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                      </svg>
+                      Yükleniyor...
+                    </>
+                  ) : (
+                    <>
+                      <span>{isSignUp ? 'Hesap Oluştur' : 'Giriş Yap'}</span>
+                      <span className="text-xl group-hover:translate-x-1 transition-transform">→</span>
+                    </>
+                  )}
+                </span>
               </button>
             </form>
 
-            <div className="mt-6 text-center">
+            <div className="mt-8 text-center">
               <button
                 onClick={() => { setIsSignUp(!isSignUp); setMessage(''); setError(''); }}
-                className="text-indigo-600 hover:text-indigo-700 font-medium text-sm transition-colors"
+                className="text-indigo-600 hover:text-indigo-700 font-semibold text-base transition-all hover:underline decoration-2 underline-offset-4"
               >
                 {isSignUp ? 'Zaten hesabınız var mı? Giriş yapın' : 'Hesabınız yok mu? Kayıt olun'}
               </button>
+            </div>
+
+            {/* Security badges */}
+            <div className="mt-8 pt-6 border-t border-gray-100">
+              <div className="flex items-center justify-center gap-6 text-xs text-gray-500">
+                <div className="flex items-center gap-1.5">
+                  <span className="text-green-500 text-base">🔒</span>
+                  <span className="font-medium">SSL Şifreli</span>
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <span className="text-blue-500 text-base">🛡️</span>
+                  <span className="font-medium">Güvenli</span>
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <span className="text-purple-500 text-base">⚡</span>
+                  <span className="font-medium">Hızlı</span>
+                </div>
+              </div>
             </div>
           </div>
 
