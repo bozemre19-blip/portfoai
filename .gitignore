@@ -27,3 +27,31 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+.cursor/
+.claude/
+.codex/
+
+# Windows
+AppData/
+Documents/
+Music/
+Videos/
+Downloads/
+*.dat
+*.blf
+*.regtrans-ms
+*.LOG*
+*.ini
+Cookies/
+Local Settings/
+NetHood/
+PrintHood/
+Recent/
+SendTo/
+Start Menu/
+Templates/
+Favorites/
+Links/
+Contacts/
+Saved Games/
+Searches/

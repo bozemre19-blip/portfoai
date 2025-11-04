@@ -15,6 +15,7 @@ import SettingsScreen from './components/SettingsScreen';
 import MediaScreen from './components/MediaScreen';
 import ChildObservationsScreen from './components/ChildObservationsScreen';
 import TeacherChat from './components/TeacherChat';
+import AttendanceScreen from './components/AttendanceScreen';
 import { syncOfflineData } from './services/api';
 import { t } from './constants.clean';
 // Sentry geçici olarak devre dışı (beyaz ekran sorunu için)
@@ -158,6 +159,8 @@ const App: React.FC = () => {
         return <ChildObservationsScreen childId={view.params.childId} navigate={navigate} />;
       case 'teacher-chat':
         return <TeacherChat navigate={navigate} childId={view.params.forChatChildId} classroom={view.params.classroom} />;
+      case 'attendance':
+        return <AttendanceScreen navigate={navigate} />;
       case 'settings':
         return <SettingsScreen />;
       default:

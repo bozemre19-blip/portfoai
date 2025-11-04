@@ -7,6 +7,7 @@ import { generatePdf } from './PdfReport';
 import { t, DEVELOPMENT_DOMAINS } from '../constants.clean';
 import { useAuth } from '../App';
 import { ChildForm } from './ChildForm';
+import GoalsSection from './GoalsSection';
 
 type Risk = 'low' | 'medium' | 'high';
 type ChildProfileData = {
@@ -458,6 +459,11 @@ const ChildDetailScreen: React.FC<ChildDetailScreenProps> = ({ childId, navigate
             )}
           </Section>
         </div>
+      </div>
+
+      {/* Hedefler Bölümü */}
+      <div className="mt-8">
+        <GoalsSection childId={childId} userId={user?.id || ''} />
       </div>
 
       {isEditModalOpen && (

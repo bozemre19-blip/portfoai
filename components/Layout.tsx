@@ -93,6 +93,7 @@ const Layout: React.FC<LayoutProps> = ({ children, navigate }) => {
     { name: t('dashboard'), icon: HomeIcon, page: 'dashboard', color: 'blue', emoji: '🏠' },
     { name: t('children'), icon: UsersIcon, page: 'children', color: 'green', emoji: '👶' },
     { name: 'Sınıflar', icon: UsersIcon, page: 'classes', color: 'purple', emoji: '🏫' },
+    { name: 'Yoklama', icon: UsersIcon, page: 'attendance', color: 'red', emoji: '📋' },
     { name: 'Asistana bağlan', icon: ChatIcon, page: 'teacher-chat', color: 'pink', emoji: '💬' },
     { name: t('settings'), icon: CogIcon, page: 'settings', color: 'orange', emoji: '⚙️' },
   ];
@@ -162,6 +163,7 @@ const Layout: React.FC<LayoutProps> = ({ children, navigate }) => {
                 purple: 'hover:from-purple-50 hover:to-purple-100 group-hover:border-purple-500',
                 pink: 'hover:from-pink-50 hover:to-pink-100 group-hover:border-pink-500',
                 orange: 'hover:from-orange-50 hover:to-orange-100 group-hover:border-orange-500',
+                red: 'hover:from-red-50 hover:to-red-100 group-hover:border-red-500',
               }[item.color] || 'hover:from-gray-50 hover:to-gray-100 group-hover:border-gray-500');
           
           const iconColor = {
@@ -170,6 +172,7 @@ const Layout: React.FC<LayoutProps> = ({ children, navigate }) => {
             purple: 'text-purple-600',
             pink: 'text-pink-600',
             orange: 'text-orange-600',
+            red: 'text-red-600',
           }[item.color] || 'text-gray-600';
 
           return (
@@ -253,6 +256,33 @@ const Layout: React.FC<LayoutProps> = ({ children, navigate }) => {
           </button>
         </div>
         <main className="flex-1 relative z-0 overflow-y-auto focus:outline-none">
+          {/* Header Banner */}
+          <div className={`${theme === 'dark' ? 'bg-gradient-to-r from-[#1e2a47] via-[#1a1a2e] to-[#2a3f5f]' : 'bg-gradient-to-r from-indigo-600 via-purple-600 to-blue-600'} shadow-lg`}>
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-4">
+                  <div className="bg-white/20 backdrop-blur-sm rounded-xl p-3 shadow-lg">
+                    <span className="text-3xl">🎓</span>
+                  </div>
+                  <div>
+                    <h1 className="text-2xl font-bold text-white flex items-center gap-2">
+                      Erken Çocukluk Gözlem Sistemi
+                      <span className="text-sm font-normal bg-white/20 px-2 py-1 rounded-lg">Beta</span>
+                    </h1>
+                    <p className="text-white/80 text-sm mt-1">
+                      Hoş geldin, <span className="font-semibold">{displayName}</span> 👋
+                    </p>
+                  </div>
+                </div>
+                <div className="hidden lg:flex items-center gap-3">
+                  <div className="bg-white/10 backdrop-blur-sm rounded-lg px-4 py-2 text-white text-sm">
+                    <span className="opacity-80">Bugün:</span> <span className="font-bold">{new Date().toLocaleDateString('tr-TR', { day: 'numeric', month: 'long', year: 'numeric' })}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          
           <div className="py-6 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
             <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-2xl p-6 min-h-[calc(100vh-6rem)]">
               {children}

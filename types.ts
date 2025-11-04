@@ -2,6 +2,9 @@
 export type DevelopmentDomain = 'cognitive' | 'language' | 'social_emotional' | 'fine_motor' | 'gross_motor' | 'self_care';
 export type ObservationContext = 'classroom' | 'outdoor' | 'home' | 'other';
 export type RiskLevel = 'low' | 'medium' | 'high';
+export type GoalStatus = 'not_started' | 'in_progress' | 'completed' | 'cancelled';
+export type GoalPriority = 'low' | 'medium' | 'high';
+export type AttendanceStatus = 'present' | 'absent' | 'late' | 'excused';
 
 export interface Guardian {
   id: string;
@@ -68,6 +71,35 @@ export interface Assessment {
   summary: string;
   suggestions: string[];
   created_at: string;
+}
+
+export interface Goal {
+  id: string;
+  child_id: string;
+  user_id: string;
+  title: string;
+  description?: string;
+  domain: DevelopmentDomain;
+  status: GoalStatus;
+  priority: GoalPriority;
+  target_date?: string; // YYYY-MM-DD
+  progress: number; // 0-100
+  notes?: string;
+  created_at: string;
+  updated_at: string;
+  completed_at?: string;
+}
+
+export interface Attendance {
+  id: string;
+  child_id: string;
+  user_id: string;
+  date: string; // YYYY-MM-DD
+  status: AttendanceStatus;
+  notes?: string;
+  checked_in_at?: string; // ISO timestamp
+  created_at: string;
+  updated_at: string;
 }
 
 export interface OfflineObservation extends Omit<Observation, 'id' | 'user_id' | 'created_at' | 'updated_at'> {

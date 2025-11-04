@@ -26,6 +26,12 @@ export * from './media';
 export * from './chat';
 export type { ChatThread, ChatMessage } from './chat';
 
+// Hedef (Goals) işlemleri
+export * from './goals';
+
+// Yoklama (Attendance) işlemleri
+export * from './attendance';
+
 // Demo Data Seeder
 export * from './seed';
 export type { SeedOptions } from './seed';
