@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+﻿import React, { useEffect, useMemo, useState } from 'react';
 import { useAuth } from '../App';
 import { getChildren, getClasses, createClass } from '../services/api';
 
@@ -26,7 +26,7 @@ const ClassesScreen: React.FC<ClassesScreenProps> = ({ navigate }) => {
           const cls = await getClasses(user.id);
           setClasses(cls);
         } catch (e:any) {
-          // Table yoksa kullanıcıya bilgilendirme mesajı geçilir
+          // Table yoksa kullanÄ±cÄ±ya bilgilendirme mesajÄ± geÃ§ilir
           if (!String(e?.message||'').includes("'classes'")) setError(e?.message||'Hata');
         }
       } catch (e: any) {
@@ -41,14 +41,14 @@ const ClassesScreen: React.FC<ClassesScreenProps> = ({ navigate }) => {
     if (classes.length > 0) {
       const countMap = new Map<string, number>();
       for (const r of rows || []) {
-        const key = (r.classroom || '—') as string;
+        const key = (r.classroom || 'â€”') as string;
         countMap.set(key, (countMap.get(key) || 0) + 1);
       }
       return classes.map(c => [c.name, countMap.get(c.name)||0] as [string, number]);
     }
     // fallback: mevcut veriden gruplama (classes tablosu yoksa)
     const map = new Map<string, number>();
-    for (const r of rows || []) { const key = (r.classroom || '—') as string; map.set(key, (map.get(key)||0)+1); }
+    for (const r of rows || []) { const key = (r.classroom || 'â€”') as string; map.set(key, (map.get(key)||0)+1); }
     return Array.from(map.entries()).sort((a,b)=>a[0].localeCompare(b[0]));
   }, [rows, classes]);
 
@@ -62,33 +62,33 @@ const ClassesScreen: React.FC<ClassesScreenProps> = ({ navigate }) => {
       const cls = await getClasses(user.id);
       setClasses(cls);
     } catch (e:any) {
-      setError(e?.message||'Sınıf eklenemedi');
+      setError(e?.message||'SÄ±nÄ±f eklenemedi');
     } finally { setCreating(false); }
   };
 
   return (
-    <div className="max-w-4xl mx-auto">
-      <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold text-gray-900">Sınıflar</h1>
-        <div className="flex items-center gap-2">
-          <input className="border rounded px-2 py-1" placeholder="Yeni sınıf adı" value={newClass} onChange={(e)=>setNewClass(e.target.value)} />
-          <button className="px-3 py-2 bg-primary text-white rounded disabled:bg-gray-400" onClick={onCreate} disabled={creating || !newClass.trim()}>Sınıf Oluştur</button>
-          <button className="px-3 py-2 bg-gray-200 rounded" onClick={() => navigate('children')}>Tüm Çocuklar</button>
+    <div className="max-w-4xl mx-auto px-4">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-6">
+        <h1 className="text-2xl font-bold text-gray-900">SÄ±nÄ±flar</h1>
+        <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto">
+          <input className="border rounded px-2 py-2 flex-1 min-w-0 w-full sm:w-64" placeholder="Yeni sÄ±nÄ±f adÄ±" value={newClass} onChange={(e)=>setNewClass(e.target.value)} />
+          <button className="px-3 py-2 bg-primary text-white rounded disabled:bg-gray-400 whitespace-nowrap" onClick={onCreate} disabled={creating || !newClass.trim()}>SÄ±nÄ±f OluÅŸtur</button>
+          <button className="px-3 py-2 bg-gray-200 rounded whitespace-nowrap" onClick={() => navigate('children')}>TÃ¼m Ã‡ocuklar</button>
         </div>
       </div>
-      {loading && <p>Yükleniyor…</p>}
+      {loading && <p>YÃ¼kleniyorâ€¦</p>}
       {error && <p className="text-red-600">{error}</p>}
-      {!loading && groups.length === 0 && <p className="text-gray-500">Sınıf bulunamadı. Üstten yeni sınıf oluşturabilirsiniz.</p>}
+      {!loading && groups.length === 0 && <p className="text-gray-500">SÄ±nÄ±f bulunamadÄ±. Ãœstten yeni sÄ±nÄ±f oluÅŸturabilirsiniz.</p>}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {groups.map(([name, count]) => (
           <button
             key={name}
-            onClick={() => navigate('class-detail', { classroom: name === '—' ? '' : name })}
+            onClick={() => navigate('class-detail', { classroom: name === 'â€”' ? '' : name })}
             className="bg-white rounded-lg shadow p-4 text-left hover:shadow-md transition"
           >
-            <div className="text-sm text-gray-500">Sınıf</div>
+            <div className="text-sm text-gray-500">SÄ±nÄ±f</div>
             <div className="text-xl font-semibold text-gray-900 truncate" title={name}>{name}</div>
-            <div className="mt-1 text-gray-700">{count} öğrenci</div>
+            <div className="mt-1 text-gray-700">{count} Ã¶ÄŸrenci</div>
           </button>
         ))}
       </div>
@@ -97,4 +97,5 @@ const ClassesScreen: React.FC<ClassesScreenProps> = ({ navigate }) => {
 };
 
 export default ClassesScreen;
+
 
