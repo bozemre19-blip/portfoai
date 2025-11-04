@@ -4,6 +4,8 @@ import { useAuth } from '../App';
 import { supabase } from '../services/supabase';
 import { t } from '../constants.clean';
 import { seedDemoData, removeDemoData, recomputeAssessmentsForUser, getChildren, exportChildData } from '../services/api';
+import { manualSync } from '../services/syncService';
+import { getOfflineQueue } from '../services/api/common';
 
 const SettingsScreen: React.FC = () => {
   const { user } = useAuth();
@@ -29,6 +31,22 @@ const SettingsScreen: React.FC = () => {
   const [showAdvanced, setShowAdvanced] = useState(false);
   const [exportingJSON, setExportingJSON] = useState(false);
   const [exportMsg, setExportMsg] = useState('');
+  const [syncing, setSyncing] = useState(false);
+  const [syncMsg, setSyncMsg] = useState('');
+  const [offlineQueueCount, setOfflineQueueCount] = useState(0);
+
+  // Offline queue sayısını güncelle
+  React.useEffect(() => {
+    const updateCount = () => {
+      const queue = getOfflineQueue();
+      setOfflineQueueCount(queue.length);
+    };
+    
+    updateCount();
+    window.addEventListener('datachanged', updateCount);
+    
+    return () => window.removeEventListener('datachanged', updateCount);
+  }, []);
 
   const handleSaveProfile = async () => {
     setSaving(true);
@@ -49,6 +67,23 @@ const SettingsScreen: React.FC = () => {
       setError(e?.message || t('errorOccurred'));
     } finally {
       setSaving(false);
+    }
+  };
+
+  const handleManualSync = async () => {
+    setSyncing(true);
+    setSyncMsg('');
+    try {
+      const result = await manualSync();
+      setSyncMsg(result);
+      
+      // Queue sayısını güncelle
+      const queue = getOfflineQueue();
+      setOfflineQueueCount(queue.length);
+    } catch (e: any) {
+      setSyncMsg('❌ Senkronizasyon sırasında hata oluştu: ' + (e?.message || 'Bilinmeyen hata'));
+    } finally {
+      setSyncing(false);
     }
   };
 
@@ -115,6 +150,76 @@ const SettingsScreen: React.FC = () => {
             >
               {t('signOut')}
             </button>
+          </div>
+        </div>
+
+        {/* Offline Senkronizasyon */}
+        <div className="bg-gradient-to-r from-indigo-50 to-purple-50 border-2 border-indigo-200 p-6 rounded-lg shadow-lg">
+          <div className="flex items-center gap-3 mb-4">
+            <div className="bg-gradient-to-br from-indigo-600 to-purple-600 p-3 rounded-xl">
+              <svg className="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+              </svg>
+            </div>
+            <div>
+              <h2 className="text-xl font-bold text-gray-900">Çevrimdışı Veri Senkronizasyonu</h2>
+              <p className="text-sm text-gray-600">İnternet bağlantınız olmadığında yapılan değişiklikleri senkronize edin</p>
+            </div>
+          </div>
+
+          {offlineQueueCount > 0 && (
+            <div className="mb-4 p-4 bg-yellow-50 border-2 border-yellow-200 rounded-lg">
+              <p className="font-medium text-yellow-800">
+                ⚠️ {offlineQueueCount} adet senkronize edilmeyi bekleyen kayıt var
+              </p>
+              <p className="text-sm text-yellow-700 mt-1">
+                İnternet bağlantınız varken aşağıdaki butona basarak senkronize edebilirsiniz.
+              </p>
+            </div>
+          )}
+
+          {syncMsg && (
+            <div className={`mb-4 p-4 rounded-lg ${
+              syncMsg.includes('❌') ? 'bg-red-50 border-2 border-red-200 text-red-700' :
+              syncMsg.includes('⚠️') ? 'bg-yellow-50 border-2 border-yellow-200 text-yellow-700' :
+              'bg-green-50 border-2 border-green-200 text-green-700'
+            }`}>
+              <p className="font-medium">{syncMsg}</p>
+            </div>
+          )}
+
+          <div className="flex gap-3">
+            <button
+              onClick={handleManualSync}
+              disabled={syncing || !navigator.onLine}
+              className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white rounded-lg font-medium shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+              </svg>
+              {syncing ? 'Senkronize Ediliyor...' : 'Şimdi Senkronize Et'}
+            </button>
+
+            {!navigator.onLine && (
+              <div className="flex items-center gap-2 px-4 py-3 bg-gray-100 rounded-lg">
+                <div className="h-2 w-2 bg-red-500 rounded-full animate-pulse"></div>
+                <span className="text-sm text-gray-700 font-medium">Çevrimdışı</span>
+              </div>
+            )}
+
+            {navigator.onLine && (
+              <div className="flex items-center gap-2 px-4 py-3 bg-green-50 border border-green-200 rounded-lg">
+                <div className="h-2 w-2 bg-green-500 rounded-full"></div>
+                <span className="text-sm text-green-700 font-medium">Çevrimiçi</span>
+              </div>
+            )}
+          </div>
+
+          <div className="mt-4 p-4 bg-blue-50 border-l-4 border-blue-400 rounded">
+            <p className="text-sm text-gray-700">
+              💡 <strong>İpucu:</strong> İnternet bağlantınız kesildiğinde yapılan tüm değişiklikler (gözlemler, yoklama, hedefler) 
+              otomatik olarak saklanır ve bağlantı geri geldiğinde senkronize edilir.
+            </p>
           </div>
         </div>
 

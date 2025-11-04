@@ -1,6 +1,6 @@
 ﻿import React, { useEffect, useMemo, useState } from 'react';
-import { getObservationsForChild } from '../services/api';
-import type { Observation, Assessment, DevelopmentDomain } from '../types';
+import { getObservationsForChild, deleteObservation, getMediaForChild, getSignedUrlForMedia } from '../services/api';
+import type { Observation, Assessment, DevelopmentDomain, Media } from '../types';
 import { DEVELOPMENT_DOMAINS, t } from '../constants.clean';
 
 type ObsItem = Observation & { assessments: Assessment | null };
@@ -38,13 +38,31 @@ const ChildObservationsScreen: React.FC<Props> = ({ childId, navigate }) => {
   const [selected, setSelected] = useState<Set<DevelopmentDomain>>(new Set());
   const [riskInfo, setRiskInfo] = useState<Assessment | null>(null);
   const [riskNote, setRiskNote] = useState<string>('');
+  const [mediaList, setMediaList] = useState<Media[]>([]);
+  const [mediaUrls, setMediaUrls] = useState<Record<string, string>>({});
 
   useEffect(() => {
     (async () => {
       try {
         setLoading(true);
-        const list = (await getObservationsForChild(childId)) as any as ObsItem[];
-        setItems(list);
+        const [observations, media] = await Promise.all([
+          getObservationsForChild(childId),
+          getMediaForChild(childId)
+        ]);
+        setItems(observations as any as ObsItem[]);
+        setMediaList(media);
+        
+        // Get signed URLs for all media
+        const urls: Record<string, string> = {};
+        for (const m of media) {
+          try {
+            const url = await getSignedUrlForMedia(m.storage_path);
+            urls[m.id] = url;
+          } catch (e) {
+            console.error('Media URL alınamadı:', m.id, e);
+          }
+        }
+        setMediaUrls(urls);
       } catch (e: any) {
         setError(e?.message || 'Hata');
       } finally {
@@ -90,6 +108,22 @@ const ChildObservationsScreen: React.FC<Props> = ({ childId, navigate }) => {
   };
 
   const clearFilters = () => { setSearch(''); setSelected(new Set()); };
+  
+  const handleDelete = async (observationId: string) => {
+    if (!confirm('Bu gözlemi silmek istediğinizden emin misiniz? Bu işlem geri alınamaz.')) {
+      return;
+    }
+    
+    try {
+      await deleteObservation(observationId);
+      // Listeyi güncelle
+      setItems(prev => prev.filter(it => it.id !== observationId));
+      alert('✅ Gözlem başarıyla silindi');
+    } catch (e: any) {
+      alert('❌ Gözlem silinirken hata oluştu: ' + (e?.message || 'Bilinmeyen hata'));
+    }
+  };
+  
   // Yalnızca not metnine göre risk (alan puanları dikkate alınmaz)
   function computeRiskFromNote(noteText: string): 'low' | 'medium' | 'high' {
     const text = (noteText || '').toLocaleLowerCase('tr-TR');
@@ -219,8 +253,46 @@ const ChildObservationsScreen: React.FC<Props> = ({ childId, navigate }) => {
                         ) : null}
                       </div>
                       <p className="mt-2 text-gray-800 whitespace-pre-wrap">{it.note}</p>
+                      
+                      {/* Fotoğraflar */}
+                      {it.media_ids && it.media_ids.length > 0 && (
+                        <div className="mt-3 grid grid-cols-2 sm:grid-cols-3 gap-2">
+                          {it.media_ids.map((mediaId) => {
+                            const url = mediaUrls[mediaId];
+                            const media = mediaList.find(m => m.id === mediaId);
+                            if (!url) return null;
+                            return (
+                              <div key={mediaId} className="relative group">
+                                <img 
+                                  src={url} 
+                                  alt={media?.name || 'Gözlem fotoğrafı'}
+                                  className="w-full h-32 object-cover rounded-lg border-2 border-gray-200 group-hover:border-indigo-400 transition-all cursor-pointer shadow-sm"
+                                  onClick={() => window.open(url, '_blank')}
+                                />
+                                {media?.name && (
+                                  <div className="absolute bottom-0 left-0 right-0 bg-black/60 text-white text-xs p-1 rounded-b-lg truncate">
+                                    {media.name}
+                                  </div>
+                                )}
+                              </div>
+                            );
+                          })}
+                        </div>
+                      )}
+                      
                       <div className="mt-3 flex gap-2">
-                        <button className="px-3 py-1.5 bg-gray-100 rounded" onClick={() => navigate('edit-observation', { observation: it, childId })}>{t('edit')}</button>
+                        <button 
+                          className="px-3 py-1.5 bg-blue-50 hover:bg-blue-100 text-blue-700 border border-blue-200 rounded transition-colors" 
+                          onClick={() => navigate('edit-observation', { observation: it, childId })}
+                        >
+                          ✏️ {t('edit')}
+                        </button>
+                        <button 
+                          className="px-3 py-1.5 bg-red-50 hover:bg-red-100 text-red-700 border border-red-200 rounded transition-colors" 
+                          onClick={() => handleDelete(it.id)}
+                        >
+                          🗑️ Sil
+                        </button>
                       </div>
                     </div>
                   ))}

@@ -17,6 +17,7 @@ import ChildObservationsScreen from './components/ChildObservationsScreen';
 import TeacherChat from './components/TeacherChat';
 import AttendanceScreen from './components/AttendanceScreen';
 import { syncOfflineData } from './services/api';
+import { startAutoSync, stopAutoSync } from './services/syncService';
 import { t } from './constants.clean';
 // Sentry geçici olarak devre dışı (beyaz ekran sorunu için)
 // import { initSentry, setSentryUser, clearSentryUser } from './sentry.config';
@@ -95,11 +96,16 @@ const App: React.FC = () => {
     // initialize from URL hash on first load
     handleHash();
 
+    // Otomatik senkronizasyonu başlat
+    startAutoSync();
+
     return () => {
       subscription.unsubscribe();
       window.removeEventListener('online', handleOnline);
       window.removeEventListener('offline', handleOffline);
       window.removeEventListener('hashchange', handleHash);
+      // Otomatik senkronizasyonu durdur
+      stopAutoSync();
     };
   }, []);
 

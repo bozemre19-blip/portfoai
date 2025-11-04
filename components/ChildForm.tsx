@@ -4,6 +4,8 @@ import { t } from '../constants.clean';
 import type { Child, Guardian, HealthInfo } from '../types';
 import { useAuth } from '../App';
 import { getClasses } from '../services/api';
+import CameraCapture from './CameraCapture';
+import { CameraIcon, PhotoIcon, TrashIcon } from '@heroicons/react/24/outline';
 
 interface ChildFormProps {
   onSave: (child: Partial<Child>) => void;
@@ -30,6 +32,10 @@ export const ChildForm: React.FC<ChildFormProps> = ({ onSave, onCancel, isSaving
     const [healthNotes, setHealthNotes] = useState('');
     const [interests, setInterests] = useState('');
     const [strengths, setStrengths] = useState('');
+    
+    // Profil fotoğrafı için state'ler
+    const [profilePhoto, setProfilePhoto] = useState<string | null>(null);
+    const [showCamera, setShowCamera] = useState(false);
 
     useEffect(() => {
         if (initialData) {
@@ -43,6 +49,7 @@ export const ChildForm: React.FC<ChildFormProps> = ({ onSave, onCancel, isSaving
             setHealthNotes(initialData.health?.notes || '');
             setInterests(initialData.interests?.join(', ') || '');
             setStrengths(initialData.strengths?.join(', ') || '');
+            setProfilePhoto(initialData.photo_url || null);
         }
     }, [initialData]);
 
@@ -85,6 +92,36 @@ export const ChildForm: React.FC<ChildFormProps> = ({ onSave, onCancel, isSaving
         setGuardians(guardians.filter((_, i) => i !== index));
     };
 
+    const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+
+        if (!file.type.startsWith('image/')) {
+            alert('Lütfen geçerli bir resim dosyası seçin.');
+            return;
+        }
+
+        if (file.size > 10 * 1024 * 1024) {
+            alert('Dosya boyutu çok büyük. Maksimum 10MB olmalıdır.');
+            return;
+        }
+
+        const reader = new FileReader();
+        reader.onload = (event) => {
+            const imageData = event.target?.result as string;
+            setProfilePhoto(imageData);
+        };
+        reader.readAsDataURL(file);
+    };
+
+    const handleCameraCapture = (imageData: string) => {
+        setProfilePhoto(imageData);
+    };
+
+    const removePhoto = () => {
+        setProfilePhoto(null);
+    };
+
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
         const health: HealthInfo = {
@@ -105,6 +142,7 @@ export const ChildForm: React.FC<ChildFormProps> = ({ onSave, onCancel, isSaving
             health,
             interests: interests.split(',').map(s => s.trim()).filter(Boolean),
             strengths: strengths.split(',').map(s => s.trim()).filter(Boolean),
+            photo_url: profilePhoto || undefined,
         });
     };
 
@@ -132,6 +170,60 @@ export const ChildForm: React.FC<ChildFormProps> = ({ onSave, onCancel, isSaving
             <form onSubmit={handleSubmit} className="space-y-6 mt-6">
                 {activeTab === 'basic' && (
                     <div className="space-y-4">
+                        {/* Profil Fotoğrafı */}
+                        <div className="bg-gradient-to-r from-blue-50 to-purple-50 border-2 border-blue-200 rounded-xl p-4">
+                            <label className="block text-sm font-medium text-gray-700 mb-3">📸 Profil Fotoğrafı</label>
+                            
+                            {profilePhoto ? (
+                                <div className="flex items-start gap-4">
+                                    <img
+                                        src={profilePhoto}
+                                        alt="Profil"
+                                        className="w-32 h-32 rounded-full object-cover border-4 border-white shadow-lg"
+                                    />
+                                    <div className="flex-1 flex flex-col gap-2">
+                                        <button
+                                            type="button"
+                                            onClick={() => setShowCamera(true)}
+                                            className="flex items-center justify-center gap-2 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-medium transition-all"
+                                        >
+                                            <CameraIcon className="h-5 w-5" />
+                                            Yeniden Çek
+                                        </button>
+                                        <button
+                                            type="button"
+                                            onClick={removePhoto}
+                                            className="flex items-center justify-center gap-2 px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg font-medium transition-all"
+                                        >
+                                            <TrashIcon className="h-5 w-5" />
+                                            Fotoğrafı Sil
+                                        </button>
+                                    </div>
+                                </div>
+                            ) : (
+                                <div className="flex flex-col sm:flex-row gap-3">
+                                    <button
+                                        type="button"
+                                        onClick={() => setShowCamera(true)}
+                                        className="flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white rounded-lg font-medium shadow-lg transition-all"
+                                    >
+                                        <CameraIcon className="h-5 w-5" />
+                                        Kamera ile Çek
+                                    </button>
+                                    <label className="flex items-center justify-center gap-2 px-6 py-3 bg-blue-50 hover:bg-blue-100 text-blue-700 border-2 border-blue-200 rounded-lg font-medium cursor-pointer transition-all">
+                                        <PhotoIcon className="h-5 w-5" />
+                                        Dosyadan Yükle
+                                        <input
+                                            type="file"
+                                            accept="image/*"
+                                            onChange={handleFileSelect}
+                                            className="hidden"
+                                        />
+                                    </label>
+                                </div>
+                            )}
+                        </div>
+
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <input type="text" placeholder={t('firstName')} value={firstName} onChange={e => setFirstName(e.target.value)} required className="p-2 border rounded w-full"/>
                             <input type="text" placeholder={t('lastName')} value={lastName} onChange={e => setLastName(e.target.value)} required className="p-2 border rounded w-full"/>
@@ -192,6 +284,14 @@ export const ChildForm: React.FC<ChildFormProps> = ({ onSave, onCancel, isSaving
                     </button>
                 </div>
             </form>
+
+            {/* Kamera Modal */}
+            {showCamera && (
+                <CameraCapture
+                    onCapture={handleCameraCapture}
+                    onClose={() => setShowCamera(false)}
+                />
+            )}
         </div>
     );
 };

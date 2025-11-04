@@ -1,5 +1,13 @@
 import { supabase } from '../supabase';
 import { Attendance, AttendanceStatus, Child } from '../../types';
+import {
+  setCache,
+  getCache,
+  addToOfflineQueue,
+  isOnline,
+  CACHED_ATTENDANCE_KEY,
+  dispatchDataChangedEvent,
+} from './common';
 
 export const getTodayAttendance = async (userId: string): Promise<Attendance[]> => {
   const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
@@ -16,15 +24,28 @@ export const getTodayAttendance = async (userId: string): Promise<Attendance[]> 
 };
 
 export const getAttendanceByDate = async (userId: string, date: string): Promise<Attendance[]> => {
-  const { data, error } = await supabase
-    .from('attendance')
-    .select('*')
-    .eq('user_id', userId)
-    .eq('date', date)
-    .order('created_at', { ascending: false });
-  
-  if (error) throw error;
-  return (data || []) as Attendance[];
+  try {
+    const { data, error } = await supabase
+      .from('attendance')
+      .select('*')
+      .eq('user_id', userId)
+      .eq('date', date)
+      .order('created_at', { ascending: false });
+    
+    if (error) throw error;
+    
+    const result = (data || []) as Attendance[];
+    // Cache'e kaydet
+    setCache(`${CACHED_ATTENDANCE_KEY}_${date}`, result);
+    return result;
+  } catch (error) {
+    // Offline ise cache'den dön
+    if (!isOnline()) {
+      const cached = getCache<Attendance[]>(`${CACHED_ATTENDANCE_KEY}_${date}`);
+      if (cached) return cached;
+    }
+    throw error;
+  }
 };
 
 export const getAttendanceByChild = async (childId: string, startDate?: string, endDate?: string): Promise<Attendance[]> => {
@@ -55,22 +76,45 @@ export const recordAttendance = async (
 ): Promise<Attendance> => {
   const checked_in_at = status === 'present' || status === 'late' ? new Date().toISOString() : undefined;
   
+  const attendanceData = {
+    child_id: childId,
+    user_id: userId,
+    date,
+    status,
+    notes,
+    checked_in_at,
+  };
+  
+  // Offline ise queue'ya ekle
+  if (!isOnline()) {
+    addToOfflineQueue({
+      type: 'attendance',
+      action: 'create',
+      data: attendanceData,
+    });
+    
+    // Temporary local record
+    const tempRecord = {
+      id: `temp_${Date.now()}`,
+      ...attendanceData,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+    } as Attendance;
+    
+    dispatchDataChangedEvent();
+    return tempRecord;
+  }
+  
   const { data, error } = await supabase
     .from('attendance')
-    .upsert({
-      child_id: childId,
-      user_id: userId,
-      date,
-      status,
-      notes,
-      checked_in_at,
-    }, {
+    .upsert(attendanceData, {
       onConflict: 'child_id,date'
     })
     .select()
     .single();
   
   if (error) throw error;
+  dispatchDataChangedEvent();
   return data as Attendance;
 };
 
