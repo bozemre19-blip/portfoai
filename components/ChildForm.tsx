@@ -59,7 +59,7 @@ export const ChildForm: React.FC<ChildFormProps> = ({ onSave, onCancel, isSaving
                 }
                 setClassOptions(names);
             } catch (e) {
-                // Table yoksa boÅŸ bÄ±rak; kullanÄ±cÄ± SÄ±nÄ±flar ekranÄ±ndan oluÅŸturabilir
+                // Table yoksa boş bırak; kullanıcı Sınıflar ekranından oluşturabilir
                 setClassOptions([]);
             } finally {
                 setLoadingClasses(false);
@@ -92,7 +92,7 @@ export const ChildForm: React.FC<ChildFormProps> = ({ onSave, onCancel, isSaving
             notes: healthNotes,
         };
         if (!classroom) {
-            alert('LÃ¼tfen bir sÄ±nÄ±f seÃ§in. Ã–nce SÄ±nÄ±flar sayfasÄ±ndan sÄ±nÄ±f oluÅŸturmanÄ±z gerekebilir.');
+            alert('Lütfen bir sınıf seçin. Önce Sınıflar sayfasından sınıf oluşturmanız gerekebilir.');
             return;
         }
         onSave({
@@ -138,15 +138,15 @@ export const ChildForm: React.FC<ChildFormProps> = ({ onSave, onCancel, isSaving
                         </div>
                         <input type="date" placeholder={t('dob')} value={dob} onChange={e => setDob(e.target.value)} required className="p-2 border rounded w-full"/>
                         <div>
-                          <label className="block text-sm text-gray-700 mb-1">SÄ±nÄ±f</label>
+                          <label className="block text-sm text-gray-700 mb-1">Sınıf</label>
                           <select value={classroom} onChange={e => setClassroom(e.target.value)} className="p-2 border rounded w-full" required>
-                            <option value="">â€” SÄ±nÄ±f SeÃ§in â€”</option>
+                            <option value="">— Sınıf Seçin —</option>
                             {classOptions.map((c, i) => (
                               <option key={i} value={c.name}>{c.name}</option>
                             ))}
                           </select>
                           {(!loadingClasses && classOptions.length === 0) && (
-                            <p className="text-xs text-amber-700 mt-1">Ã–nce SÄ±nÄ±flar sayfasÄ±ndan sÄ±nÄ±f oluÅŸturun.</p>
+                            <p className="text-xs text-amber-700 mt-1">Önce Sınıflar sayfasından sınıf oluşturun.</p>
                           )}
                         </div>
                         <div className="flex items-center">

@@ -138,7 +138,7 @@ const ChildrenScreen: React.FC<ChildrenScreenProps> = ({ navigate }) => {
       <div className="mb-4 flex flex-col gap-2">
         {classroomFilter && (
           <div className="flex items-center justify-between bg-blue-50 border border-blue-100 text-blue-900 rounded px-3 py-2">
-            <div>Filtre: SÄ±nÄ±f = <strong>{classroomFilter || 'â€”'}</strong></div>
+            <div>Filtre: Sınıf = <strong>{classroomFilter || '—'}</strong></div>
             <button className="text-sm underline" onClick={() => { setClassroomFilter(undefined); navigate('children'); }}>Temizle</button>
           </div>
         )}
