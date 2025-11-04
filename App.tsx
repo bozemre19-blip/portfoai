@@ -17,6 +17,11 @@ import ChildObservationsScreen from './components/ChildObservationsScreen';
 import TeacherChat from './components/TeacherChat';
 import { syncOfflineData } from './services/api';
 import { t } from './constants.clean';
+// Sentry geçici olarak devre dışı (beyaz ekran sorunu için)
+// import { initSentry, setSentryUser, clearSentryUser } from './sentry.config';
+
+// Sentry'i uygulama başlangıcında başlat
+// initSentry();
 
 type AuthContextType = {
   session: Session | null;
@@ -59,10 +64,20 @@ const App: React.FC = () => {
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
+      // Kullanıcı giriş yaptıysa Sentry'e bildir
+      // if (session?.user) {
+      //   setSentryUser(session.user.id, session.user.email);
+      // }
     });
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setSession(session);
+      // Auth state değiştiğinde Sentry'i güncelle
+      // if (session?.user) {
+      //   setSentryUser(session.user.id, session.user.email);
+      // } else {
+      //   clearSentryUser();
+      // }
     });
 
     const handleOnline = () => setIsOnline(true);

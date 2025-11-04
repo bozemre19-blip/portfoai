@@ -28,6 +28,7 @@ const ClassDetailScreen: React.FC<Props> = ({ classroom, navigate }) => {
   const [metaPinned, setMetaPinned] = useState<boolean>(false);
   const [showEdit, setShowEdit] = useState(false);
   const [renameValue, setRenameValue] = useState<string>(classroom || '');
+  const [childRisks, setChildRisks] = useState<Map<string, RiskLevel | null>>(new Map());
 
   const title = classroom || 'â€”';
 
@@ -67,7 +68,7 @@ const ClassDetailScreen: React.FC<Props> = ({ classroom, navigate }) => {
         const sinceIso = since.toISOString();
 
         if (ids.length > 0) {
-          const [obsListRes, mediaListRes] = await Promise.all([
+          const [obsListRes, mediaListRes, latestObsRes] = await Promise.all([
             supabase
               .from('observations')
               .select('id, created_at, child_id, assessments(risk)')
@@ -79,8 +80,31 @@ const ClassDetailScreen: React.FC<Props> = ({ classroom, navigate }) => {
               .select('id, created_at, child_id')
               .eq('user_id', user.id)
               .in('child_id', ids as any)
-              .gte('created_at', sinceIso)
+              .gte('created_at', sinceIso),
+            // Her çocuk için en son risk değerini çek
+            supabase
+              .from('observations')
+              .select('child_id, assessments(risk)')
+              .eq('user_id', user.id)
+              .in('child_id', ids as any)
+              .order('created_at', { ascending: false })
+              .limit(100)
           ]);
+
+          // Her çocuk için en güncel risk değerini bul
+          const riskMap = new Map<string, RiskLevel | null>();
+          const latestObs = latestObsRes.data || [];
+          for (const childId of ids) {
+            const childObs = latestObs.filter((o: any) => o.child_id === childId);
+            if (childObs.length > 0) {
+              const assessments = childObs[0]?.assessments;
+              const risk = Array.isArray(assessments) && assessments[0]?.risk;
+              riskMap.set(childId, risk || null);
+            } else {
+              riskMap.set(childId, null);
+            }
+          }
+          setChildRisks(riskMap);
 
           const obsListRaw = obsListRes.data;
           const obsList = (obsListRaw || []).filter((row: any) => {
@@ -126,8 +150,21 @@ const ClassDetailScreen: React.FC<Props> = ({ classroom, navigate }) => {
 
   const filteredChildren = useMemo(() => {
     const q = search.trim().toLocaleLowerCase('tr-TR');
-    return children.filter(c => `${c.first_name} ${c.last_name}`.toLocaleLowerCase('tr-TR').includes(q));
-  }, [children, search]);
+    return children.filter(c => {
+      // Arama filtresi
+      const nameMatch = `${c.first_name} ${c.last_name}`.toLocaleLowerCase('tr-TR').includes(q);
+      
+      // Risk filtresi
+      if (selRisks.size === 0) {
+        return nameMatch; // Risk filtresi yoksa sadece isim kontrolü
+      }
+      
+      const childRisk = childRisks.get(c.id);
+      const riskMatch = childRisk && selRisks.has(childRisk);
+      
+      return nameMatch && riskMatch;
+    });
+  }, [children, search, selRisks, childRisks]);
   const toggleRisk = (r: RiskLevel) => setSelRisks(prev => { const n = new Set(prev); n.has(r) ? n.delete(r) : n.add(r); return n; });
 
   const handleRename = async () => {
@@ -266,7 +303,7 @@ const ClassDetailScreen: React.FC<Props> = ({ classroom, navigate }) => {
         <div className="mt-2 bg-white rounded-lg shadow p-4">
           {aiSummary && <p className="text-gray-800 mb-2 whitespace-pre-wrap">{aiSummary}</p>}
           {aiSuggestions.length === 0 ? (
-            <p className="text-gray-500">HenÃ¼z Ã¶neri yok.</p>
+            <p className="text-gray-500">Henüz öneri yok.</p>
           ) : (
             <ul className="list-disc list-inside space-y-1 text-gray-800">
               {aiSuggestions.map((s, i) => <li key={i}>{s}</li>)}
@@ -297,7 +334,7 @@ const ClassDetailScreen: React.FC<Props> = ({ classroom, navigate }) => {
               <label className="inline-flex items-center gap-2 text-sm"><input type="checkbox" checked={metaPinned} onChange={handlePinToggle} />Sınıfı sabitle</label>
             </div>
             <div className="mt-5 flex justify-end gap-2">
-              <button className="px-3 py-2 bg-gray-200 rounded" onClick={()=>setShowEdit(false)}>Ä°ptal</button>
+              <button className="px-3 py-2 bg-gray-200 rounded" onClick={()=>setShowEdit(false)}>İptal</button>
               <button className="px-3 py-2 bg-primary text-white rounded" onClick={handleRename}>Kaydet</button>
             </div>
           </div>

@@ -13,30 +13,119 @@ Erken çocukluk öğretmenlerinin 0–6 yaş çocukları için profil oluşturup
 - Ürün/Medya: Supabase Storage’a yükleme, listeleme, silme (UI kademeli ekleniyor)
 - Dışa aktarma: JSON ve PDF rapor
 
-## Çalıştırma (Yerel)
-Önkoşullar: Node.js 18+
+## Kurulum ve Çalıştırma
 
-1) Bağımlılıkları kurun
-- `npm install`
+### Önkoşullar
+- Node.js 18+ 
+- npm veya yarn
+- Supabase hesabı (ücretsiz)
+- Google Gemini API anahtarı (AI özellikler için)
 
-2) Supabase’i hazırlayın
-- Supabase projesi oluşturun ve URL/Anon Key bilgilerinizi alın.
-- SQL Editor’da aşağıdaki dosyaları sırayla çalıştırın:
-  - `supabase/schema.sql`
-  - `supabase/policies.sql`
-- Storage’da iki bucket oluşturun:
-  - `child-media` (private)
-  - `avatars` (public)
-  Alternatif olarak policies dosyasının sonundaki örnek storage policy’leri rehber olarak kullanabilirsiniz.
+### 1️⃣ Projeyi İndirin
+```bash
+git clone <repository-url>
+cd okul-gozlem-asistani
+npm install
+```
 
-3) Edge Function (AI) kurulumu
-- `supabase/functions/ai_evaluate` fonksiyonunu projenize ekleyip deploy edin.
-- Fonksiyon ortam değişkenleri: `API_KEY` = Gemini API anahtarınız.
+### 2️⃣ Ortam Değişkenlerini Ayarlayın
 
-4) Uygulamayı başlatın
-- `npm run dev`
-- Tarayıcıda `http://localhost:5173` adresini açın.
+**Önemli Güvenlik Notu:** Asla API anahtarlarınızı kodun içine yazmayın!
 
-Notlar
-- Kendi Supabase projenizi kullanacaksanız `services/supabase.ts` dosyasındaki `supabaseUrl` ve `supabaseAnonKey` değerlerini güncelleyin.
+1. `.env.example` dosyasını `.env` olarak kopyalayın:
+   ```bash
+   # Windows PowerShell
+   copy .env.example .env
+   
+   # macOS/Linux
+   cp .env.example .env
+   ```
+
+2. `.env` dosyasını açın ve bilgilerinizi girin:
+   ```env
+   VITE_SUPABASE_URL=https://your-project.supabase.co
+   VITE_SUPABASE_ANON_KEY=your-anon-key-here
+   GEMINI_API_KEY=your-gemini-key-here
+   VITE_SENTRY_DSN=your-sentry-dsn-here  # Opsiyonel
+   ```
+
+**Nerede Bulunur?**
+- **Supabase bilgileri:** [Supabase Dashboard](https://app.supabase.com) > Project Settings > API
+- **Gemini API Key:** [Google AI Studio](https://makersuite.google.com/app/apikey)
+- **Sentry DSN:** [Sentry.io](https://sentry.io) > Project Settings (opsiyonel)
+
+### 3️⃣ Supabase'i Hazırlayın
+
+1. **Veritabanı Şemasını Oluşturun:**
+   - Supabase Dashboard'da SQL Editor'ı açın
+   - `supabase/schema.sql` dosyasını çalıştırın
+   - `supabase/policies.sql` dosyasını çalıştırın
+
+2. **Storage Bucket'ları Oluşturun:**
+   - Storage bölümüne gidin
+   - İki bucket oluşturun:
+     - `avatars` → Public (çocuk profil resimleri)
+     - `child-media` → Private (çocuk ürünleri)
+
+3. **Edge Functions'ı Deploy Edin:**
+   ```bash
+   # Supabase CLI kurulu değilse:
+   npm install -g supabase
+   
+   # Login
+   supabase login
+   
+   # Functions'ları deploy edin
+   supabase functions deploy ai_evaluate
+   supabase functions deploy teacher_chat
+   supabase functions deploy media_upload
+   supabase functions deploy media_update
+   
+   # Environment variables ayarlayın
+   supabase secrets set API_KEY=your-gemini-api-key
+   ```
+
+### 4️⃣ Uygulamayı Başlatın
+```bash
+npm run dev
+```
+
+Tarayıcıda `http://localhost:3000` adresini açın.
+
+### 5️⃣ Production Build (Canlıya Almak İçin)
+```bash
+npm run build
+npm run preview  # Build'i test edin
+```
+
+---
+
+## 🔒 Güvenlik Notları
+
+- ⚠️ `.env` dosyasını asla Git'e yüklemeyin (`.gitignore` otomatik engeller)
+- ⚠️ Production'da Supabase RLS (Row Level Security) politikalarının aktif olduğundan emin olun
+- ⚠️ API anahtarlarınızı düzenli olarak yenileyin
+- ✅ Tüm hassas veriler Supabase'de şifrelenmiş şekilde saklanır
+
+---
+
+## 🐛 Sorun Giderme
+
+### "Supabase yapılandırması eksik" hatası
+➡️ `.env` dosyasını oluşturdunuz mu? Değerler doğru mu?
+
+### Gözlemler kaydedilmiyor
+➡️ Supabase RLS politikaları doğru kurulmuş mu? `policies.sql`'i kontrol edin.
+
+### AI analizi çalışmıyor
+➡️ `GEMINI_API_KEY` değerini `.env` dosyasına eklediniz mi?
+
+### Fotoğraf yüklenmiyor
+➡️ Storage bucket'ları oluşturdunuz mu? Policy'ler doğru mu?
+
+---
+
+## Notlar
 - PDF rapor oluşturma, çocuk detay ekranından kullanılabilir.
+- Demo data seeder ile hızlıca test verisi oluşturabilirsiniz (Ayarlar > Demo Verisi)
+- Çevrimdışı mod: İnternet bağlantısı olmadan da gözlem kaydedebilirsiniz, otomatik senkronize olur.
