@@ -319,10 +319,10 @@ const SettingsScreen: React.FC = () => {
                         ];
                       });
                       
-                      // CSV içeriği oluştur (UTF-8 BOM ile)
+                      // CSV içeriği oluştur (UTF-8 BOM ile, noktalı virgül delimiter - Türkiye için)
                       const csvContent = [
-                        headers.map(h => `"${h}"`).join(','),
-                        ...rows.map(row => row.map(cell => `"${String(cell).replace(/"/g, '""')}"`).join(','))
+                        headers.map(h => `"${h}"`).join(';'),
+                        ...rows.map(row => row.map(cell => `"${String(cell).replace(/"/g, '""')}"`).join(';'))
                       ].join('\n');
                       
                       // UTF-8 BOM ekle (Excel için Türkçe karakter desteği)
