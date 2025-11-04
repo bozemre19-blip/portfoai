@@ -79,12 +79,14 @@ const Auth: React.FC = () => {
         {/* Content */}
         <div className="relative z-10 flex flex-col justify-center px-16 text-white">
           <div className="mb-8">
-            <img
-              src="/portfoai-logo.svg"
-              alt="PortfoAI"
-              className="h-16 mb-8 drop-shadow-2xl"
-              draggable={false}
-            />
+            <div className="inline-block bg-white/15 backdrop-blur-md rounded-2xl p-6 shadow-2xl">
+              <img
+                src="/portfoai-logo.svg"
+                alt="PortfoAI"
+                className="h-24 drop-shadow-2xl"
+                draggable={false}
+              />
+            </div>
           </div>
           
           <h1 className="text-5xl font-bold mb-6 leading-tight">
@@ -135,12 +137,14 @@ const Auth: React.FC = () => {
         <div className="w-full max-w-md">
           {/* Logo - Mobile */}
           <div className="lg:hidden mb-8 text-center">
-            <img
-              src="/portfoai-logo.svg"
-              alt="PortfoAI"
-              className="h-12 mx-auto mb-4"
-              draggable={false}
-            />
+            <div className="inline-block bg-gradient-to-br from-indigo-50 to-purple-50 rounded-2xl p-4 shadow-lg">
+              <img
+                src="/portfoai-logo.svg"
+                alt="PortfoAI"
+                className="h-16 mx-auto"
+                draggable={false}
+              />
+            </div>
           </div>
 
           <div className="bg-white rounded-2xl shadow-xl p-8">
