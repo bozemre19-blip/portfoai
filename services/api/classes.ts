@@ -52,8 +52,9 @@ export const getClasses = async (userId: string): Promise<ClassItem[]> => {
     if (cached) {
       return cached;
     }
-    // Cache de yoksa hatayı fırlat
-    throw error;
+    // Cache de yoksa boş array döndür (ilk kullanım veya tablo yok)
+    console.warn('Cache bulunamadı, boş liste döndürülüyor:', error);
+    return [];
   }
 };
 

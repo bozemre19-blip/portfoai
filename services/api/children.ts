@@ -24,8 +24,9 @@ export const getChildren = async (userId: string) => {
     if (cached) {
       return cached;
     }
-    // Cache de yoksa hatayı fırlat
-    throw error;
+    // Cache de yoksa boş array döndür (ilk kullanım durumu)
+    console.warn('Cache bulunamadı, boş liste döndürülüyor:', error);
+    return [];
   }
 };
 
@@ -48,7 +49,9 @@ export const getChildrenByClassroom = async (userId: string, classroom: string) 
     if (allChildren) {
       return allChildren.filter(c => c.classroom === classroom);
     }
-    throw error;
+    // Cache de yoksa boş array döndür
+    console.warn('Cache bulunamadı, boş liste döndürülüyor');
+    return [];
   }
 };
 
