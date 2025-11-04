@@ -67,9 +67,9 @@ html[data-theme='kids'] .tag-chip {
   display: flex;
   width: max-content; /* shrink-wrap so cloning is seamless */
   align-items: center;
-  animation: marquee-left 22s linear infinite;
+  animation: marquee-left 45s linear infinite;
 }
-.marquee-track--reverse { animation: marquee-right 22s linear infinite; }
+.marquee-track--reverse { animation: marquee-right 45s linear infinite; }
 .marquee-line {
   width: max-content;
   display: inline-flex;
