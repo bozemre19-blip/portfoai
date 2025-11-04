@@ -72,14 +72,14 @@ const Layout: React.FC<LayoutProps> = ({ children, navigate }) => {
     const dark = theme === 'dark';
     const kids = theme === 'kids';
     return {
-      sidebarBg: dark ? 'bg-gray-800' : kids ? 'bg-white/90 border-r border-yellow-100' : 'bg-white border-r border-gray-200',
+      sidebarBg: dark ? 'bg-gray-800' : kids ? 'bg-white/90 border-r border-yellow-100' : 'bg-white/95 backdrop-blur-sm border-r border-gray-200',
       headerBorder: dark ? 'border-gray-700' : kids ? 'border-yellow-200' : 'border-gray-200',
       headerTitle: dark ? 'text-white' : 'text-gray-900',
       headerSub: dark ? 'text-gray-400' : 'text-gray-500',
       navItem: dark ? 'text-gray-300 hover:bg-gray-700 hover:text-white' : kids ? 'text-gray-700 hover:bg-yellow-50 hover:text-violet-700' : 'text-gray-700 hover:bg-gray-100 hover:text-gray-900',
       signOut: dark ? 'text-gray-300 hover:bg-gray-700 hover:text-white' : kids ? 'text-gray-700 hover:bg-yellow-50 hover:text-violet-700' : 'text-gray-700 hover:bg-gray-100 hover:text-gray-900',
       footerBorder: dark ? 'border-gray-700' : kids ? 'border-yellow-200' : 'border-gray-200',
-      appBg: dark ? 'bg-gray-900' : kids ? 'bg-transparent' : 'bg-gray-100',
+      appBg: dark ? 'bg-gray-900' : kids ? 'bg-transparent' : 'bg-transparent',
     };
   }, [theme]);
 
@@ -195,8 +195,10 @@ const Layout: React.FC<LayoutProps> = ({ children, navigate }) => {
           </button>
         </div>
         <main className="flex-1 relative z-0 overflow-y-auto focus:outline-none">
-          <div className="py-6 px-4 sm:px-6 lg:px-8">
-            {children}
+          <div className="py-6 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
+            <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-2xl p-6 min-h-[calc(100vh-6rem)]">
+              {children}
+            </div>
           </div>
         </main>
       </div>
