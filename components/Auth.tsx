@@ -117,7 +117,7 @@ const Auth: React.FC = () => {
       <div className="relative z-10 w-full flex items-center justify-center px-4 sm:px-6 lg:px-8 -mt-4 md:-mt-6">
         <div className="max-w-md w-full space-y-8 p-10 bg-white/98 backdrop-blur-xl rounded-2xl shadow-2xl border border-white/30 animate-slide-up">
           <div>
-          <h2 className="mt-2 text-center text-3xl font-extrabold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
+          <h2 className="mt-2 text-center text-3xl font-extrabold text-gray-800">
             {isSignUp ? '🌟 ' + t('signUpTitle') : '👋 ' + t('signInTitle')}
           </h2>
           <p className="mt-2 text-center text-sm text-gray-600 font-medium">
@@ -226,7 +226,7 @@ const Auth: React.FC = () => {
           </p>
         )}
         <div className="text-sm text-center">
-            <a href="#" onClick={(e) => { e.preventDefault(); setIsSignUp(!isSignUp); setMessage(''); setError(''); }} className="font-bold text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 transition-all duration-200">
+            <a href="#" onClick={(e) => { e.preventDefault(); setIsSignUp(!isSignUp); setMessage(''); setError(''); }} className="font-bold text-indigo-600 hover:text-indigo-700 transition-all duration-200 hover:underline">
                 {isSignUp ? `${t('haveAccountPrompt')} ${t('switchToSignIn')}` : `${t('noAccountPrompt')} ${t('switchToSignUp')}`}
             </a>
         </div>
