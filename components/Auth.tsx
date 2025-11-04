@@ -138,7 +138,7 @@ const Auth: React.FC = () => {
                       autoComplete="given-name"
                       required={isSignUp}
                       className="appearance-none relative block w-full px-4 py-3 border-2 border-purple-200 placeholder-gray-400 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200 hover:border-purple-300 sm:text-sm"
-                      placeholder="👤 " + t('teacherFirstName')}
+                      placeholder={"👤 " + t('teacherFirstName')}
                       value={firstName}
                       onChange={(e) => setFirstName(e.target.value)}
                     />
@@ -152,7 +152,7 @@ const Auth: React.FC = () => {
                       autoComplete="family-name"
                       required={isSignUp}
                       className="appearance-none relative block w-full px-4 py-3 border-2 border-purple-200 placeholder-gray-400 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200 hover:border-purple-300 sm:text-sm"
-                      placeholder="👤 " + t('teacherLastName')}
+                      placeholder={"👤 " + t('teacherLastName')}
                       value={lastName}
                       onChange={(e) => setLastName(e.target.value)}
                     />
@@ -167,7 +167,7 @@ const Auth: React.FC = () => {
                     autoComplete="organization"
                     required={isSignUp}
                     className="appearance-none relative block w-full px-4 py-3 border-2 border-purple-200 placeholder-gray-400 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200 hover:border-purple-300 sm:text-sm"
-                    placeholder="🏫 " + t('schoolName')}
+                    placeholder={"🏫 " + t('schoolName')}
                     value={schoolName}
                     onChange={(e) => setSchoolName(e.target.value)}
                   />
@@ -183,7 +183,7 @@ const Auth: React.FC = () => {
                 autoComplete="email"
                 required
                 className="appearance-none relative block w-full px-4 py-3 border-2 border-blue-200 placeholder-gray-400 text-gray-900 rounded-t-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 hover:border-blue-300 sm:text-sm"
-                placeholder="📧 " + t('emailLabel')}
+                placeholder={"📧 " + t('emailLabel')}
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
               />
@@ -197,7 +197,7 @@ const Auth: React.FC = () => {
                 autoComplete={isSignUp ? "new-password" : "current-password"}
                 required
                 className="appearance-none relative block w-full px-4 py-3 border-2 border-blue-200 placeholder-gray-400 text-gray-900 rounded-b-xl -mt-px focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 hover:border-blue-300 sm:text-sm"
-                placeholder="🔒 " + t('passwordLabel')}
+                placeholder={"🔒 " + t('passwordLabel')}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
               />
