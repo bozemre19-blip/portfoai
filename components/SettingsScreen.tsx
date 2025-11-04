@@ -266,10 +266,10 @@ const SettingsScreen: React.FC = () => {
           {showAdvanced && (
             <div className="mt-4 pt-4 border-t border-gray-200 space-y-4">
               <div>
-                <h3 className="text-sm font-semibold text-gray-700 mb-2">📦 Veri Yedekleme (JSON)</h3>
+                <h3 className="text-sm font-semibold text-gray-700 mb-2">📊 Excele Aktar (CSV)</h3>
                 <p className="text-xs text-gray-500 mb-3">
-                  Tüm çocuk verilerinizi JSON formatında dışa aktarın. Geliştiriciler için veri yedekleme, 
-                  başka sisteme aktarma veya analiz amaçlı kullanılır.
+                  Tüm çocuk verilerinizi Excel formatında (CSV) dışa aktarın. 
+                  Türkçe karakterler korunur, Excelde düzenleme ve analiz yapabilirsiniz.
                 </p>
                 {exportMsg && <p className="text-xs text-gray-600 mb-2">{exportMsg}</p>}
                 <button
@@ -284,14 +284,63 @@ const SettingsScreen: React.FC = () => {
                         return;
                       }
                       
-                      setExportMsg(`${children.length} çocuk için veri indiriliyor...`);
-                      for (let i = 0; i < children.length; i++) {
-                        await exportChildData(children[i].id);
-                        setExportMsg(`İndiriliyor: ${i + 1}/${children.length}`);
-                        // Küçük gecikme - tarayıcının donmaması için
-                        await new Promise(r => setTimeout(r, 500));
-                      }
-                      setExportMsg(`✅ Tamamlandı! ${children.length} çocuk için JSON dosyaları indirildi.`);
+                      setExportMsg(`${children.length} çocuk verisi hazırlanıyor...`);
+                      
+                      // CSV başlıkları
+                      const headers = [
+                        'Ad',
+                        'Soyad',
+                        'Doğum Tarihi',
+                        'Yaş',
+                        'Sınıf',
+                        'Kayıt Tarihi',
+                        'Veli Onayı',
+                        'İlgi Alanları',
+                        'Güçlü Yönler',
+                        'Alerjiler',
+                        'Sağlık Notları'
+                      ];
+                      
+                      // CSV satırları
+                      const rows = children.map(child => {
+                        const age = child.dob ? Math.floor((Date.now() - new Date(child.dob).getTime()) / (365.25 * 24 * 60 * 60 * 1000)) : '';
+                        return [
+                          child.first_name || '',
+                          child.last_name || '',
+                          child.dob || '',
+                          age,
+                          child.classroom || '',
+                          child.created_at ? new Date(child.created_at).toLocaleDateString('tr-TR') : '',
+                          child.consent_obtained ? 'Evet' : 'Hayır',
+                          (child.interests || []).join(', '),
+                          (child.strengths || []).join(', '),
+                          (child.health?.allergies || []).join(', '),
+                          child.health?.notes || ''
+                        ];
+                      });
+                      
+                      // CSV içeriği oluştur (UTF-8 BOM ile)
+                      const csvContent = [
+                        headers.map(h => `"${h}"`).join(','),
+                        ...rows.map(row => row.map(cell => `"${String(cell).replace(/"/g, '""')}"`).join(','))
+                      ].join('\n');
+                      
+                      // UTF-8 BOM ekle (Excel için Türkçe karakter desteği)
+                      const BOM = '\uFEFF';
+                      const blob = new Blob([BOM + csvContent], { type: 'text/csv;charset=utf-8;' });
+                      
+                      // Dosya ismini oluştur
+                      const date = new Date().toISOString().split('T')[0];
+                      const filename = `cocuk_listesi_${date}.csv`;
+                      
+                      // İndir
+                      const link = document.createElement('a');
+                      link.href = URL.createObjectURL(blob);
+                      link.download = filename;
+                      link.click();
+                      URL.revokeObjectURL(link.href);
+                      
+                      setExportMsg(`✅ Tamamlandı! ${children.length} çocuk için Excel dosyası indirildi.`);
                     } catch (e: any) {
                       setExportMsg('❌ Hata: ' + (e?.message || 'Bilinmeyen hata'));
                     } finally {
@@ -299,12 +348,12 @@ const SettingsScreen: React.FC = () => {
                     }
                   }}
                   disabled={exportingJSON || !user}
-                  className="px-3 py-1.5 text-xs bg-gray-200 text-gray-700 rounded hover:bg-gray-300 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                  className="px-3 py-1.5 text-xs bg-green-600 text-white rounded hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-medium"
                 >
-                  {exportingJSON ? '⏳ İndiriliyor...' : '📥 Tüm Çocuklar için JSON İndir'}
+                  {exportingJSON ? '⏳ Hazırlanıyor...' : '📊 Excele Aktar'}
                 </button>
                 <p className="text-xs text-gray-400 mt-2 italic">
-                  * Her çocuk için ayrı bir JSON dosyası indirilecektir.
+                  * Tek bir CSV dosyası indirilecek, Excelde açılabilir.
                 </p>
               </div>
             </div>
