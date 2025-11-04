@@ -35,25 +35,56 @@ const Layout: React.FC<LayoutProps> = ({ children, navigate }) => {
     document.documentElement.setAttribute('data-theme', theme);
   }, [theme]);
 
-  // Inject minimal CSS overrides at runtime to ensure dark theme is readable
+  // Inject dark theme overrides for better text readability
   useEffect(() => {
     const id = 'dark-theme-overrides';
     if (document.getElementById(id)) return;
     const style = document.createElement('style');
     style.id = id;
     style.textContent = `
-      html[data-theme='dark'] body { color: #e5e7eb; }
+      /* Dark mode text colors */
+      html[data-theme='dark'] body { 
+        color: #e5e7eb; 
+      }
+      
       html[data-theme='dark'] .text-gray-900,
       html[data-theme='dark'] .text-gray-800,
-      html[data-theme='dark'] .text-gray-700,
-      html[data-theme='dark'] .text-gray-600,
-      html[data-theme='dark'] .text-black { color: #f3f4f6 !important; }
-      html[data-theme='dark'] .bg-white { color: #0f172a; }
-      html[data-theme='dark'] .bg-white .text-gray-900,
-      html[data-theme='dark'] .bg-white .text-gray-800,
-      html[data-theme='dark'] .bg-white .text-gray-700,
-      html[data-theme='dark'] .bg-white .text-gray-600,
-      html[data-theme='dark'] .bg-white .text-black { color: #0f172a !important; }
+      html[data-theme='dark'] .text-gray-700 { 
+        color: #e5e7eb !important; 
+      }
+      
+      html[data-theme='dark'] .text-gray-600 { 
+        color: #9ca3af !important; 
+      }
+      
+      html[data-theme='dark'] .text-gray-500 { 
+        color: #6b7280 !important; 
+      }
+      
+      html[data-theme='dark'] .text-gray-400 { 
+        color: #4b5563 !important; 
+      }
+      
+      /* Dark mode - Colorful card borders stay vibrant */
+      html[data-theme='dark'] .card-colorful {
+        background-color: #1a1a2e !important;
+        border-width: 2px;
+      }
+      
+      /* Dark mode - Gradient text remains visible */
+      html[data-theme='dark'] .text-gradient-purple {
+        background: linear-gradient(to right, #a78bfa, #c084fc);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+      }
+      
+      /* Dark mode - Buttons remain vibrant */
+      html[data-theme='dark'] .btn-gradient-primary,
+      html[data-theme='dark'] .btn-gradient-success,
+      html[data-theme='dark'] .btn-gradient-info {
+        filter: brightness(1.1);
+      }
     `;
     document.head.appendChild(style);
   }, []);
@@ -69,14 +100,14 @@ const Layout: React.FC<LayoutProps> = ({ children, navigate }) => {
   const colors = useMemo(() => {
     const dark = theme === 'dark';
     return {
-      sidebarBg: dark ? 'bg-gray-800' : 'bg-white/95 backdrop-blur-sm border-r border-gray-200',
-      headerBorder: dark ? 'border-gray-700' : 'border-gray-200',
-      headerTitle: dark ? 'text-white' : 'text-gray-900',
+      sidebarBg: dark ? 'bg-[#1a1a2e] border-r border-[#2a3f5f]' : 'bg-white/95 backdrop-blur-sm border-r border-gray-200',
+      headerBorder: dark ? 'border-[#2a3f5f]' : 'border-gray-200',
+      headerTitle: dark ? 'text-gray-100' : 'text-gray-900',
       headerSub: dark ? 'text-gray-400' : 'text-gray-500',
-      navItem: dark ? 'text-gray-300 hover:bg-gray-700 hover:text-white' : 'text-gray-700 hover:bg-gray-100 hover:text-gray-900',
-      signOut: dark ? 'text-gray-300 hover:bg-gray-700 hover:text-white' : 'text-gray-700 hover:bg-gray-100 hover:text-gray-900',
-      footerBorder: dark ? 'border-gray-700' : 'border-gray-200',
-      appBg: dark ? 'bg-gray-900' : 'bg-transparent',
+      navItem: dark ? 'text-gray-300 hover:bg-[#1e2a47] hover:text-white' : 'text-gray-700 hover:bg-gray-100 hover:text-gray-900',
+      signOut: dark ? 'text-gray-300 hover:bg-[#1e2a47] hover:text-white' : 'text-gray-700 hover:bg-gray-100 hover:text-gray-900',
+      footerBorder: dark ? 'border-[#2a3f5f]' : 'border-gray-200',
+      appBg: dark ? 'bg-transparent' : 'bg-transparent',
     };
   }, [theme]);
 
@@ -98,7 +129,7 @@ const Layout: React.FC<LayoutProps> = ({ children, navigate }) => {
 
   const sidebarContent = (
     <div className="flex flex-col h-full">
-      <div className={`p-4 border-b ${colors.headerBorder} bg-gradient-to-r from-purple-50 via-pink-50 to-blue-50`}>
+      <div className={`p-4 border-b ${colors.headerBorder} ${theme === 'dark' ? 'bg-gradient-to-r from-[#1e2a47] via-[#1a1a2e] to-[#1e2a47]' : 'bg-gradient-to-r from-purple-50 via-pink-50 to-blue-50'}`}>
         <div className="flex justify-center">
           <div className="relative group">
             <div className="absolute -inset-1 bg-gradient-to-r from-purple-600 via-pink-600 to-blue-600 rounded-lg blur opacity-25 group-hover:opacity-50 transition duration-300"></div>
@@ -110,26 +141,28 @@ const Layout: React.FC<LayoutProps> = ({ children, navigate }) => {
             />
           </div>
         </div>
-        <p className="text-center text-xs font-semibold text-gray-600 mt-2 tracking-wide">✨ PortfoAI ✨</p>
+        <p className={`text-center text-xs font-semibold mt-2 tracking-wide ${theme === 'dark' ? 'text-gray-300' : 'text-gray-600'}`}>✨ PortfoAI ✨</p>
       </div>
       <nav className="flex-1 px-2 py-4 space-y-2">
         <a
           href="#"
           onClick={(e) => { e.preventDefault(); navigate('getting-started'); setSidebarOpen(false); }}
-          className="group flex items-center px-4 py-3 rounded-xl text-gray-700 hover:bg-gradient-to-r hover:from-yellow-50 hover:to-yellow-100 hover:shadow-md transition-all duration-200 relative overflow-hidden"
+          className={`group flex items-center px-4 py-3 rounded-xl ${theme === 'dark' ? 'text-gray-300 hover:bg-[#1e2a47]' : 'text-gray-700 hover:bg-gradient-to-r hover:from-yellow-50 hover:to-yellow-100'} hover:shadow-md transition-all duration-200 relative overflow-hidden`}
         >
           <div className="absolute left-0 top-0 bottom-0 w-1 bg-yellow-500 transform -translate-x-full group-hover:translate-x-0 transition-transform duration-200"></div>
           <span className="text-2xl mr-3 group-hover:scale-110 transition-transform duration-200">📄</span>
           <span className="font-medium group-hover:translate-x-1 transition-transform duration-200">{t('gettingStarted') || 'Başlarken'}</span>
         </a>
         {navItems.map((item) => {
-          const colorClasses = {
-            blue: 'hover:from-blue-50 hover:to-blue-100 group-hover:border-blue-500',
-            green: 'hover:from-green-50 hover:to-green-100 group-hover:border-green-500',
-            purple: 'hover:from-purple-50 hover:to-purple-100 group-hover:border-purple-500',
-            pink: 'hover:from-pink-50 hover:to-pink-100 group-hover:border-pink-500',
-            orange: 'hover:from-orange-50 hover:to-orange-100 group-hover:border-orange-500',
-          }[item.color] || 'hover:from-gray-50 hover:to-gray-100 group-hover:border-gray-500';
+          const colorClasses = theme === 'dark' 
+            ? 'hover:bg-[#1e2a47]'
+            : ({
+                blue: 'hover:from-blue-50 hover:to-blue-100 group-hover:border-blue-500',
+                green: 'hover:from-green-50 hover:to-green-100 group-hover:border-green-500',
+                purple: 'hover:from-purple-50 hover:to-purple-100 group-hover:border-purple-500',
+                pink: 'hover:from-pink-50 hover:to-pink-100 group-hover:border-pink-500',
+                orange: 'hover:from-orange-50 hover:to-orange-100 group-hover:border-orange-500',
+              }[item.color] || 'hover:from-gray-50 hover:to-gray-100 group-hover:border-gray-500');
           
           const iconColor = {
             blue: 'text-blue-600',
@@ -148,7 +181,7 @@ const Layout: React.FC<LayoutProps> = ({ children, navigate }) => {
                 navigate(item.page);
                 setSidebarOpen(false);
               }}
-              className={`group flex items-center px-4 py-3 rounded-xl text-gray-700 hover:bg-gradient-to-r ${colorClasses} hover:shadow-md transition-all duration-200 relative overflow-hidden`}
+              className={`group flex items-center px-4 py-3 rounded-xl ${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'} ${theme === 'dark' ? colorClasses : `hover:bg-gradient-to-r ${colorClasses}`} hover:shadow-md transition-all duration-200 relative overflow-hidden`}
             >
               <div className={`absolute left-0 top-0 bottom-0 w-1 transform -translate-x-full group-hover:translate-x-0 transition-transform duration-200 ${iconColor.replace('text-', 'bg-')}`}></div>
               <span className="text-2xl mr-3 group-hover:scale-110 transition-transform duration-200">{item.emoji}</span>

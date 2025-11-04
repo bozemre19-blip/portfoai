@@ -104,9 +104,103 @@ body {
 }
 
 /* Dark mode için arka plan */
+/* Dark Theme - Gerçek Koyu Tema */
 html[data-theme='dark'] body {
-  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
-  animation: none;
+  background: linear-gradient(135deg, #0a0a0f 0%, #1a1625 25%, #0f0f1e 50%, #1a1a2e 75%, #0d0d18 100%);
+  background-size: 400% 400%;
+  animation: gradientShift 30s ease infinite;
+  background-attachment: fixed;
+}
+
+html[data-theme='dark'] {
+  color-scheme: dark;
+}
+
+/* Dark mode - Kartlar */
+html[data-theme='dark'] .bg-white {
+  background-color: #1a1a2e !important;
+  color: #e5e7eb !important;
+}
+
+html[data-theme='dark'] .bg-gray-50 {
+  background-color: #16213e !important;
+}
+
+html[data-theme='dark'] .bg-gray-100 {
+  background-color: #1e2a47 !important;
+}
+
+html[data-theme='dark'] .bg-gray-200 {
+  background-color: #2a3f5f !important;
+}
+
+/* Dark mode - Borders */
+html[data-theme='dark'] .border-gray-200,
+html[data-theme='dark'] .border-gray-300 {
+  border-color: #2a3f5f !important;
+}
+
+/* Dark mode - Input ve Form Elementleri */
+html[data-theme='dark'] input,
+html[data-theme='dark'] textarea,
+html[data-theme='dark'] select {
+  background-color: #1e2a47 !important;
+  border-color: #2a3f5f !important;
+  color: #e5e7eb !important;
+}
+
+html[data-theme='dark'] input::placeholder,
+html[data-theme='dark'] textarea::placeholder {
+  color: #6b7280 !important;
+}
+
+html[data-theme='dark'] input:focus,
+html[data-theme='dark'] textarea:focus,
+html[data-theme='dark'] select:focus {
+  border-color: #667eea !important;
+  background-color: #1a1a2e !important;
+}
+
+/* Dark mode - Glassmorphism efekt */
+html[data-theme='dark'] .backdrop-blur-sm,
+html[data-theme='dark'] .backdrop-blur-xl {
+  background-color: rgba(26, 26, 46, 0.85) !important;
+}
+
+/* Dark mode - Shadow'lar */
+html[data-theme='dark'] .shadow,
+html[data-theme='dark'] .shadow-md,
+html[data-theme='dark'] .shadow-lg,
+html[data-theme='dark'] .shadow-xl,
+html[data-theme='dark'] .shadow-2xl {
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5) !important;
+}
+
+/* Dark mode - Hover efektleri */
+html[data-theme='dark'] .hover\:bg-gray-100:hover {
+  background-color: #1e2a47 !important;
+}
+
+html[data-theme='dark'] .hover\:bg-gray-200:hover {
+  background-color: #2a3f5f !important;
+}
+
+/* Dark mode - Sidebar */
+html[data-theme='dark'] .bg-white\/95 {
+  background-color: rgba(26, 26, 46, 0.95) !important;
+}
+
+/* Dark mode - Scrollbar */
+html[data-theme='dark'] ::-webkit-scrollbar {
+  background-color: #1a1a2e;
+}
+
+html[data-theme='dark'] ::-webkit-scrollbar-thumb {
+  background-color: #2a3f5f;
+}
+
+html[data-theme='dark'] ::-webkit-scrollbar-thumb:hover {
+  background-color: #3a4f6f;
 }
 
 body::before {
