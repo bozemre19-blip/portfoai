@@ -1,5 +1,5 @@
 // deno-lint-ignore-file no-explicit-any
-// Supabase Edge Function: teacher_chat
+// Supabase Edge Function: teacher_chat  
 // Requires secrets: SERVICE_ROLE_KEY, PROJECT_URL, GEMINI_API_KEY
 
 import { serve } from 'https://deno.land/std@0.224.0/http/server.ts';

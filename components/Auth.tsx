@@ -2,6 +2,7 @@
 import { supabase } from '../services/supabase';
 import { t } from '../constants.clean';
 
+
 // Çocuk Karakterleri Bileşeni
 const KidsCharacters: React.FC<{ mouseX: number; mouseY: number }> = ({ mouseX, mouseY }) => {
   const kids = [
