@@ -9,10 +9,20 @@ const PROJECT_URL = Deno.env.get('PROJECT_URL')!;
 const SERVICE_ROLE_KEY = Deno.env.get('SERVICE_ROLE_KEY')!;
 const GEMINI_API_KEY = Deno.env.get('GEMINI_API_KEY') || Deno.env.get('GEMINI_KEY') || '';
 
+const corsHeaders = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+};
+
 type Msg = { role: 'user'|'assistant'|'system'; content: string; at?: string };
 
 serve(async (req) => {
-  if (req.method !== 'POST') return new Response('Method Not Allowed', { status: 405 });
+  // Handle CORS preflight requests
+  if (req.method === 'OPTIONS') {
+    return new Response('ok', { headers: corsHeaders });
+  }
+
+  if (req.method !== 'POST') return new Response('Method Not Allowed', { status: 405, headers: corsHeaders });
   try {
     const auth = req.headers.get('Authorization') || '';
     const userJwt = auth.replace(/^Bearer\s+/i, '');
@@ -83,7 +93,10 @@ serve(async (req) => {
 });
 
 function json(data: unknown, status = 200) {
-  return new Response(JSON.stringify(data), { status, headers: { 'Content-Type': 'application/json' } });
+  return new Response(JSON.stringify(data), { 
+    status, 
+    headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+  });
 }
 
 async function callGemini(apiKey: string, text: string): Promise<{ text: string; model: string; error?: string }> {
