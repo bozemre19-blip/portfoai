@@ -19,6 +19,7 @@ import AttendanceScreen from './components/AttendanceScreen';
 import { syncOfflineData } from './services/api';
 import { startAutoSync, stopAutoSync } from './services/syncService';
 import { t } from './constants.clean';
+import { Analytics } from "@vercel/analytics/react";
 // Sentry geçici olarak devre dışı (beyaz ekran sorunu için)
 // import { initSentry, setSentryUser, clearSentryUser } from './sentry.config';
 
@@ -121,7 +122,7 @@ const App: React.FC = () => {
       if (params && params.observation) {
         sessionStorage.setItem('edit-observation', JSON.stringify(params.observation));
       }
-    } catch {}
+    } catch { }
     const hash = makeHash(page, params);
     if (window.location.hash !== hash) {
       window.location.hash = hash; // creates browser history entry
@@ -151,7 +152,7 @@ const App: React.FC = () => {
           try {
             const s = sessionStorage.getItem('edit-observation');
             if (s) obs = JSON.parse(s);
-          } catch {}
+          } catch { }
         }
         const cid = view.params?.childId ?? obs?.child_id;
         if (!cid) {
@@ -196,6 +197,7 @@ const App: React.FC = () => {
           </Layout>
         )}
       </div>
+      <Analytics />
     </AuthContext.Provider>
   );
 };
