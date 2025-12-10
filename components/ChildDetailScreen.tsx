@@ -34,9 +34,9 @@ const computeRiskFromAssessment = (a: any, noteText?: string): Risk | undefined 
   if (!a) return undefined;
   try {
     const text = String((noteText || '') + ' ' + (a?.summary || '')).toLowerCase();
-    const positive = ['basar','heves','bagimsiz','dogru','katilim','katildi','surdur','ilerle','artti','uzun sure','dengede','yerine yerlestirdi','sakin','tamamladi'];
-    const severe = ['kavga','vur','isir','firlat','kendine zarar','siddet','yaral'];
-    const warn = ['zorlan','yardim','hatirlatma','sinirli','kacin','tereddut','uyari','desteg','zorluk','mudahale','huzursuz','odaklanamad','dikkati dagild','kurala uymadi'];
+    const positive = ['basar', 'heves', 'bagimsiz', 'dogru', 'katilim', 'katildi', 'surdur', 'ilerle', 'artti', 'uzun sure', 'dengede', 'yerine yerlestirdi', 'sakin', 'tamamladi'];
+    const severe = ['kavga', 'vur', 'isir', 'firlat', 'kendine zarar', 'siddet', 'yaral'];
+    const warn = ['zorlan', 'yardim', 'hatirlatma', 'sinirli', 'kacin', 'tereddut', 'uyari', 'desteg', 'zorluk', 'mudahale', 'huzursuz', 'odaklanamad', 'dikkati dagild', 'kurala uymadi'];
     if (severe.some(w => text.includes(w))) return 'high';
     if (positive.some(w => text.includes(w))) return 'low';
     const wc = warn.filter(w => text.includes(w)).length;
@@ -52,7 +52,7 @@ const computeRiskFromAssessment = (a: any, noteText?: string): Risk | undefined 
   } catch (e) {
     return (a?.risk as Risk) || undefined;
   }
-};const calculateAge = (dobIso: string): string => {
+}; const calculateAge = (dobIso: string): string => {
   if (!dobIso) return '—';
   const birth = new Date(dobIso);
   const now = new Date();
@@ -77,7 +77,7 @@ const formatDateTime = (isoDate?: string): string => {
 
 // Icons
 const PlusIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
-  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" {...props}><path d="M12 5a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H6a1 1 0 110-2h5V6a1 1 0 011-1z"/></svg>
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" {...props}><path d="M12 5a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H6a1 1 0 110-2h5V6a1 1 0 011-1z" /></svg>
 );
 const DocumentArrowDownIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" {...props}><path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm.75-11.25a.75.75 0 00-1.5 0v4.59L7.3 9.7a.75.75 0 00-1.1 1.02l3.25 3.5a.75.75 0 001.1 0l3.25-3.5a.75.75 0 10-1.1-1.02l-1.95 2.1V6.75z" clipRule="evenodd" /></svg>
@@ -99,7 +99,7 @@ const Avatar: React.FC<{ photoUrl?: string; firstName?: string; lastName?: strin
         )}
       </div>
     );
-};
+  };
 
 const Badge: React.FC<{ children: React.ReactNode; className?: string }> = ({ children, className }) => (
   <span className={`inline-flex items-center rounded-md px-2.5 py-1 text-xs font-semibold ring-1 ring-inset ${className}`}>{children}</span>
@@ -120,7 +120,7 @@ const StatCard: React.FC<{ label: string; value: string | number; onClick?: () =
     role={onClick ? 'button' : undefined}
     tabIndex={onClick ? 0 : undefined}
     onClick={onClick}
-    onKeyDown={(e) => { if (onClick && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); onClick(); }}}
+    onKeyDown={(e) => { if (onClick && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); onClick(); } }}
     className={`flex-1 rounded-lg bg-gray-50 px-4 py-3 text-center ${onClick ? 'cursor-pointer hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-primary/60 ring-1 ring-transparent transition' : ''}`}
   >
     <p className="text-sm font-medium text-gray-500">{label}</p>
@@ -284,11 +284,11 @@ const ChildDetailScreen: React.FC<ChildDetailScreenProps> = ({ childId, navigate
         const doms = Array.isArray(o?.domains) ? (o.domains as string[]) : [];
         for (const d of doms) domainCounts[d] = (domainCounts[d] || 0) + 1;
       }
-      const topDomains = Object.entries(domainCounts).sort((a,b)=>b[1]-a[1]).slice(0,2).map(([k])=>DEVELOPMENT_DOMAINS[k as any] || k);
+      const topDomains = Object.entries(domainCounts).sort((a, b) => b[1] - a[1]).slice(0, 2).map(([k]) => DEVELOPMENT_DOMAINS[k as keyof typeof DEVELOPMENT_DOMAINS] || k);
       const low = counts.low; const med = counts.medium; const high = counts.high;
-      const riskPhrase = high>0 ? 'bazı yüksek risk uyarıları mevcut' : med>0 ? 'orta düzey uyarılar gözleniyor' : 'genel risk düşük';
-      const domainPhrase = topDomains.length>0 ? `çalışmalar çoğunlukla ${topDomains.join(' ve ')} alanlarına odaklanıyor` : 'alan dağılımı dengeli';
-      const aiSummary = `Genel durum: Son ${n} gözlem temelinde ${domainPhrase}. Risk dağılımı (Düşük/Orta/Yüksek): ${low}/${med}/${high}; ${riskPhrase}.`;
+      const riskPhrase = high > 0 ? 'bazı alanlarda destek ihtiyacı gözleniyor' : med > 0 ? 'geliştirilmeye açık yönler mevcut' : 'gelişim süreci beklenen düzeyde ilerliyor';
+      const domainPhrase = topDomains.length > 0 ? `yapılan gözlemler ağırlıklı olarak ${topDomains.join(' ve ')} üzerine yoğunlaşmıştır` : 'gözlem alanları dengeli bir dağılım göstermektedir';
+      const aiSummary = `Gelişim Özeti: Son ${n} adet beceri temelli gözlem değerlendirildiğinde, ${domainPhrase}. Risk Analizi: ${riskPhrase}.`;
 
       const data: ChildProfileData = {
         id: childData.id,

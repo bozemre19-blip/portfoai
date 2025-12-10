@@ -1,12 +1,12 @@
 import type { DevelopmentDomain, ObservationContext } from './types';
 
 export const DEVELOPMENT_DOMAINS: Record<DevelopmentDomain, string> = {
-  cognitive: 'Bili\u015Fsel Geli\u015Fim',
-  language: 'Dil Geli\u015Fimi',
-  social_emotional: 'Sosyal-Duygusal Geli\u015Fim',
-  fine_motor: '\u0130nce Motor Geli\u015Fimi',
-  gross_motor: 'Kaba Motor Geli\u015Fimi',
-  self_care: '\u00D6z Bak\u0131m Becerileri',
+  cognitive: 'Bilişsel Beceriler',
+  language: 'Dil ve Okuryazarlık Becerileri',
+  social_emotional: 'Sosyal-Duygusal Beceriler',
+  fine_motor: 'İnce Motor Becerileri',
+  gross_motor: 'Kaba Motor Becerileri',
+  self_care: 'Öz Bakım ve Yaşam Becerileri',
 };
 
 export const OBSERVATION_CONTEXTS: Record<ObservationContext, string> = {
