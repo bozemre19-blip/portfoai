@@ -187,7 +187,7 @@ const ChildProfileCard: React.FC<ChildProfileCardProps> = ({ data, onAddObservat
         <div className="flex flex-col sm:flex-row items-center gap-6">
           <div className="relative">
             <Avatar photoUrl={data.photoUrl} firstName={data.firstName} lastName={data.lastName} />
-            <label className="absolute -bottom-2 right-0 bg-white/90 dark:bg-gray-800 border dark:border-gray-700 rounded-md px-2 py-1 text-xs shadow cursor-pointer hover:bg-white dark:hover:bg-gray-700 text-gray-900 dark:text-gray-100">
+            <label className="absolute -bottom-2 right-0 bg-white/90 dark:bg-[#1f2937] border dark:border-[#374151] rounded-md px-2 py-1 text-xs shadow cursor-pointer hover:bg-white dark:hover:bg-[#374151] text-gray-900 dark:text-[#f3f4f6]">
               Fotoğrafı Değiştir
               <input type="file" accept="image/*" className="hidden" onChange={(e) => { if (e.target.files && e.target.files[0]) onChangePhoto(e.target.files[0]); }} />
             </label>
@@ -470,8 +470,8 @@ const ChildDetailScreen: React.FC<ChildDetailScreenProps> = ({ childId, navigate
           </Section>
           <Section title="Yapay Zekâ Öngörüleri">
             {profileData.aiSummary && (
-              <div className="mb-4 p-3 bg-blue-50 dark:bg-gray-800 border border-blue-100 dark:border-gray-700 rounded-md">
-                <p className="text-sm text-gray-800 dark:text-gray-200 leading-relaxed">{profileData.aiSummary}</p>
+              <div className="mb-4 p-3 bg-blue-50 dark:bg-[#1f2937] border border-blue-100 dark:border-[#374151] rounded-md">
+                <p className="text-sm text-gray-800 dark:text-[#f3f4f6] leading-relaxed">{profileData.aiSummary}</p>
               </div>
             )}
             {profileData.aiInsights && profileData.aiInsights.length > 0 ? (
