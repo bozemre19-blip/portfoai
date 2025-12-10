@@ -470,8 +470,8 @@ const ChildDetailScreen: React.FC<ChildDetailScreenProps> = ({ childId, navigate
           </Section>
           <Section title="Yapay Zekâ Öngörüleri">
             {profileData.aiSummary && (
-              <div className="mb-4 p-3 bg-blue-50 border border-blue-100 rounded-md">
-                <p className="text-sm text-gray-800 leading-relaxed">{profileData.aiSummary}</p>
+              <div className="mb-4 p-3 bg-blue-50 dark:bg-slate-800 border border-blue-100 dark:border-slate-700 rounded-md">
+                <p className="text-sm text-gray-800 dark:text-gray-200 leading-relaxed">{profileData.aiSummary}</p>
               </div>
             )}
             {profileData.aiInsights && profileData.aiInsights.length > 0 ? (
