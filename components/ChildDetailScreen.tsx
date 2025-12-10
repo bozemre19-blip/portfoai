@@ -305,7 +305,7 @@ const ChildDetailScreen: React.FC<ChildDetailScreenProps> = ({ childId, navigate
         : 'gözlem alanları dengeli bir dağılım göstermektedir';
 
       // Final Özet (Markdown yıldızlarını kaldırdım, düzgün görünsün)
-      const aiSummary = `BECERİ PROFİLİ: Son ${n} gözlem verisine göre, ${domainPhrase}. SÜREÇ ANALİZİ: ${riskPhrase}.`;
+      const aiSummary = `GENEL DURUM: Son ${n} gözlem verisine göre, ${domainPhrase}. SÜREÇ ANALİZİ: ${riskPhrase}.`;
 
       const data: ChildProfileData = {
         id: childData.id,
