@@ -187,7 +187,7 @@ const ChildProfileCard: React.FC<ChildProfileCardProps> = ({ data, onAddObservat
         <div className="flex flex-col sm:flex-row items-center gap-6">
           <div className="relative">
             <Avatar photoUrl={data.photoUrl} firstName={data.firstName} lastName={data.lastName} />
-            <label className="absolute -bottom-2 right-0 bg-white/90 border rounded-md px-2 py-1 text-xs shadow cursor-pointer hover:bg-white">
+            <label className="absolute -bottom-2 right-0 bg-white/90 border rounded-md px-2 py-1 text-xs shadow cursor-pointer hover:bg-white text-gray-900">
               Fotoğrafı Değiştir
               <input type="file" accept="image/*" className="hidden" onChange={(e) => { if (e.target.files && e.target.files[0]) onChangePhoto(e.target.files[0]); }} />
             </label>
