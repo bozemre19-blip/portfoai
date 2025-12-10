@@ -74,10 +74,23 @@ async function handler(req: Request) {
   }
 }
 
+// Maarif Model Enhanced System Prompt (Skill & Outcome Based)
+const getMaarifSystemPrompt = () => `
+Sen 'Türkiye Yüzyılı Maarif Modeli Okul Öncesi Eğitim Programı' (2024) konusunda uzman bir asistanısın.
+Bu program "Beceri ve Çıktı Temelli" (Skill and Outcome Based) bir yapıdadır.
+Gözlem notlarını analiz ederken klasik gelişimsel eksiklik/yeterlilik dili yerine şu yaklaşımı kullan:
+
+1. **Beceri Odaklılık:** Çocuğun davranışını bir "Beceri" ve "Süreç" bileşeni olarak tanımla. (Örn: "Karar Verme becerisi", "İşbirliği süreci").
+2. **Öğrenme Çıktıları:** Gözlemlenen durumun hangi öğrenme çıktısına (kazanıma değil, çıktıya) işaret ettiğini belirt.
+3. **Süreç:** Çocuğun sonuca nasıl ulaştığını (merak, keşif, deneme) vurgula.
+
+Analizinde şu terimleri kullanmaya çalış: "Edinim", "Süreç", "Beceri" ve "Öğrenme Çıktısı".
+Yanıtı SADECE Türkçe ve belirtilen JSON formatında ver.`;
+
 // Analyze with OpenAI (Chat Completions)
 async function analyzeWithOpenAI(apiKey: string, observationNote: string, domains: string[]) {
-  const system = "You are an expert in early childhood development (0-6 years). Respond ONLY in Turkish and ONLY with a single JSON object matching the requested schema.";
-  const prompt = `Aşağıdaki öğretmen gözlem notunu analiz et. Alanlar: ${domains.join(", ")}.\n\nGözlem Notu: "${observationNote}"\n\nSadece Türkçe bir JSON döndür: { summary: string, domain_scores: { [domain]: 1..5 }, risk: 'low'|'medium'|'high', suggestions: string[3] }. Bir alan değerlendirilemiyorsa o alanı atla. JSON dışında hiçbir metin yazma.`;
+  const system = getMaarifSystemPrompt();
+  const prompt = `Aşağıdaki öğretmen gözlem notunu Maarif Modeli (Beceri ve Çıktı Temelli) perspektifiyle analiz et. Alanlar: ${domains.join(", ")}.\n\nGözlem Notu: "${observationNote}"\n\nSadece Türkçe bir JSON döndür: { summary: string, domain_scores: { [domain]: 1..5 }, risk: 'low'|'medium'|'high', suggestions: string[3] }. Bir alan değerlendirilemiyorsa o alanı atla. JSON dışında hiçbir metin yazma.`;
   const body = {
     model: "gpt-4o-mini",
     temperature: 0.5,
@@ -108,8 +121,8 @@ async function analyzeWithOpenAI(apiKey: string, observationNote: string, domain
 
 // Analyze with Gemini via REST API (tries multiple model/version combos)
 async function analyzeWithGemini(apiKey: string, observationNote: string, domains: string[]) {
-  const system = "You are an expert in early childhood development (0-6 years). Respond ONLY in Turkish and ONLY with a single JSON object with keys: summary, domain_scores, risk, suggestions.";
-  const prompt = `Öğretmen gözlem notunu analiz et. Alanlar: ${domains.join(', ')}.\n\nGözlem Notu: "${observationNote}"\n\nSadece Türkçe bir JSON döndür: { summary: string, domain_scores: { [domain]: 1..5 }, risk: 'low'|'medium'|'high', suggestions: string[3] }. Bir alan değerlendirilemiyorsa o alanı atla. JSON dışında hiçbir şey yazma.`;
+  const system = getMaarifSystemPrompt();
+  const prompt = `Öğretmen gözlem notunu Maarif Modeli (Beceri ve Çıktı Temelli) perspektifiyle analiz et. Alanlar: ${domains.join(', ')}.\n\nGözlem Notu: "${observationNote}"\n\nSadece Türkçe bir JSON döndür: { summary: string, domain_scores: { [domain]: 1..5 }, risk: 'low'|'medium'|'high', suggestions: string[3] }. Bir alan değerlendirilemiyorsa o alanı atla. JSON dışında hiçbir şey yazma.`;
 
   const body = {
     system_instruction: { role: 'system', parts: [{ text: system }] },
@@ -117,11 +130,11 @@ async function analyzeWithGemini(apiKey: string, observationNote: string, domain
     generation_config: { temperature: 0.5, response_mime_type: 'application/json' },
   } as const;
 
-  const attempts: Array<{version: string; model: string}> = [
+  const attempts: Array<{ version: string; model: string }> = [
     { version: 'v1beta', model: 'gemini-1.5-flash-002' },
-    { version: 'v1',     model: 'gemini-1.5-flash-002' },
+    { version: 'v1', model: 'gemini-1.5-flash-002' },
     { version: 'v1beta', model: 'gemini-1.5-flash-latest' },
-    { version: 'v1',     model: 'gemini-1.5-flash' },
+    { version: 'v1', model: 'gemini-1.5-flash' },
   ];
 
   let lastErr: unknown;

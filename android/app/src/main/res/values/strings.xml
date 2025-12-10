@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">PortfoAI</string>
+    <string name="title_activity_main">PortfoAI</string>
+    <string name="package_name">com.portfoai.app</string>
+    <string name="custom_url_scheme">com.portfoai.app</string>
+</resources>

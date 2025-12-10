@@ -113,7 +113,7 @@ const Layout: React.FC<LayoutProps> = ({ children, navigate }) => {
   }, [theme]);
 
   const signOutNow = async () => {
-    try { await supabase.auth.signOut(); } catch {}
+    try { await supabase.auth.signOut(); } catch { }
     try {
       // Clear possible cached items
       sessionStorage.clear();
@@ -123,8 +123,8 @@ const Layout: React.FC<LayoutProps> = ({ children, navigate }) => {
         if (k && (k.startsWith('sb-') || k.includes('supabase'))) keys.push(k);
       }
       keys.forEach(k => localStorage.removeItem(k));
-    } catch {}
-    try { window.location.hash = ''; } catch {}
+    } catch { }
+    try { window.location.hash = ''; } catch { }
     window.location.reload();
   };
 
@@ -155,17 +155,17 @@ const Layout: React.FC<LayoutProps> = ({ children, navigate }) => {
           <span className="font-medium group-hover:translate-x-1 transition-transform duration-200">{t('gettingStarted') || 'Başlarken'}</span>
         </a>
         {navItems.map((item) => {
-          const colorClasses = theme === 'dark' 
+          const colorClasses = theme === 'dark'
             ? 'hover:bg-[#1e2a47]'
             : ({
-                blue: 'hover:from-blue-50 hover:to-blue-100 group-hover:border-blue-500',
-                green: 'hover:from-green-50 hover:to-green-100 group-hover:border-green-500',
-                purple: 'hover:from-purple-50 hover:to-purple-100 group-hover:border-purple-500',
-                pink: 'hover:from-pink-50 hover:to-pink-100 group-hover:border-pink-500',
-                orange: 'hover:from-orange-50 hover:to-orange-100 group-hover:border-orange-500',
-                red: 'hover:from-red-50 hover:to-red-100 group-hover:border-red-500',
-              }[item.color] || 'hover:from-gray-50 hover:to-gray-100 group-hover:border-gray-500');
-          
+              blue: 'hover:from-blue-50 hover:to-blue-100 group-hover:border-blue-500',
+              green: 'hover:from-green-50 hover:to-green-100 group-hover:border-green-500',
+              purple: 'hover:from-purple-50 hover:to-purple-100 group-hover:border-purple-500',
+              pink: 'hover:from-pink-50 hover:to-pink-100 group-hover:border-pink-500',
+              orange: 'hover:from-orange-50 hover:to-orange-100 group-hover:border-orange-500',
+              red: 'hover:from-red-50 hover:to-red-100 group-hover:border-red-500',
+            }[item.color] || 'hover:from-gray-50 hover:to-gray-100 group-hover:border-gray-500');
+
           const iconColor = {
             blue: 'text-blue-600',
             green: 'text-green-600',
@@ -248,26 +248,32 @@ const Layout: React.FC<LayoutProps> = ({ children, navigate }) => {
           </div>
         </div>
       </div>
-      
+
       <div className="flex flex-col w-0 flex-1 overflow-hidden">
-        <div className="md:hidden pl-1 pt-1 sm:pl-3 sm:pt-3">
-          <button onClick={() => setSidebarOpen(true)} className="-ml-0.5 -mt-0.5 h-12 w-12 inline-flex items-center justify-center rounded-md text-gray-500 hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-primary">
-            <MenuIcon className="h-6 w-6" />
-          </button>
-        </div>
+        {/* Old floating hamburger removed from here */}
+
         <main className="flex-1 relative z-0 overflow-y-auto focus:outline-none">
           {/* Header Banner */}
-          <div className={`${theme === 'dark' ? 'bg-gradient-to-r from-[#1e2a47] via-[#1a1a2e] to-[#2a3f5f]' : 'bg-gradient-to-r from-indigo-600 via-purple-600 to-blue-600'} shadow-lg`}>
+          <div className={`${theme === 'dark' ? 'bg-gradient-to-r from-[#1e2a47] via-[#1a1a2e] to-[#2a3f5f]' : 'bg-gradient-to-r from-indigo-600 via-purple-600 to-blue-600'} shadow-lg pt-safe transition-colors duration-300`}>
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-4">
-                  <div className="bg-white/20 backdrop-blur-sm rounded-xl p-3 shadow-lg">
+                  {/* Mobile Menu Button */}
+                  <button
+                    onClick={() => setSidebarOpen(true)}
+                    className="md:hidden p-2 -ml-2 rounded-lg text-white/80 hover:bg-white/10 hover:text-white focus:outline-none transition-colors"
+                  >
+                    <MenuIcon className="h-7 w-7" />
+                  </button>
+
+                  <div className="bg-white/20 backdrop-blur-sm rounded-xl p-3 shadow-lg hidden sm:block">
                     <span className="text-3xl">🎓</span>
                   </div>
                   <div>
-                    <h1 className="text-2xl font-bold text-white flex items-center gap-2">
-                      Erken Çocukluk Gözlem Sistemi
-                      <span className="text-sm font-normal bg-white/20 px-2 py-1 rounded-lg">Beta</span>
+                    <h1 className="text-xl sm:text-2xl font-bold text-white flex items-center gap-2">
+                      <span className="hidden sm:inline">Erken Çocukluk Gözlem Sistemi</span>
+                      <span className="sm:hidden">PortfoAI</span>
+                      <span className="text-xs font-normal bg-white/20 px-2 py-1 rounded-lg">Beta</span>
                     </h1>
                     <p className="text-white/80 text-sm mt-1">
                       Hoş geldin, <span className="font-semibold">{displayName}</span> 👋
@@ -282,7 +288,7 @@ const Layout: React.FC<LayoutProps> = ({ children, navigate }) => {
               </div>
             </div>
           </div>
-          
+
           <div className="py-6 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
             <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-2xl p-6 min-h-[calc(100vh-6rem)]">
               {children}

@@ -14,6 +14,12 @@ body {
   100% { background-position: 0% 50%; }
 }
 
+/* Safe Area Utility */
+.pt-safe {
+  padding-top: constant(safe-area-inset-top); /* iOS 11.0 */
+  padding-top: env(safe-area-inset-top); /* iOS 11.2+ */
+}
+
 /* Blob animasyonu - Hareketli shape'ler için */
 @keyframes blob {
   0%, 100% {

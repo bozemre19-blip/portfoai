@@ -9,6 +9,9 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@capacitor/android": "^8.0.0",
+    "@capacitor/core": "^8.0.0",
+    "@capacitor/ios": "^8.0.0",
     "@google/genai": "^1.28.0",
     "@heroicons/react": "^2.1.1",
     "@supabase/supabase-js": "^2.78.0",
@@ -20,6 +23,7 @@
     "uuid": "^13.0.0"
   },
   "devDependencies": {
+    "@capacitor/cli": "^8.0.0",
     "@types/node": "^22.14.0",
     "@vitejs/plugin-react": "^5.0.0",
     "typescript": "~5.8.2",
