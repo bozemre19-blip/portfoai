@@ -304,8 +304,8 @@ const ChildDetailScreen: React.FC<ChildDetailScreenProps> = ({ childId, navigate
         ? `yapılan gözlemler ağırlıklı olarak **${topDomains.join('** ve **')}** üzerine yoğunlaşmıştır`
         : 'gözlem alanları dengeli bir dağılım göstermektedir';
 
-      // Final Özet
-      const aiSummary = `**Beceri Profili:** Son ${n} gözlem verisine göre, ${domainPhrase}. \n\n**Süreç Analizi:** ${riskPhrase}.`;
+      // Final Özet (Markdown yıldızlarını kaldırdım, düzgün görünsün)
+      const aiSummary = `BECERİ PROFİLİ: Son ${n} gözlem verisine göre, ${domainPhrase}. SÜREÇ ANALİZİ: ${riskPhrase}.`;
 
       const data: ChildProfileData = {
         id: childData.id,
@@ -322,8 +322,8 @@ const ChildDetailScreen: React.FC<ChildDetailScreenProps> = ({ childId, navigate
         health: childData.health || { allergies: [], notes: '' },
         interests: childData.interests || [],
         strengths: childData.strengths || [],
-        aiInsights: dynamicInsights, // Sadece gerçek AI önerileri
-        aiSummary,
+        aiInsights: dynamicInsights, // Sadece öneriler kalsın
+        aiSummary, // Özeti ayrıca geçiyoruz
       };
 
       setProfileData(data);
@@ -469,6 +469,11 @@ const ChildDetailScreen: React.FC<ChildDetailScreenProps> = ({ childId, navigate
             </div>
           </Section>
           <Section title="Yapay Zekâ Öngörüleri">
+            {profileData.aiSummary && (
+              <div className="mb-4 p-3 bg-blue-50 border border-blue-100 rounded-md">
+                <p className="text-sm text-gray-800 leading-relaxed">{profileData.aiSummary}</p>
+              </div>
+            )}
             {profileData.aiInsights && profileData.aiInsights.length > 0 ? (
               <ul className="list-disc list-inside space-y-2 text-sm text-gray-700">{profileData.aiInsights.map((s, i) => <li key={i}>{s}</li>)}</ul>
             ) : (
