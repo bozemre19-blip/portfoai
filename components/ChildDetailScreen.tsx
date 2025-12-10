@@ -278,9 +278,34 @@ const ChildDetailScreen: React.FC<ChildDetailScreenProps> = ({ childId, navigate
       // Öneriler: tüm değerlendirmelerden birleştirilmiş\n            // Öneriler: değerlendirmelerin tamamından benzersiz öneriler
       const dynamicInsights = Array.from(new Set((assessments || []).flatMap((x: any) => Array.isArray(x?.a?.suggestions) ? (x.a.suggestions as string[]).filter((s) => typeof s === 'string' && s.trim()) : []))).slice(0, 8);
       // Çocuğun tüm gözlemlerine dayalı genel durum değerlendirmesi (yerel özet)
-      // Maarif Modeli'nin karmaşık yapısını basit bir sayımla yansıtmak hatalı olacağı için kaldırıldı.
-      // Sadece gerçek AI analizleri (dynamicInsights) gösterilecek.
-      const aiSummary = undefined;
+      const n = observations.length;
+      const domainCounts: Record<string, number> = {};
+      for (const o of observations as any[]) {
+        const doms = Array.isArray(o?.domains) ? (o.domains as string[]) : [];
+        for (const d of doms) domainCounts[d] = (domainCounts[d] || 0) + 1;
+      }
+      // En çok odaklanılan 2 beceri alanını bul
+      const topDomains = Object.entries(domainCounts)
+        .sort((a, b) => b[1] - a[1])
+        .slice(0, 2)
+        .map(([k]) => DEVELOPMENT_DOMAINS[k as keyof typeof DEVELOPMENT_DOMAINS] || k);
+
+      const low = counts.low; const med = counts.medium; const high = counts.high;
+
+      // Risk cümlesi (Daha yumuşak bir dille)
+      const riskPhrase = high > 0
+        ? 'belirli beceri alanlarında ek destek ihtiyacı sinyalleri mevcut'
+        : med > 0
+          ? 'gelişim sürecinde izlenmesi gereken alanlar var'
+          : 'beceri edinimi beklenen seyrinde ilerliyor';
+
+      // Alan cümlesi
+      const domainPhrase = topDomains.length > 0
+        ? `yapılan gözlemler ağırlıklı olarak **${topDomains.join('** ve **')}** üzerine yoğunlaşmıştır`
+        : 'gözlem alanları dengeli bir dağılım göstermektedir';
+
+      // Final Özet
+      const aiSummary = `**Beceri Profili:** Son ${n} gözlem verisine göre, ${domainPhrase}. \n\n**Süreç Analizi:** ${riskPhrase}.`;
 
       const data: ChildProfileData = {
         id: childData.id,
