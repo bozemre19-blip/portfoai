@@ -278,17 +278,9 @@ const ChildDetailScreen: React.FC<ChildDetailScreenProps> = ({ childId, navigate
       // Öneriler: tüm değerlendirmelerden birleştirilmiş\n            // Öneriler: değerlendirmelerin tamamından benzersiz öneriler
       const dynamicInsights = Array.from(new Set((assessments || []).flatMap((x: any) => Array.isArray(x?.a?.suggestions) ? (x.a.suggestions as string[]).filter((s) => typeof s === 'string' && s.trim()) : []))).slice(0, 8);
       // Çocuğun tüm gözlemlerine dayalı genel durum değerlendirmesi (yerel özet)
-      const n = observations.length;
-      const domainCounts: Record<string, number> = {};
-      for (const o of observations as any[]) {
-        const doms = Array.isArray(o?.domains) ? (o.domains as string[]) : [];
-        for (const d of doms) domainCounts[d] = (domainCounts[d] || 0) + 1;
-      }
-      const topDomains = Object.entries(domainCounts).sort((a, b) => b[1] - a[1]).slice(0, 2).map(([k]) => DEVELOPMENT_DOMAINS[k as keyof typeof DEVELOPMENT_DOMAINS] || k);
-      const low = counts.low; const med = counts.medium; const high = counts.high;
-      const riskPhrase = high > 0 ? 'bazı alanlarda destek ihtiyacı gözleniyor' : med > 0 ? 'geliştirilmeye açık yönler mevcut' : 'gelişim süreci beklenen düzeyde ilerliyor';
-      const domainPhrase = topDomains.length > 0 ? `yapılan gözlemler ağırlıklı olarak ${topDomains.join(' ve ')} üzerine yoğunlaşmıştır` : 'gözlem alanları dengeli bir dağılım göstermektedir';
-      const aiSummary = `Gelişim Özeti: Son ${n} adet beceri temelli gözlem değerlendirildiğinde, ${domainPhrase}. Risk Analizi: ${riskPhrase}.`;
+      // Maarif Modeli'nin karmaşık yapısını basit bir sayımla yansıtmak hatalı olacağı için kaldırıldı.
+      // Sadece gerçek AI analizleri (dynamicInsights) gösterilecek.
+      const aiSummary = undefined;
 
       const data: ChildProfileData = {
         id: childData.id,
@@ -305,7 +297,7 @@ const ChildDetailScreen: React.FC<ChildDetailScreenProps> = ({ childId, navigate
         health: childData.health || { allergies: [], notes: '' },
         interests: childData.interests || [],
         strengths: childData.strengths || [],
-        aiInsights: aiSummary ? [aiSummary, ...dynamicInsights] : dynamicInsights,
+        aiInsights: dynamicInsights, // Sadece gerçek AI önerileri
         aiSummary,
       };
 
