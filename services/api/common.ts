@@ -13,7 +13,6 @@ export const CACHED_CLASSES_KEY = 'cachedClasses';
 export const CACHED_OBSERVATIONS_KEY = 'cachedObservations';
 export const CACHED_ATTENDANCE_KEY = 'cachedAttendance';
 export const CACHED_GOALS_KEY = 'cachedGoals';
-export const CACHED_MEDIA_KEY = 'cachedMedia';
 
 // Cache yardımcı fonksiyonları
 export const setCache = <T>(key: string, data: T) => {

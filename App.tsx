@@ -182,17 +182,7 @@ const App: React.FC = () => {
           <Auth />
         ) : (
           <Layout navigate={navigate}>
-            {!isOnline && (
-              <div className="bg-gradient-to-r from-amber-500 to-orange-500 text-white text-center py-3 px-4 shadow-lg">
-                <div className="flex items-center justify-center gap-2 max-w-4xl mx-auto">
-                  <span className="text-2xl">📡</span>
-                  <div className="text-left">
-                    <div className="font-bold text-sm">{t('offlineWarning')}</div>
-                    <div className="text-xs opacity-90">Kayıtlı verileriniz gösteriliyor. Yeni gözlemler kaydedilip senkronize edilecektir.</div>
-                  </div>
-                </div>
-              </div>
-            )}
+
             {renderContent()}
           </Layout>
         )}

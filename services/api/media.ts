@@ -1,30 +1,17 @@
 import { supabase } from '../supabase';
 import type { Media, DevelopmentDomain } from '../../types';
-import { dispatchDataChangedEvent, setCache, getCache, CACHED_MEDIA_KEY } from './common';
+import { dispatchDataChangedEvent } from './common';
 import { v4 as uuidv4 } from 'uuid';
 
-// Çocuğa ait tüm medyaları getir (Cache destekli)
+// Çocuğa ait tüm medyaları getir
 export const getMediaForChild = async (childId: string) => {
-  try {
-    const { data, error } = await supabase
-      .from('media')
-      .select('*')
-      .eq('child_id', childId)
-      .order('created_at', { ascending: false });
-
-    if (error) throw error;
-
-    // Cache'e kaydet
-    const mediaList = data as Media[];
-    setCache(`${CACHED_MEDIA_KEY}:${childId}`, mediaList);
-
-    return mediaList;
-  } catch (error) {
-    console.log('Online medya listesi alınamadı, cache kontrol ediliyor:', error);
-    // Hata durumunda cache'den çek
-    const cached = getCache<Media[]>(`${CACHED_MEDIA_KEY}:${childId}`);
-    return cached || [];
-  }
+  const { data, error } = await supabase
+    .from('media')
+    .select('*')
+    .eq('child_id', childId)
+    .order('created_at', { ascending: false });
+  if (error) throw error;
+  return data as Media[];
 };
 
 // Yeni medya kaydı ekle (storage yükleme ayrı yapılmalı)
@@ -51,7 +38,7 @@ export const deleteMedia = async (mediaItem: Media) => {
   // Storage silme hatasını loglayalım ama devam edelim (dosya zaten silinmiş olabilir)
   if (storageError) {
     console.error(
-      `Storage silme başarısız: "${mediaItem.storage_path}", veritabanı kaydı silinmeye devam ediliyor. Hata:`,
+      `Storage silme başarısız: "${mediaItem.storage_path}", veritabanı kaydı silinmeye devam ediliyor.Hata: `,
       storageError.message
     );
   }
@@ -87,7 +74,7 @@ export const uploadMedia = async (
   const extFromType = processedFile.type?.split('/')[1] || '';
   const extFromName = processedFile.name.includes('.') ? processedFile.name.split('.').pop() : '';
   const ext = (extFromType || extFromName || 'jpg').toLowerCase();
-  const fileName = `${userId}/${childId}/${uuidv4()}.${ext}`;
+  const fileName = `${userId} /${childId}/${uuidv4()}.${ext} `;
 
   const { data, error } = await supabase.storage.from('child-media').upload(fileName, processedFile, {
     cacheControl: '3600',
