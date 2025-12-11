@@ -279,12 +279,34 @@ const ChildDetailScreen: React.FC<ChildDetailScreenProps> = ({ childId, navigate
       const dynamicInsights = Array.from(new Set((assessments || []).flatMap((x: any) => Array.isArray(x?.a?.suggestions) ? (x.a.suggestions as string[]).filter((s) => typeof s === 'string' && s.trim()) : []))).slice(0, 8);
       // Çocuğun tüm gözlemlerine dayalı genel durum değerlendirmesi (yerel özet)
       const n = observations.length;
+      // En çok odaklanılan 2 beceri alanını bul
+      // Legacy -> Maarif Mapping
+      const domainMap: Record<string, string> = {
+        'cognitive': 'math', // Bilişsel -> Matematik (Approximation)
+        'language': 'turkish',
+        'social_emotional': 'social',
+        'fine_motor': 'motor_health',
+        'gross_motor': 'motor_health',
+        'self_care': 'motor_health',
+        // Direct
+        'turkish': 'turkish',
+        'math': 'math',
+        'science': 'science',
+        'social': 'social',
+        'motor_health': 'motor_health',
+        'art': 'art',
+        'music': 'music'
+      };
+
       const domainCounts: Record<string, number> = {};
       for (const o of observations as any[]) {
         const doms = Array.isArray(o?.domains) ? (o.domains as string[]) : [];
-        for (const d of doms) domainCounts[d] = (domainCounts[d] || 0) + 1;
+        for (const d of doms) {
+          const mapped = domainMap[d] || d; // Map legacy to new, or keep as is
+          domainCounts[mapped] = (domainCounts[mapped] || 0) + 1;
+        }
       }
-      // En çok odaklanılan 2 beceri alanını bul
+
       const topDomains = Object.entries(domainCounts)
         .sort((a, b) => b[1] - a[1])
         .slice(0, 2)
