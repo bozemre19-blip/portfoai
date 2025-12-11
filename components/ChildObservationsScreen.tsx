@@ -304,3 +304,4 @@ const ChildObservationsScreen: React.FC<Props> = ({ childId, navigate }) => {
 
 
 
+export default ChildObservationsScreen;
