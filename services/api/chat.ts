@@ -56,6 +56,32 @@ export const createChatThread = async (args: {
   return data as ChatThread;
 };
 
+// Chat thread başlığını güncelle
+export const updateChatThread = async (threadId: string, title: string): Promise<void> => {
+  const { error } = await supabase
+    .from('chat_threads')
+    .update({ title, updated_at: new Date().toISOString() })
+    .eq('id', threadId);
+  if (error) throw error;
+};
+
+// Chat thread ve mesajlarını sil
+export const deleteChatThread = async (threadId: string): Promise<void> => {
+  // Önce mesajları sil
+  const { error: msgError } = await supabase
+    .from('chat_messages')
+    .delete()
+    .eq('thread_id', threadId);
+  if (msgError) console.error('Mesajlar silinirken hata:', msgError);
+
+  // Sonra thread'i sil
+  const { error } = await supabase
+    .from('chat_threads')
+    .delete()
+    .eq('id', threadId);
+  if (error) throw error;
+};
+
 // Thread'e ait tüm mesajları getir
 export const getChatMessages = async (threadId: string): Promise<ChatMessage[]> => {
   const { data, error } = await supabase
