@@ -1,6 +1,6 @@
 import { supabase } from '../supabase';
 import type { Observation, Assessment, OfflineObservation } from '../../types';
-import { dispatchDataChangedEvent, OFFLINE_OBSERVATIONS_KEY } from './common';
+import { dispatchDataChangedEvent, OFFLINE_OBSERVATIONS_KEY, setCache, getCache, CACHED_OBSERVATIONS_KEY } from './common';
 import { v4 as uuidv4 } from 'uuid';
 import { t } from '../../constants.clean';
 
@@ -41,29 +41,45 @@ const addObservationOffline = async (
 
 // Çocuğun tüm gözlemlerini getir (online + offline)
 export const getObservationsForChild = async (childId: string) => {
-  const { data, error } = await supabase
-    .from('observations')
-    .select('*, assessments(*)')
-    .eq('child_id', childId)
-    .order('created_at', { ascending: false });
-
-  if (error) throw error;
-
-  // Supabase assessments array döner, en güncelini al
-  const normalized = (data || []).map((row: any) => {
-    let items = row.assessments;
-    if (Array.isArray(items) && items.length > 0) {
-      const picked = [...items].sort(
-        (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
-      )[0];
-      return { ...row, assessments: picked };
-    }
-    return { ...row, assessments: null };
-  });
-
-  // Offline gözlemleri ekle
+  // Offline gözlemleri her durumda al
   const localObservations = getOfflineObservations().filter((o) => o.child_id === childId);
-  return [...localObservations, ...normalized] as (Observation & { assessments: Assessment | null })[];
+
+  try {
+    const { data, error } = await supabase
+      .from('observations')
+      .select('*, assessments(*)')
+      .eq('child_id', childId)
+      .order('created_at', { ascending: false });
+
+    if (error) throw error;
+
+    // Supabase assessments array döner, en güncelini al
+    const normalized = (data || []).map((row: any) => {
+      let items = row.assessments;
+      if (Array.isArray(items) && items.length > 0) {
+        const picked = [...items].sort(
+          (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+        )[0];
+        return { ...row, assessments: picked };
+      }
+      return { ...row, assessments: null };
+    });
+
+    // Başarılı olursa cache'e kaydet
+    setCache(`${CACHED_OBSERVATIONS_KEY}:${childId}`, normalized);
+
+    return [...localObservations, ...normalized] as (Observation & { assessments: Assessment | null })[];
+  } catch (error) {
+    console.log('Online gözlemler alınamadı, cache kontrol ediliyor:', error);
+
+    // Hata durumunda cache'den online gözlemleri çek
+    const cachedOnlineObservations = getCache<(Observation & { assessments: Assessment | null })[]>(
+      `${CACHED_OBSERVATIONS_KEY}:${childId}`
+    ) || [];
+
+    // Offline + Cached birleştir
+    return [...localObservations, ...cachedOnlineObservations];
+  }
 };
 
 // Yeni gözlem ekle (online veya offline)

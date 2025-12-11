@@ -111,4 +111,5 @@ export interface OfflineObservation extends Omit<Observation, 'id' | 'user_id' |
   updated_at?: string;
   dirty: true;
   media_files?: { file: File, name: string }[];
+  assessments?: Assessment | null;
 }

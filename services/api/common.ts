@@ -13,6 +13,7 @@ export const CACHED_CLASSES_KEY = 'cachedClasses';
 export const CACHED_OBSERVATIONS_KEY = 'cachedObservations';
 export const CACHED_ATTENDANCE_KEY = 'cachedAttendance';
 export const CACHED_GOALS_KEY = 'cachedGoals';
+export const CACHED_MEDIA_KEY = 'cachedMedia';
 
 // Cache yardımcı fonksiyonları
 export const setCache = <T>(key: string, data: T) => {
@@ -30,16 +31,16 @@ export const getCache = <T>(key: string, maxAge: number = 24 * 60 * 60 * 1000): 
   try {
     const cached = localStorage.getItem(key);
     if (!cached) return null;
-    
+
     const { data, timestamp } = JSON.parse(cached);
     const age = Date.now() - timestamp;
-    
+
     // Cache çok eskiyse null döndür
     if (age > maxAge) {
       localStorage.removeItem(key);
       return null;
     }
-    
+
     return data as T;
   } catch (e) {
     console.error('Cache okuma hatası:', e);

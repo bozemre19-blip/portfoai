@@ -1,17 +1,30 @@
 import { supabase } from '../supabase';
 import type { Media, DevelopmentDomain } from '../../types';
-import { dispatchDataChangedEvent } from './common';
+import { dispatchDataChangedEvent, setCache, getCache, CACHED_MEDIA_KEY } from './common';
 import { v4 as uuidv4 } from 'uuid';
 
-// Çocuğa ait tüm medyaları getir
+// Çocuğa ait tüm medyaları getir (Cache destekli)
 export const getMediaForChild = async (childId: string) => {
-  const { data, error } = await supabase
-    .from('media')
-    .select('*')
-    .eq('child_id', childId)
-    .order('created_at', { ascending: false });
-  if (error) throw error;
-  return data as Media[];
+  try {
+    const { data, error } = await supabase
+      .from('media')
+      .select('*')
+      .eq('child_id', childId)
+      .order('created_at', { ascending: false });
+
+    if (error) throw error;
+
+    // Cache'e kaydet
+    const mediaList = data as Media[];
+    setCache(`${CACHED_MEDIA_KEY}:${childId}`, mediaList);
+
+    return mediaList;
+  } catch (error) {
+    console.log('Online medya listesi alınamadı, cache kontrol ediliyor:', error);
+    // Hata durumunda cache'den çek
+    const cached = getCache<Media[]>(`${CACHED_MEDIA_KEY}:${childId}`);
+    return cached || [];
+  }
 };
 
 // Yeni medya kaydı ekle (storage yükleme ayrı yapılmalı)
