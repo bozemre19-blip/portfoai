@@ -494,3 +494,27 @@ html[data-theme='dark'] .marquee-line { color: rgba(243,244,246,.75); }
 .kid-blink {
   animation: blink 5s ease-in-out infinite;
 }
+
+/* Custom Component Dark Mode Overrides */
+html[data-theme='dark'] .goal-add-form-container {
+  background: linear-gradient(to right, #1e2a47, #1a1a2e) !important;
+  border-color: #2a3f5f !important;
+}
+html[data-theme='dark'] .goal-add-form-container h4 { color: #e5e7eb !important; }
+html[data-theme='dark'] .goal-add-form-container label { color: #d1d5db !important; }
+
+html[data-theme='dark'] .goal-item-card {
+  background-color: #1e2a47 !important;
+  border-color: #2a3f5f !important;
+}
+html[data-theme='dark'] .goal-item-card h4 { color: #e5e7eb !important; }
+html[data-theme='dark'] .goal-item-card p, 
+html[data-theme='dark'] .goal-item-card span:not(.font-semibold) { 
+  color: #9ca3af !important; 
+}
+
+html[data-theme='dark'] .ai-summary-container {
+  background-color: #1a1a2e !important;
+  border-color: #2a3f5f !important;
+}
+html[data-theme='dark'] .ai-summary-container p { color: #e5e7eb !important; }
