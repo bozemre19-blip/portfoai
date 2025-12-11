@@ -1,12 +1,14 @@
+
 import type { DevelopmentDomain, ObservationContext } from './types';
 
 export const DEVELOPMENT_DOMAINS: Record<DevelopmentDomain, string> = {
-  cognitive: 'Bilişsel Beceriler',
-  language: 'Dil ve Okuryazarlık Becerileri',
-  social_emotional: 'Sosyal-Duygusal Beceriler',
-  fine_motor: 'İnce Motor Becerileri',
-  gross_motor: 'Kaba Motor Becerileri',
-  self_care: 'Öz Bakım ve Yaşam Becerileri',
+  turkish: 'Türkçe',
+  math: 'Matematik',
+  science: 'Fen',
+  social: 'Sosyal',
+  motor_health: 'Hareket ve Sağlık',
+  art: 'Sanat',
+  music: 'Müzik',
 };
 
 export const OBSERVATION_CONTEXTS: Record<ObservationContext, string> = {
@@ -111,7 +113,7 @@ const translations: { [key: string]: string } = {
   aiSummary: 'Yapay Zeka \u00D6zeti',
   observationSavedOffline: 'G\u00F6zlem \u00E7evrimd\u0131\u015F\u0131 kaydedildi.',
   observationsSynced: 'G\u00F6zlemler senkronize edildi.',
-  exportDataDescription: 'T\u00FCm verilerinizi JSON olarak d\u0131\u015Fa aktar\u0131n.',
+  exportDataDescription: 'T\u00FCm verilerinizi JSON olarak d\u0131\u015Fa Aktar\u0131n.',
   exportAllData: 'T\u00FCm Verileri D\u0131\u015Fa Aktar',
   // Media
   products: '\u00DCr\u00FCnler',

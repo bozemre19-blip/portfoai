@@ -88,7 +88,7 @@ const ChildObservationsScreen: React.FC<Props> = ({ childId, navigate }) => {
   // Group by domain for rendering sections
   const grouped = useMemo(() => {
     const map: Record<DevelopmentDomain, ObsItem[]> = {
-      cognitive: [], language: [], social_emotional: [], fine_motor: [], gross_motor: [], self_care: []
+      turkish: [], math: [], science: [], social: [], motor_health: [], art: [], music: []
     };
     for (const it of filtered) {
       const doms = ((it as any).domains || []) as DevelopmentDomain[];

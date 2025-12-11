@@ -6,17 +6,18 @@ import type { DevelopmentDomain, RiskLevel } from '../types';
 interface Props { classroom: string }
 
 const DOMAINS: DevelopmentDomain[] = [
-  'cognitive', 'language', 'social_emotional', 'fine_motor', 'gross_motor', 'self_care'
+  'turkish', 'math', 'science', 'social', 'motor_health', 'art', 'music'
 ];
 
 // Türkçe etiketler (UTF-8)
 const DOMAIN_TR: Record<DevelopmentDomain, string> = {
-  cognitive: 'Bilişsel',
-  language: 'Dil',
-  social_emotional: 'Sosyal-Duygusal',
-  fine_motor: 'İnce Motor',
-  gross_motor: 'Kaba Motor',
-  self_care: 'Öz Bakım',
+  turkish: 'Türkçe',
+  math: 'Matematik',
+  science: 'Fen',
+  social: 'Sosyal',
+  motor_health: 'Hareket ve Sağlık',
+  art: 'Sanat',
+  music: 'Müzik',
 };
 
 const RISK_TR: Record<RiskLevel, string> = {
@@ -29,7 +30,7 @@ const ClassTrends: React.FC<Props> = ({ classroom }) => {
   const { user } = useAuth();
   const [weekLabels, setWeekLabels] = useState<string[]>([]);
   const [domainTrend, setDomainTrend] = useState<Record<DevelopmentDomain, number[]>>({
-    cognitive: [], language: [], social_emotional: [], fine_motor: [], gross_motor: [], self_care: []
+    turkish: [], math: [], science: [], social: [], motor_health: [], art: [], music: []
   });
   const [riskHeat, setRiskHeat] = useState<{ low: number[]; medium: number[]; high: number[] }>({ low: [], medium: [], high: [] });
   const [error, setError] = useState<string | null>(null);
@@ -46,7 +47,7 @@ const ClassTrends: React.FC<Props> = ({ classroom }) => {
           .eq('classroom', classroom);
         if (kidsErr) throw kidsErr;
         const ids = (kids || []).map((k: any) => k.id);
-        if (ids.length === 0) { setWeekLabels([]); setDomainTrend({ cognitive: [], language: [], social_emotional: [], fine_motor: [], gross_motor: [], self_care: [] }); setRiskHeat({ low: [], medium: [], high: [] }); return; }
+        if (ids.length === 0) { setWeekLabels([]); setDomainTrend({ turkish: [], math: [], science: [], social: [], motor_health: [], art: [], music: [] }); setRiskHeat({ low: [], medium: [], high: [] }); return; }
 
         const since8w = new Date(); since8w.setDate(since8w.getDate() - 56);
         const { data: obs8w } = await supabase
@@ -58,19 +59,19 @@ const ClassTrends: React.FC<Props> = ({ classroom }) => {
 
         const labels: string[] = [];
         for (let i = 7; i >= 0; i--) {
-          const d = new Date(); d.setDate(d.getDate() - i*7);
-          labels.push(new Intl.DateTimeFormat('tr-TR',{day:'2-digit', month:'short'}).format(d));
+          const d = new Date(); d.setDate(d.getDate() - i * 7);
+          labels.push(new Intl.DateTimeFormat('tr-TR', { day: '2-digit', month: 'short' }).format(d));
         }
         const initArr = () => Array(8).fill(0) as number[];
         const domMap: Record<DevelopmentDomain, number[]> = {
-          cognitive: initArr(), language: initArr(), social_emotional: initArr(), fine_motor: initArr(), gross_motor: initArr(), self_care: initArr()
+          turkish: initArr(), math: initArr(), science: initArr(), social: initArr(), motor_health: initArr(), art: initArr(), music: initArr()
         };
-        const heat = { low: initArr(), medium: initArr(), high: initArr() } as { low:number[]; medium:number[]; high:number[] };
+        const heat = { low: initArr(), medium: initArr(), high: initArr() } as { low: number[]; medium: number[]; high: number[] };
 
         for (const row of (obs8w || []) as any[]) {
           const t = new Date(row.created_at);
-          const diffDays = Math.floor((Date.now() - t.getTime())/(1000*60*60*24));
-          const bucket = Math.min(7, Math.max(0, Math.floor(diffDays/7)));
+          const diffDays = Math.floor((Date.now() - t.getTime()) / (1000 * 60 * 60 * 24));
+          const bucket = Math.min(7, Math.max(0, Math.floor(diffDays / 7)));
           const idx = 7 - bucket;
           const doms: DevelopmentDomain[] = Array.isArray(row.domains) ? row.domains : [];
           for (const d of doms) { if (domMap[d]) domMap[d][idx]++; }
@@ -102,7 +103,7 @@ const ClassTrends: React.FC<Props> = ({ classroom }) => {
                 <div className="text-sm text-gray-700 mb-1">{DOMAIN_TR[k] || k}</div>
                 <div className="flex items-end gap-1 h-16">
                   {arr.map((v, i) => (
-                    <div key={i} style={{ height: `${Math.max(6, Math.round((v/max)*100))}%` }} className="w-3 bg-blue-400 rounded"></div>
+                    <div key={i} style={{ height: `${Math.max(6, Math.round((v / max) * 100))}%` }} className="w-3 bg-blue-400 rounded"></div>
                   ))}
                 </div>
                 <div className="mt-1 flex justify-between text-[10px] text-gray-500">
@@ -118,16 +119,16 @@ const ClassTrends: React.FC<Props> = ({ classroom }) => {
         <h2 className="text-lg font-medium text-gray-900 mb-2">Risk Isı Haritası (8 Hafta)</h2>
         <div className="grid grid-cols-9 gap-2 text-xs">
           <div className="text-gray-600"></div>
-          {weekLabels.map((l,i)=>(<div key={i} className="text-gray-500 text-center">{l}</div>))}
-          {(['low','medium','high'] as RiskLevel[]).map((r) => {
+          {weekLabels.map((l, i) => (<div key={i} className="text-gray-500 text-center">{l}</div>))}
+          {(['low', 'medium', 'high'] as RiskLevel[]).map((r) => {
             const arr = (riskHeat as any)[r] as number[];
             const max = Math.max(1, ...arr);
-            const bg = r==='high'?'#ef4444':r==='medium'?'#f59e0b':'#10b981';
+            const bg = r === 'high' ? '#ef4444' : r === 'medium' ? '#f59e0b' : '#10b981';
             return (
               <React.Fragment key={r}>
                 <div className="text-gray-700">{RISK_TR[r]}</div>
-                {arr.map((v,i)=> (
-                  <div key={i} className="w-6 h-6 rounded-sm" style={{ opacity: Math.max(0.15, v/max), backgroundColor: bg }} title={`${RISK_TR[r]}: ${v}`}></div>
+                {arr.map((v, i) => (
+                  <div key={i} className="w-6 h-6 rounded-sm" style={{ opacity: Math.max(0.15, v / max), backgroundColor: bg }} title={`${RISK_TR[r]}: ${v}`}></div>
                 ))}
               </React.Fragment>
             );

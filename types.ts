@@ -1,5 +1,5 @@
 
-export type DevelopmentDomain = 'cognitive' | 'language' | 'social_emotional' | 'fine_motor' | 'gross_motor' | 'self_care';
+export type DevelopmentDomain = 'turkish' | 'math' | 'science' | 'social' | 'motor_health' | 'art' | 'music';
 export type ObservationContext = 'classroom' | 'outdoor' | 'home' | 'other';
 export type RiskLevel = 'low' | 'medium' | 'high';
 export type GoalStatus = 'not_started' | 'in_progress' | 'completed' | 'cancelled';
@@ -72,6 +72,8 @@ export interface Assessment {
   suggestions: string[];
   created_at: string;
 }
+
+
 
 export interface Goal {
   id: string;
