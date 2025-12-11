@@ -3,7 +3,20 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { supabase } from '../services/supabase';
 import { useAuth } from '../App';
 import { t } from '../constants.clean';
-import { HomeIcon, UsersIcon, DocumentTextIcon, CogIcon, MenuIcon, XIcon, ChatIcon } from './Icons';
+import {
+  HomeIcon,
+  UsersIcon,
+  ClipboardDocumentCheckIcon,
+  ChatBubbleLeftRightIcon,
+  Cog6ToothIcon,
+  BuildingLibraryIcon,
+  DocumentTextIcon,
+  SunIcon,
+  MoonIcon,
+  ArrowRightOnRectangleIcon,
+  Bars3Icon, // Was MenuIcon
+  XMarkIcon  // Was XIcon
+} from '@heroicons/react/24/outline';
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -14,7 +27,7 @@ const Layout: React.FC<LayoutProps> = ({ children, navigate }) => {
   const { user } = useAuth();
   const sanitize = (s: string) =>
     (s || '')
-      .replace(/[^A-Za-z������������0-9 .,'-]/g, ' ')
+      .replace(/[^A-Za-z0-9 .,'-]/g, ' ')
       .replace(/\s+/g, ' ')
       .trim();
   const displayName = sanitize(
@@ -90,12 +103,12 @@ const Layout: React.FC<LayoutProps> = ({ children, navigate }) => {
   }, []);
 
   const navItems = [
-    { name: t('dashboard'), icon: HomeIcon, page: 'dashboard', color: 'blue', emoji: '🏠' },
-    { name: t('children'), icon: UsersIcon, page: 'children', color: 'green', emoji: '👶' },
-    { name: 'Sınıflar', icon: UsersIcon, page: 'classes', color: 'purple', emoji: '🏫' },
-    { name: 'Yoklama', icon: UsersIcon, page: 'attendance', color: 'red', emoji: '📋' },
-    { name: 'Asistana bağlan', icon: ChatIcon, page: 'teacher-chat', color: 'pink', emoji: '💬' },
-    { name: t('settings'), icon: CogIcon, page: 'settings', color: 'orange', emoji: '⚙️' },
+    { name: t('dashboard'), icon: HomeIcon, page: 'dashboard', color: 'blue' },
+    { name: t('children'), icon: UsersIcon, page: 'children', color: 'green' },
+    { name: 'Sınıflar', icon: BuildingLibraryIcon, page: 'classes', color: 'purple' },
+    { name: 'Yoklama', icon: ClipboardDocumentCheckIcon, page: 'attendance', color: 'red' },
+    { name: 'Asistana bağlan', icon: ChatBubbleLeftRightIcon, page: 'teacher-chat', color: 'pink' },
+    { name: t('settings'), icon: Cog6ToothIcon, page: 'settings', color: 'orange' },
   ];
 
   const colors = useMemo(() => {
@@ -151,7 +164,7 @@ const Layout: React.FC<LayoutProps> = ({ children, navigate }) => {
           className={`group flex items-center px-4 py-3 rounded-xl ${theme === 'dark' ? 'text-gray-300 hover:bg-[#1e2a47]' : 'text-gray-700 hover:bg-gradient-to-r hover:from-yellow-50 hover:to-yellow-100'} hover:shadow-md transition-all duration-200 relative overflow-hidden`}
         >
           <div className="absolute left-0 top-0 bottom-0 w-1 bg-yellow-500 transform -translate-x-full group-hover:translate-x-0 transition-transform duration-200"></div>
-          <span className="text-2xl mr-3 group-hover:scale-110 transition-transform duration-200">📄</span>
+          <DocumentTextIcon className="w-6 h-6 mr-3 group-hover:scale-110 transition-transform duration-200" />
           <span className="font-medium group-hover:translate-x-1 transition-transform duration-200">{t('gettingStarted') || 'Başlarken'}</span>
         </a>
         {navItems.map((item) => {
@@ -187,7 +200,7 @@ const Layout: React.FC<LayoutProps> = ({ children, navigate }) => {
               className={`group flex items-center px-4 py-3 rounded-xl ${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'} ${theme === 'dark' ? colorClasses : `hover:bg-gradient-to-r ${colorClasses}`} hover:shadow-md transition-all duration-200 relative overflow-hidden`}
             >
               <div className={`absolute left-0 top-0 bottom-0 w-1 transform -translate-x-full group-hover:translate-x-0 transition-transform duration-200 ${iconColor.replace('text-', 'bg-')}`}></div>
-              <span className="text-2xl mr-3 group-hover:scale-110 transition-transform duration-200">{item.emoji}</span>
+              <item.icon className={`w-6 h-6 mr-3 group-hover:scale-110 transition-transform duration-200 ${theme !== 'dark' ? iconColor : ''}`} />
               <span className="font-medium group-hover:translate-x-1 transition-transform duration-200">{item.name}</span>
             </a>
           );
@@ -198,17 +211,17 @@ const Layout: React.FC<LayoutProps> = ({ children, navigate }) => {
           <div className={`text-xs mb-2 font-semibold ${theme === 'dark' ? 'text-gray-300' : 'text-gray-600'}`}>🎨 Tema</div>
           <div className="flex gap-3">
             <button
-              className={`flex-1 px-4 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 ${theme === 'light' ? 'bg-gradient-to-r from-blue-500 to-blue-600 text-white shadow-lg scale-105' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`}
+              className={`flex-1 px-4 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 flex items-center justify-center gap-2 ${theme === 'light' ? 'bg-gradient-to-r from-blue-500 to-blue-600 text-white shadow-lg scale-105' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`}
               onClick={() => setTheme('light')}
             >
-              <span className="block text-xl mb-1">☀️</span>
+              <SunIcon className="w-5 h-5" />
               <span className="text-xs font-semibold">Açık</span>
             </button>
             <button
-              className={`flex-1 px-4 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 ${theme === 'dark' ? 'bg-gradient-to-r from-gray-700 to-gray-900 text-white shadow-lg scale-105' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`}
+              className={`flex-1 px-4 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 flex items-center justify-center gap-2 ${theme === 'dark' ? 'bg-gradient-to-r from-gray-700 to-gray-900 text-white shadow-lg scale-105' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`}
               onClick={() => setTheme('dark')}
             >
-              <span className="block text-xl mb-1">🌙</span>
+              <MoonIcon className="w-5 h-5" />
               <span className="text-xs font-semibold">Koyu</span>
             </button>
           </div>
@@ -218,7 +231,7 @@ const Layout: React.FC<LayoutProps> = ({ children, navigate }) => {
           className="group w-full text-left flex items-center px-4 py-3 rounded-xl text-gray-700 hover:bg-gradient-to-r hover:from-red-50 hover:to-red-100 hover:shadow-md transition-all duration-200 relative overflow-hidden"
         >
           <div className="absolute left-0 top-0 bottom-0 w-1 bg-red-500 transform -translate-x-full group-hover:translate-x-0 transition-transform duration-200"></div>
-          <span className="text-2xl mr-3 group-hover:scale-110 transition-transform duration-200">🚪</span>
+          <ArrowRightOnRectangleIcon className="w-6 h-6 mr-3 group-hover:scale-110 transition-transform duration-200" />
           <span className="font-medium group-hover:translate-x-1 transition-transform duration-200">{t('signOut')}</span>
         </button>
       </div>
@@ -233,7 +246,7 @@ const Layout: React.FC<LayoutProps> = ({ children, navigate }) => {
         <div className={`relative flex-1 flex flex-col max-w-xs w-full ${colors.sidebarBg}`}>
           <div className="absolute top-0 right-0 -mr-12 pt-2">
             <button onClick={() => setSidebarOpen(false)} className="ml-1 flex items-center justify-center h-10 w-10 rounded-full focus:outline-none focus:ring-2 focus:ring-inset focus:ring-white">
-              <XIcon className="h-6 w-6 text-white" />
+              <XMarkIcon className="h-6 w-6 text-white" />
             </button>
           </div>
           {sidebarContent}
@@ -263,7 +276,7 @@ const Layout: React.FC<LayoutProps> = ({ children, navigate }) => {
                     onClick={() => setSidebarOpen(true)}
                     className="md:hidden p-2 -ml-2 rounded-lg text-white/80 hover:bg-white/10 hover:text-white focus:outline-none transition-colors"
                   >
-                    <MenuIcon className="h-7 w-7" />
+                    <Bars3Icon className="h-7 w-7" />
                   </button>
 
                   <div className="bg-white/20 backdrop-blur-sm rounded-xl p-3 shadow-lg hidden sm:block">
@@ -301,7 +314,3 @@ const Layout: React.FC<LayoutProps> = ({ children, navigate }) => {
 };
 
 export default Layout;
-
-
-
-
