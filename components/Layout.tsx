@@ -267,35 +267,35 @@ const Layout: React.FC<LayoutProps> = ({ children, navigate }) => {
 
         <main className="flex-1 relative z-0 overflow-y-auto focus:outline-none">
           {/* Header Banner */}
-          <div className={`${theme === 'dark' ? 'bg-gradient-to-r from-[#1e2a47] via-[#1a1a2e] to-[#2a3f5f]' : 'bg-gradient-to-r from-indigo-600 via-purple-600 to-blue-600'} shadow-lg pt-safe transition-colors duration-300`}>
+          <div className={`${theme === 'dark' ? 'bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900' : 'bg-gradient-to-r from-slate-800 via-slate-900 to-slate-800'} shadow-lg pt-safe transition-colors duration-300`}>
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-4">
                   {/* Mobile Menu Button */}
                   <button
                     onClick={() => setSidebarOpen(true)}
-                    className="md:hidden p-2 -ml-2 rounded-lg text-white/80 hover:bg-white/10 hover:text-white focus:outline-none transition-colors"
+                    className="md:hidden p-2 -ml-2 rounded-lg focus:outline-none transition-colors text-white/80 hover:bg-white/10"
                   >
                     <Bars3Icon className="h-7 w-7" />
                   </button>
 
-                  <div className="bg-white/20 backdrop-blur-sm rounded-xl p-3 shadow-lg hidden sm:block">
+                  <div className="backdrop-blur-sm rounded-xl p-3 shadow-sm hidden sm:block bg-emerald-500/20 border border-emerald-500/30">
                     <span className="text-3xl">🎓</span>
                   </div>
                   <div>
-                    <h1 className="text-xl sm:text-2xl font-bold text-white flex items-center gap-2">
+                    <h1 className="text-xl sm:text-2xl font-bold flex items-center gap-2 text-white">
                       <span className="hidden sm:inline">Erken Çocukluk Gözlem Sistemi</span>
                       <span className="sm:hidden">PortfoAI</span>
-                      <span className="text-xs font-normal bg-white/20 px-2 py-1 rounded-lg">Beta</span>
+                      <span className="text-xs font-normal px-2 py-1 rounded-lg bg-emerald-500/30 text-emerald-100">Beta</span>
                     </h1>
-                    <p className="text-white/80 text-sm mt-1">
-                      Hoş geldin, <span className="font-semibold">{displayName}</span> 👋
+                    <p className="text-sm mt-1 text-slate-300">
+                      Hoş geldin, <span className="font-semibold text-white">{displayName}</span> 👋
                     </p>
                   </div>
                 </div>
                 <div className="hidden lg:flex items-center gap-3">
-                  <div className="bg-white/10 backdrop-blur-sm rounded-lg px-4 py-2 text-white text-sm">
-                    <span className="opacity-80">Bugün:</span> <span className="font-bold">{new Date().toLocaleDateString('tr-TR', { day: 'numeric', month: 'long', year: 'numeric' })}</span>
+                  <div className="backdrop-blur-sm rounded-lg px-4 py-2 text-sm bg-white/5 text-slate-200 border border-emerald-500/20">
+                    <span className="opacity-70">Bugün:</span> <span className="font-bold text-white">{new Date().toLocaleDateString('tr-TR', { day: 'numeric', month: 'long', year: 'numeric' })}</span>
                   </div>
                 </div>
               </div>

@@ -2,7 +2,7 @@
 import type { DevelopmentDomain, ObservationContext } from './types';
 
 export const DEVELOPMENT_DOMAINS: Record<string, string> = {
-  // Maarif Modeli (Yeni)
+  // Maarif Modeli (MEB 7 Alan)
   turkish: 'Türkçe',
   math: 'Matematik',
   science: 'Fen',
@@ -10,14 +10,6 @@ export const DEVELOPMENT_DOMAINS: Record<string, string> = {
   motor_health: 'Hareket ve Sağlık',
   art: 'Sanat',
   music: 'Müzik',
-
-  // Legacy (Eski Veri Desteği)
-  cognitive: 'Bilişsel Beceriler',
-  language: 'Dil ve Konuşma',
-  social_emotional: 'Sosyal-Duygusal',
-  fine_motor: 'İnce Motor',
-  gross_motor: 'Kaba Motor',
-  self_care: 'Öz Bakım',
 };
 
 export const OBSERVATION_CONTEXTS: Record<ObservationContext, string> = {
@@ -73,8 +65,8 @@ const translations: { [key: string]: string } = {
   newObservationFor: 'i\u00E7in Yeni G\u00F6zlem',
   observationNote: 'G\u00F6zlem Notu',
   notePlaceholder: '\u00C7ocu\u011Fun davran\u0131\u015Flar\u0131, s\u00F6zleri ve etkile\u015Fimleri hakk\u0131nda detayl\u0131 notlar...',
-  developmentDomains: 'Geli\u015Fim Alanlar\u0131',
-  selectDomains: '\u0130lgili geli\u015Fim alanlar\u0131n\u0131 se\u00E7in',
+  developmentDomains: 'Beceri Alanları',
+  selectDomains: 'İlgili beceri alanlarını seçin',
   context: 'Ortam',
   tags: 'Etiketler',
   tagsPlaceholder: 'Virg\u00FCl ile ay\u0131rarak etiket ekleyin',
@@ -131,7 +123,7 @@ const translations: { [key: string]: string } = {
   noProductsAdded: 'Hen\u00FCz \u00FCr\u00FCn eklenmedi.',
   productName: '\u00DCr\u00FCn Ad\u0131',
   productDescription: '\u00DCr\u00FCn Hakk\u0131nda Not',
-  productDomain: '\u0130lgili Geli\u015Fim Alan\u0131',
+  productDomain: 'İlgili Beceri Alanı',
   selectFile: 'Medya Se\u00E7',
   fileSelected: 'Dosya Se\u00E7ildi:',
   noFileSelected: 'Hen\u00FCz dosya se\u00E7ilmedi.',

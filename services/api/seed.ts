@@ -60,68 +60,86 @@ const ctxText: Record<ObservationContext, string> = {
   other: 'etkinlik sırasında',
 };
 
-// Gelişim alanlarına göre aktiviteler (olumlu + dikkat gerektiren)
+// Gelişim alanlarına göre aktiviteler (MEB 7 Alan - olumlu + dikkat gerektiren)
 const domainActivities: Record<DevelopmentDomain, string[]> = {
-  cognitive: [
-    'eşleştirme oyununda doğru bağlantılar kurdu',
-    'yapboz parçalarını stratejik olarak yerleştirdi',
-    'renk/şekil sınıflama görevini başarıyla tamamladı',
-    '3 adımlı yönergeyi bağımsız takip etti',
-    'eşleştirme oyununda zorlandı, yardım istedi',
-    'yapboz parçalarını yerleştirmekte tereddüt etti',
-    'renkleri ayırt etmede hatırlatmaya ihtiyaç duydu',
-    'yönergeleri takip etmekte güçlük çekti',
-  ],
-  language: [
+  turkish: [
     'hikâyedeki olayları kendi sözleriyle özetledi',
     'görsellerden çıkarım yaparak soruları yanıtladı',
     'yeni kelimeleri cümle içinde kullanmayı denedi',
     'akranıyla sohbeti başlatıp sürdürdü',
+    'tekerlemeli şarkıları ritmik olarak söyledi',
     'hikâyeyi özetlerken sınırlı kelime kullandı',
     'sorulara tek kelimelik cevaplar verdi',
     'iletişim kurmakta çekingen davrandı',
     'kendini ifade etmede zorlandı',
   ],
-  social_emotional: [
+  math: [
+    'eşleştirme oyununda doğru bağlantılar kurdu',
+    'sayı sıralamasını doğru bir şekilde yaptı',
+    'geometrik şekilleri tanıdı ve sınıflandırdı',
+    'basit örüntüleri tamamladı',
+    'ölçme ve tartma kavramlarını anladı',
+    'sayıları karıştırdı, yeniden çalışması gerekti',
+    'şekil sınıflama görevinde zorlandı',
+    'örüntü tamamlamada tereddüt etti',
+    'ölçme kavramlarını anlamakta güçlük çekti',
+  ],
+  science: [
+    'doğa gözleminde merak sorularını ifade etti',
+    'basit deneyi adımlarıyla takip etti',
+    'bitki büyümesi sürecini izledi ve kayıt etti',
+    'hava durumu değişikliklerini fark etti',
+    'canlı-cansız ayrımını doğru yaptı',
+    'deney adımlarını takip etmede zorlandı',
+    'gözlem yapmakta dikkatini verme zorluğu yaşadı',
+    'neden-sonuç ilişkilerini kurmakta güçlük çekti',
+    'sorulara ilgisiz kaldı',
+  ],
+  social: [
     'sıra beklerken sabırlı davrandı',
     'arkadaşına materyal uzatarak iş birliği yaptı',
     'duygusunu sözel olarak ifade etti',
     'oyunda basit çatışmayı konuşarak çözdü',
+    'kurallara uyma konusunda olumlu tutum gösterdi',
     'sıra beklerken huzursuz oldu',
     'paylaşım konusunda isteksiz davrandı',
     'arkadaşıyla anlaşmazlık yaşadı',
     'duygusal olarak tepkili davrandı',
     'oyuncak paylaşımında güçlük çekti',
   ],
-  fine_motor: [
-    'makasla çizgi boyunca dikkatle kesti',
-    'boncukları ipe geçirirken iki el koordinasyonu kullandı',
-    'kalemi üç parmak kavrayışla tuttu ve çizgileri takip etti',
-    'lego parçalarıyla küçük bir model oluşturdu',
-    'makasla kesmede el koordinasyonu zayıf',
-    'boncukları geçirmekte zorlandı',
-    'kalem tutuşu henüz gelişmedi',
-    'küçük parçaları tutmakta güçlük çekti',
-  ],
-  gross_motor: [
+  motor_health: [
     'topu hedefe doğru gönderdi ve yakaladı',
     'denge tahtasında kontrollü yürüdü',
-    'sek sek oyununda dengesini korudu',
-    'zıplama ve çömelme hareketlerini ritme uygun yaptı',
-    'top yakalamada koordinasyon eksikliği gösterdi',
-    'denge tutmakta zorlandı',
-    'sek sek oyununda dengesini kaybetti',
-    'zıplama hareketlerinde tereddütlü',
-  ],
-  self_care: [
+    'makasla çizgi boyunca dikkatle kesti',
+    'boncukları ipe geçirirken iki el koordinasyonu kullandı',
     'ellerini adım adım doğru yıkadı',
     'giyinme sırasında fermuarını kapatmayı denedi',
-    'yemek öncesi masayı hazırlamada sorumluluk aldı',
-    'oyun sonrası materyalleri yerine yerleştirdi',
+    'top yakalamada koordinasyon eksikliği gösterdi',
+    'denge tutmakta zorlandı',
+    'makasla kesmede el koordinasyonu zayıf',
     'el yıkamayı hatırlatmaya ihtiyaç duydu',
-    'giyinme sırasında yardım istedi',
-    'sorumluluk almakta isteksiz davrandı',
-    'düzen konusunda çok fazla yönlendirme gerekti',
+  ],
+  art: [
+    'resim çalışmasında renkleri özgürce kullandı',
+    'hamur ile üç boyutlu şekiller oluşturdu',
+    'kolaj çalışmasını tamamladı',
+    'çizimlerinde detay ve ifade arttı',
+    'yeni malzemeleri denemekten keyif aldı',
+    'sanat etkinliğine katılımda isteksiz davrandı',
+    'malzemeleri kullanmakta zorlandı',
+    'çizimde özgüven eksikliği gösterdi',
+    'renk seçiminde kararsız kaldı',
+  ],
+  music: [
+    'şarkılarını ritimle ve enerjik söyledi',
+    'ritim aletlerini doğru kullandı',
+    'müzik eşliğinde hareket etti',
+    'melodileri tanıdı ve taklit etti',
+    'dans ederken ritme uyum sağladı',
+    'ritim tutmakta zorlandı',
+    'şarkı söylemekten kaçındı',
+    'müzik etkinliğine katılmakta çekingen davrandı',
+    'ritim aletlerini kullanmada güçlük çekti',
   ],
 };
 
@@ -137,41 +155,46 @@ const closers = [
   'Müdahale gerekti.',
 ];
 
-// Alan bazlı öneriler
+// Alan bazlı öneriler (MEB 7 Alan)
 const domainSuggestions: Record<DevelopmentDomain, string[]> = {
-  cognitive: [
-    'Eşleştirme ve sınıflama oyunlarına kısa günlük oturumlar ekleyin.',
-    '3 adımlı yönergelerle küçük görevler verin.',
-    'Yapboz parçalarını birlikte strateji geliştirerek tamamlayın.',
-  ],
-  language: [
+  turkish: [
     'Günlük rutinde açık uçlu sorular sorun ve yanıtları genişletin.',
     'Günlük bir kitap okuma saati belirleyin ve resimlerden çıkarım yaptırın.',
     'Yeni kelimeleri gün içinde cümle içinde kullanmasını teşvik edin.',
   ],
-  social_emotional: [
+  math: [
+    'Eşleştirme ve sınıflama oyunlarına kısa günlük oturumlar ekleyin.',
+    'Sayı sayma ve sıralama etkinlikleri yapın.',
+    'Geometrik şekilleri günlük hayatta göstermeye çalışın.',
+  ],
+  science: [
+    'Doğa yürüyüşlerinde gözlem soruları sorun.',
+    'Basit deneyler yaparak merakını destekleyin.',
+    'Bitki yetiştirme projesi başlatın.',
+  ],
+  social: [
     'Sıra bekleme ve paylaşım içeren işbirlikli oyunlar planlayın.',
     'Duygularını ifade edebileceği "duygu kartları" kullanın.',
     'Rol oyunu ile çatışmaları konuşarak çözme pratikleri yapın.',
   ],
-  fine_motor: [
-    'Makasla çizgi boyunca kesme ve çizgi tamamlama etkinlikleri yapın.',
-    'Boncuk dizme ve mandal takma gibi iki el koordinasyonu gerektiren çalışmalara yer verin.',
-    'Kalem tutuşunu güçlendirmek için büyükten küçüğe çizgi çalışmaları yapın.',
-  ],
-  gross_motor: [
+  motor_health: [
     'Denge tahtası, sek sek ve hedefe atma oyunlarına zaman ayırın.',
-    'Ritim eşliğinde zıplama-çömelme istasyonları kurun.',
-    'Top yakalama/atmada mesafeyi kademeli artırın.',
-  ],
-  self_care: [
     'El yıkama adımlarını posterle hatırlatın ve pekiştirin.',
-    'Fermuar-düğme çalışmalarıyla giyinme becerisini destekleyin.',
-    'Yemek öncesi/sonrası sorumlulukları (masa hazırlama-toplama) verin.',
+    'Makasla çizgi boyunca kesme ve ince motor çalışmaları yapın.',
+  ],
+  art: [
+    'Farklı sanat malzemeleriyle deneyler yapmasına fırsat verin.',
+    'Özgür resim çalışmaları için zaman ayırın.',
+    'Üç boyutlu çalışmalar (hamur, kil) ile yaratıcılığı destekleyin.',
+  ],
+  music: [
+    'Günlük ritim ve şarkı aktiviteleri ekleyin.',
+    'Basit ritim aletleri kullanarak müzik yapmasını teşvik edin.',
+    'Dans ve hareket etkinlikleriyle müziği birleştirin.',
   ],
 };
 
-const domainList: DevelopmentDomain[] = ['cognitive', 'language', 'social_emotional', 'fine_motor', 'gross_motor', 'self_care'];
+const domainList: DevelopmentDomain[] = ['turkish', 'math', 'science', 'social', 'motor_health', 'art', 'music'];
 const contextList: ObservationContext[] = ['classroom', 'outdoor', 'home', 'other'];
 
 // Gözlem notu oluştur (çeşitli risk seviyeleriyle)
@@ -180,7 +203,7 @@ const makeObservationNote = (fullName: string, domains: DevelopmentDomain[], con
   const ctx = ctxText[context] || 'etkinlikte';
   const dom = pick(domains);
   const activities = domainActivities[dom];
-  
+
   // Risk seviyesine göre aktivite seç
   let act: string;
   if (targetRisk === 'high') {
@@ -195,13 +218,13 @@ const makeObservationNote = (fullName: string, domains: DevelopmentDomain[], con
     const positiveActs = activities.slice(0, Math.ceil(activities.length / 2));
     act = pick(positiveActs);
   }
-  
+
   const adv = pick(adverbs);
   parts.push(`${ctx} ${act} (${adv}).`);
-  
+
   if (Math.random() < 0.6) parts.push(pick(closers));
   if (Math.random() < 0.4) parts.unshift(`${fullName} bugün gözlemlendi.`);
-  
+
   return parts.join(' ');
 };
 
@@ -240,7 +263,7 @@ const makeSeedAssessment = (note: string, domains: DevelopmentDomain[]) => {
   const trRisk = risk === 'low' ? 'düşük' : risk === 'medium' ? 'orta' : 'yüksek';
   const domainText = domains
     .map((d) =>
-      d === 'cognitive' ? 'bilişsel' : d === 'language' ? 'dil' : d === 'social_emotional' ? 'sosyal-duygusal' : d === 'fine_motor' ? 'ince motor' : d === 'gross_motor' ? 'kaba motor' : 'öz bakım'
+      d === 'turkish' ? 'Türkçe' : d === 'math' ? 'Matematik' : d === 'science' ? 'Fen' : d === 'social' ? 'Sosyal' : d === 'motor_health' ? 'Hareket ve Sağlık' : d === 'art' ? 'Sanat' : 'Müzik'
     )
     .join(', ');
   const summary = `Durum değerlendirmesi: Son gözlemde ${domainText} alanlarında katılım değerlendirildi. Genel risk: ${trRisk}.`;
@@ -426,11 +449,11 @@ export const seedDemoData = async (userId: string, opts: SeedOptions = {}) => {
         const dCount = rand(1, 3);
         const domains = pickManyUnique(domainList, dCount);
         const context = pick(contextList);
-        
+
         // Risk dağılımı: %50 düşük, %35 orta, %15 yüksek
         const r = Math.random();
         const targetRisk: 'low' | 'medium' | 'high' = r < 0.5 ? 'low' : r < 0.85 ? 'medium' : 'high';
-        
+
         const note = makeObservationNote(`${first} ${last}`, domains, context, targetRisk);
         const extraTagsPool = ['oyun', 'kitap', 'bahçe', 'müzik', 'sanat', 'ritim', 'paylaşım', 'ince-motor', 'kaba-motor'];
         const tagCount = rand(2, 3);
@@ -474,7 +497,7 @@ export const seedDemoData = async (userId: string, opts: SeedOptions = {}) => {
   log('Demo verisi oluşturma tamamlandı.');
   try {
     localStorage.setItem('lastSeedRecord', JSON.stringify(record));
-  } catch {}
+  } catch { }
 };
 
 // Demo verisini geri al (temizle)
@@ -580,7 +603,7 @@ export const removeDemoData = async (
 
   try {
     localStorage.removeItem('lastSeedRecord');
-  } catch {}
+  } catch { }
   dispatchDataChangedEvent();
   say('Demo verisi geri alındı.');
 };

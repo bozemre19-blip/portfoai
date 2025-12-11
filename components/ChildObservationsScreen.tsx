@@ -195,7 +195,7 @@ const ChildObservationsScreen: React.FC<Props> = ({ childId, navigate }) => {
               />
             </div>
             <div>
-              <div className="block text-sm text-gray-700 mb-1">Gelisim Alanlari</div>
+              <div className="block text-sm text-gray-700 mb-1">Beceri Alanlari</div>
               <div className="space-y-2 max-h-48 overflow-auto pr-1">
                 {domainKeys.map((d) => (
                   <label key={d} className="flex items-center gap-2 text-sm">
