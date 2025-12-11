@@ -60,7 +60,7 @@ const GettingStarted: React.FC<Props> = ({ navigate }) => {
         <Card title="İpucu: Demo Veri ile Hızlı Keşif">
           <p>
             Uygulamayı danışmanınıza göstermek için örnek bir içerik seti oluşturabilirsiniz. <strong>Ayarlar → Demo Verisi
-            Oluştur</strong> butonuna tıklayın; iki sınıf, çocuklar, gözlemler ve örnek ürünler otomatik eklenir. Dilediğinizde
+              Oluştur</strong> butonuna tıklayın; iki sınıf, çocuklar, gözlemler ve örnek ürünler otomatik eklenir. Dilediğinizde
             aynı bölümden <strong>Geri Al</strong> ile temizleyebilirsiniz.
           </p>
           <div className="mt-3">
@@ -71,9 +71,8 @@ const GettingStarted: React.FC<Props> = ({ navigate }) => {
         <Card title="Sık Kullanılan İşlemler">
           <ul className="list-disc pl-5 space-y-1">
             <li>Çocuk ara: üst kısımdaki arama kutusunu kullanın.</li>
-            <li>Çevrimdışı kullanım: bağlantı yokken kayıt yapabilir, bağlantı gelince otomatik senkron olur.</li>
             <li>Veri aktarımı: Ayarlar → Verileri Dışa Aktar.</li>
-            <li>Tema: Sol panel altından açık/koyu/renkli temayı değiştirin.</li>
+            <li>Tema: Sol panel altından açık/koyu temayı değiştirin.</li>
           </ul>
         </Card>
       </div>

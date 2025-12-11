@@ -10,9 +10,9 @@ export const getChildren = async (userId: string) => {
       .select('*')
       .eq('user_id', userId)
       .order('created_at', { ascending: false });
-    
+
     if (error) throw error;
-    
+
     // Başarılı yanıt gelirse cache'i güncelle
     const children = data as Child[];
     setCache(`${CACHED_CHILDREN_KEY}:${userId}`, children);
@@ -38,8 +38,8 @@ export const getChildrenByClassroom = async (userId: string, classroom: string) 
       .select('id, first_name, last_name, classroom, photo_url, dob')
       .eq('user_id', userId)
       .eq('classroom', classroom)
-      .order('created_at', { ascending: false});
-    
+      .order('created_at', { ascending: false });
+
     if (error) throw error;
     return (data || []) as Pick<Child, 'id' | 'first_name' | 'last_name' | 'classroom' | 'photo_url' | 'dob'>[] as Child[];
   } catch (error) {
@@ -145,7 +145,58 @@ export const deleteChild = async (childId: string) => {
   dispatchDataChangedEvent();
 };
 
-// Çocuk avatar fotoğrafı yükle
+// Sınıfı ve içindeki tüm çocukları (ve ilişkili verileri) sil
+export const deleteClass = async (userId: string, classroom: string, onProgress?: (msg: string) => void) => {
+  // 1. Bu sınıftaki tüm çocukları bul
+  const { data: childrenInClass, error: fetchError } = await supabase
+    .from('children')
+    .select('id, first_name, last_name')
+    .eq('user_id', userId)
+    .eq('classroom', classroom);
+
+  if (fetchError) {
+    console.error('Sınıftaki çocuklar alınırken hata:', fetchError);
+    throw fetchError;
+  }
+
+  const children = childrenInClass || [];
+  onProgress?.(`${children.length} çocuk siliniyor...`);
+
+  // 2. Her çocuğu tek tek sil (cascade olarak gözlem, medya, avatar silinecek)
+  for (let i = 0; i < children.length; i++) {
+    const child = children[i];
+    onProgress?.(`Siliniyor: ${child.first_name} ${child.last_name} (${i + 1}/${children.length})`);
+    try {
+      await deleteChild(child.id);
+    } catch (e) {
+      console.error(`Çocuk silinemedi: ${child.id}`, e);
+    }
+  }
+
+  // 3. classes tablosundan da sınıfı sil (varsa)
+  try {
+    await supabase
+      .from('classes')
+      .delete()
+      .eq('user_id', userId)
+      .eq('name', classroom);
+  } catch (e) {
+    console.warn('classes tablosundan sınıf silinemedi (muhtemelen yoktu):', e);
+  }
+
+  // 4. Local meta verisini temizle
+  try {
+    const raw = localStorage.getItem(`classMeta:${userId}`);
+    if (raw) {
+      const map = JSON.parse(raw) as Record<string, any>;
+      delete map[classroom];
+      localStorage.setItem(`classMeta:${userId}`, JSON.stringify(map));
+    }
+  } catch { }
+
+  onProgress?.('Sınıf silindi.');
+  dispatchDataChangedEvent();
+};
 export const uploadChildPhoto = async (userId: string, childId: string, file: File): Promise<string> => {
   const { processImage } = await import('../../utils/helpers');
   const processedFile = await processImage(file);

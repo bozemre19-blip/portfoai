@@ -1,7 +1,7 @@
 ﻿import React, { useEffect, useMemo, useState } from 'react';
 import { useAuth } from '../App';
 import { supabase } from '../services/supabase';
-import { getChildren, getChildrenByClassroom, getClassAiSuggestions } from '../services/api';
+import { getChildren, getChildrenByClassroom, getClassAiSuggestions, deleteClass } from '../services/api';
 import ClassTrends from './ClassTrends2';
 import { exportClassReportPDF } from './ClassPdfReport';
 import type { Child, RiskLevel } from '../types';
@@ -29,6 +29,8 @@ const ClassDetailScreen: React.FC<Props> = ({ classroom, navigate }) => {
   const [showEdit, setShowEdit] = useState(false);
   const [renameValue, setRenameValue] = useState<string>(classroom || '');
   const [childRisks, setChildRisks] = useState<Map<string, RiskLevel | null>>(new Map());
+  const [deleting, setDeleting] = useState(false);
+  const [deleteProgress, setDeleteProgress] = useState<string>('');
 
   const title = classroom || 'â€”';
 
@@ -41,14 +43,14 @@ const ClassDetailScreen: React.FC<Props> = ({ classroom, navigate }) => {
       const meta = map[classroom] || {};
       if (meta.color) setMetaColor(meta.color);
       if (typeof meta.pinned === 'boolean') setMetaPinned(meta.pinned);
-    } catch {}
+    } catch { }
   }, [user, classroom]);
 
   const saveMeta = (name: string, data: { color?: string; pinned?: boolean }) => {
     if (!user) return;
     const raw = localStorage.getItem(`classMeta:${user.id}`);
     const map = raw ? JSON.parse(raw) as Record<string, { color?: string; pinned?: boolean }> : {};
-    map[name] = { ...(map[name]||{}), ...data };
+    map[name] = { ...(map[name] || {}), ...data };
     localStorage.setItem(`classMeta:${user.id}`, JSON.stringify(map));
   };
 
@@ -118,11 +120,11 @@ const ClassDetailScreen: React.FC<Props> = ({ classroom, navigate }) => {
           setMedia7d((mediaList as any[]).length || 0);
           const days: { label: string; obs: number; media: number }[] = [];
           for (let i = 6; i >= 0; i--) {
-            const d = new Date(); d.setHours(0,0,0,0); d.setDate(d.getDate() - i);
-            const key = d.toISOString().slice(0,10);
+            const d = new Date(); d.setHours(0, 0, 0, 0); d.setDate(d.getDate() - i);
+            const key = d.toISOString().slice(0, 10);
             const label = new Intl.DateTimeFormat('tr-TR', { day: '2-digit', month: 'short' }).format(d);
-            const o = (obsList || []).filter((x: any) => (x.created_at || '').slice(0,10) === key).length;
-            const m = (mediaList || []).filter((x: any) => (x.created_at || '').slice(0,10) === key).length;
+            const o = (obsList || []).filter((x: any) => (x.created_at || '').slice(0, 10) === key).length;
+            const m = (mediaList || []).filter((x: any) => (x.created_at || '').slice(0, 10) === key).length;
             days.push({ label, obs: o, media: m });
           }
           setActivityDays(days);
@@ -134,7 +136,7 @@ const ClassDetailScreen: React.FC<Props> = ({ classroom, navigate }) => {
           }).then((res) => {
             if (res?.suggestions?.length) setAiSuggestions(res.suggestions);
             if (res?.summary) setAiSummary(res.summary);
-          }).catch(()=>{});
+          }).catch(() => { });
         } else {
           setObs7d(0); setMedia7d(0); setActivityDays([]); setAiSuggestions([]); setAiSummary(undefined);
         }
@@ -146,22 +148,22 @@ const ClassDetailScreen: React.FC<Props> = ({ classroom, navigate }) => {
     })();
   }, [user, classroom, Array.from(selRisks).join(',')]);
 
-  const colors = ['#3b82f6','#10b981','#f59e0b','#ef4444','#8b5cf6','#14b8a6','#f97316','#84cc16'];
+  const colors = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#14b8a6', '#f97316', '#84cc16'];
 
   const filteredChildren = useMemo(() => {
     const q = search.trim().toLocaleLowerCase('tr-TR');
     return children.filter(c => {
       // Arama filtresi
       const nameMatch = `${c.first_name} ${c.last_name}`.toLocaleLowerCase('tr-TR').includes(q);
-      
+
       // Risk filtresi
       if (selRisks.size === 0) {
         return nameMatch; // Risk filtresi yoksa sadece isim kontrolü
       }
-      
+
       const childRisk = childRisks.get(c.id);
       const riskMatch = childRisk && selRisks.has(childRisk);
-      
+
       return nameMatch && riskMatch;
     });
   }, [children, search, selRisks, childRisks]);
@@ -182,8 +184,29 @@ const ClassDetailScreen: React.FC<Props> = ({ classroom, navigate }) => {
   const handlePinToggle = () => { setMetaPinned((v) => { const nv = !v; saveMeta(classroom, { pinned: nv }); return nv; }); };
   const handleColorPick = (c: string) => { setMetaColor(c); saveMeta(classroom, { color: c }); };
 
+  const handleDeleteClass = async () => {
+    if (!user) return;
+    const childCount = children.length;
+    const msg = childCount > 0
+      ? `"${classroom}" sınıfını silmek istediğinize emin misiniz?\n\nBu işlem ${childCount} çocuğu ve tüm gözlem/ürün kayıtlarını kalıcı olarak silecektir!`
+      : `"${classroom}" sınıfını silmek istediğinize emin misiniz?`;
+
+    if (!confirm(msg)) return;
+
+    setDeleting(true);
+    setDeleteProgress('Sınıf siliniyor...');
+    try {
+      await deleteClass(user.id, classroom, (progress) => setDeleteProgress(progress));
+      setShowEdit(false);
+      navigate('classes');
+    } catch (e: any) {
+      setDeleteProgress('Hata: ' + (e?.message || 'Bilinmeyen hata'));
+      setDeleting(false);
+    }
+  };
+
   // Simple class PDF (printable HTML)
-  
+
 
   return (
     <div>
@@ -220,34 +243,9 @@ const ClassDetailScreen: React.FC<Props> = ({ classroom, navigate }) => {
 
       {/* Filters */}
       <div className="bg-white rounded-lg shadow p-4 mb-4">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-          <div>
-            <label className="block text-sm text-gray-600 mb-1">{"\u00C7ocuk Ara"}</label>
-            <input className="w-full border rounded px-2 py-1.5" value={search} onChange={(e)=>setSearch(e.target.value)} placeholder="Ad Soyad..." />
-          </div>
-          <div>
-            <div className="text-sm text-gray-600 mb-1">Risk</div>
-            <div className="flex flex-wrap gap-2">
-              {(['low','medium','high'] as RiskLevel[]).map(r => {
-                const active = selRisks.has(r);
-                const style = r === 'high' ? (active ? 'bg-red-600 text-white' : 'bg-red-50 text-red-700 border border-red-200')
-                  : r === 'medium' ? (active ? 'bg-amber-500 text-white' : 'bg-amber-50 text-amber-800 border border-amber-200')
-                  : (active ? 'bg-green-600 text-white' : 'bg-green-50 text-green-700 border border-green-200');
-                const label = r === 'high' ? 'Y\u00FCksek' : r === 'medium' ? 'Orta' : 'D\u00FC\u015F\u00FCk';
-                return (
-                  <button
-                    key={r}
-                    type="button"
-                    onClick={() => toggleRisk(r)}
-                    className={`px-3 py-1.5 rounded-full text-xs font-semibold ${style}`}
-                    aria-pressed={active}
-                  >
-                    {label}
-                  </button>
-                );
-              })}
-            </div>
-          </div>
+        <div>
+          <label className="block text-sm text-gray-600 mb-1">{"\u00C7ocuk Ara"}</label>
+          <input className="w-full border rounded px-2 py-1.5" value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Ad Soyad..." />
         </div>
       </div>
 
@@ -312,31 +310,43 @@ const ClassDetailScreen: React.FC<Props> = ({ classroom, navigate }) => {
         </div>
       </div>
 
-      
+
 
       {showEdit && (
-        <div className="fixed inset-0 bg-black/50 z-40 flex items-center justify-center p-4" onClick={()=>setShowEdit(false)}>
-          <div className="bg-white rounded-lg shadow-xl p-6 w-full max-w-lg" onClick={(e)=>e.stopPropagation()}>
+        <div className="fixed inset-0 bg-black/50 z-40 flex items-center justify-center p-4" onClick={() => setShowEdit(false)}>
+          <div className="bg-white rounded-lg shadow-xl p-6 w-full max-w-lg" onClick={(e) => e.stopPropagation()}>
             <h3 className="text-lg font-semibold mb-3">Sınıfı Düzenle</h3>
             <div className="space-y-3">
               <div>
                 <label className="block text-sm text-gray-700 mb-1">Sınıf Adı</label>
-                <input className="w-full border rounded px-2 py-1.5" value={renameValue} onChange={(e)=>setRenameValue(e.target.value)} />
+                <input className="w-full border rounded px-2 py-1.5" value={renameValue} onChange={(e) => setRenameValue(e.target.value)} />
               </div>
               <div>
                 <div className="text-sm text-gray-700 mb-1">Renk</div>
                 <div className="flex flex-wrap gap-2">
                   {colors.map(c => (
-                    <button key={c} className={`w-6 h-6 rounded-full ring-2 ${metaColor===c?'ring-black':'ring-transparent'}`} style={{ backgroundColor: c }} onClick={()=>handleColorPick(c)} aria-label={c} />
+                    <button key={c} className={`w-6 h-6 rounded-full ring-2 ${metaColor === c ? 'ring-black' : 'ring-transparent'}`} style={{ backgroundColor: c }} onClick={() => handleColorPick(c)} aria-label={c} />
                   ))}
                 </div>
               </div>
               <label className="inline-flex items-center gap-2 text-sm"><input type="checkbox" checked={metaPinned} onChange={handlePinToggle} />Sınıfı sabitle</label>
             </div>
-            <div className="mt-5 flex justify-end gap-2">
-              <button className="px-3 py-2 bg-gray-200 rounded" onClick={()=>setShowEdit(false)}>İptal</button>
-              <button className="px-3 py-2 bg-primary text-white rounded" onClick={handleRename}>Kaydet</button>
+            <div className="mt-5 flex justify-between">
+              <button
+                className="px-3 py-2 bg-red-600 text-white rounded hover:bg-red-700 disabled:opacity-50"
+                onClick={handleDeleteClass}
+                disabled={deleting}
+              >
+                {deleting ? 'Siliniyor...' : 'Sınıfı Sil'}
+              </button>
+              <div className="flex gap-2">
+                <button className="px-3 py-2 bg-gray-200 rounded" onClick={() => setShowEdit(false)} disabled={deleting}>İptal</button>
+                <button className="px-3 py-2 bg-primary text-white rounded" onClick={handleRename} disabled={deleting}>Kaydet</button>
+              </div>
             </div>
+            {deleteProgress && (
+              <p className="mt-3 text-sm text-gray-600">{deleteProgress}</p>
+            )}
           </div>
         </div>
       )}

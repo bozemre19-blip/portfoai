@@ -5,6 +5,21 @@ import { PlusIcon, UserGroupIcon } from './Icons';
 import { supabase } from '../services/supabase';
 import { getChildren } from '../services/api';
 
+// Hook to read theme from localStorage
+const useTheme = () => {
+  const [theme, setTheme] = useState(() => localStorage.getItem('theme') || 'light');
+  useEffect(() => {
+    const handleStorage = () => setTheme(localStorage.getItem('theme') || 'light');
+    window.addEventListener('storage', handleStorage);
+    const observer = new MutationObserver(() => {
+      setTheme(document.documentElement.getAttribute('data-theme') || 'light');
+    });
+    observer.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+    return () => { window.removeEventListener('storage', handleStorage); observer.disconnect(); };
+  }, []);
+  return theme;
+};
+
 interface DashboardProps {
   navigate: (page: string, params?: any) => void;
 }
@@ -29,6 +44,7 @@ const DOMAIN_TR: Record<string, string> = {
 
 const Dashboard: React.FC<DashboardProps> = ({ navigate }) => {
   const { user } = useAuth();
+  const theme = useTheme();
   const [children, setChildren] = useState<any[]>([]);
   const [recent, setRecent] = useState<RecentItem[]>([]);
   const [loading, setLoading] = useState(true);
@@ -126,12 +142,12 @@ const Dashboard: React.FC<DashboardProps> = ({ navigate }) => {
 
   return (
     <div>
-      <h1 className="text-3xl font-bold text-stone-700">{t('welcome')}, {displayName}{teacherSchool}</h1>
+      <h1 className={`text-3xl font-bold ${theme === 'dark' ? 'text-white' : 'text-stone-700'}`}>{t('welcome')}, {displayName}{teacherSchool}</h1>
       <div className="mt-2 w-28 h-1 rounded-full bg-gradient-to-r from-stone-300 via-amber-200 to-stone-300"></div>
 
       {/* Quick Actions */}
       <div className="mt-6">
-        <h2 className="text-lg font-medium text-stone-900">{t('quickAccess')}</h2>
+        <h2 className={`text-lg font-medium ${theme === 'dark' ? 'text-gray-200' : 'text-stone-900'}`}>{t('quickAccess')}</h2>
         <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
           <button
             onClick={() => navigate('children', { screen: 'add-child' })}
