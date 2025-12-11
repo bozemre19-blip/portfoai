@@ -198,7 +198,7 @@ const ChildProfileCard: React.FC<ChildProfileCardProps> = ({ data, onAddObservat
               <Badge className="bg-gray-100 text-gray-700 ring-gray-600/20">{calculateAge(data.dob)}</Badge>
               {data.classroom && <Badge className="bg-gray-100 text-gray-700 ring-gray-600/20">Sınıf: {data.classroom}</Badge>}
               <Badge className="bg-gray-100 text-gray-700 ring-gray-600/20">Veli Onayı: {data.consentObtained ? 'Var' : 'Bekliyor'}</Badge>
-              <RiskBadge risk={data.stats?.risk} />
+              {/* RiskBadge removed per user request */}
             </div>
           </div>
           <div className="flex-shrink-0 flex flex-col sm:items-end gap-2 w-full sm:w-auto">

@@ -51,7 +51,7 @@ const ChildObservationsScreen: React.FC<Props> = ({ childId, navigate }) => {
         ]);
         setItems(observations as any as ObsItem[]);
         setMediaList(media);
-        
+
         // Get signed URLs for all media
         const urls: Record<string, string> = {};
         for (const m of media) {
@@ -108,12 +108,12 @@ const ChildObservationsScreen: React.FC<Props> = ({ childId, navigate }) => {
   };
 
   const clearFilters = () => { setSearch(''); setSelected(new Set()); };
-  
+
   const handleDelete = async (observationId: string) => {
     if (!confirm('Bu gözlemi silmek istediğinizden emin misiniz? Bu işlem geri alınamaz.')) {
       return;
     }
-    
+
     try {
       await deleteObservation(observationId);
       // Listeyi güncelle
@@ -123,12 +123,12 @@ const ChildObservationsScreen: React.FC<Props> = ({ childId, navigate }) => {
       alert('❌ Gözlem silinirken hata oluştu: ' + (e?.message || 'Bilinmeyen hata'));
     }
   };
-  
+
   // Yalnızca not metnine göre risk (alan puanları dikkate alınmaz)
   function computeRiskFromNote(noteText: string): 'low' | 'medium' | 'high' {
     const text = (noteText || '').toLocaleLowerCase('tr-TR');
-    const severe = ['kavga','vur','ısır','fırlat','kendine zarar','şiddet','yaral'];
-    const warn   = ['zorlan','yardım','hatırlatma','sınırlı','kaçın','tereddüt','uyarı','destek','zorluk','müdahale','huzursuz','odaklanamad','dikkati dağıld','kurala uymadı'];
+    const severe = ['kavga', 'vur', 'ısır', 'fırlat', 'kendine zarar', 'şiddet', 'yaral'];
+    const warn = ['zorlan', 'yardım', 'hatırlatma', 'sınırlı', 'kaçın', 'tereddüt', 'uyarı', 'destek', 'zorluk', 'müdahale', 'huzursuz', 'odaklanamad', 'dikkati dağıld', 'kurala uymadı'];
     const has = (list: string[]) => list.some(w => text.includes(w));
     const warnCount = warn.filter(w => text.includes(w)).length;
     if (has(severe)) return 'high';
@@ -141,9 +141,9 @@ const ChildObservationsScreen: React.FC<Props> = ({ childId, navigate }) => {
     try {
       const text = (noteText || '').toLocaleLowerCase('tr-TR');
       const reasons: string[] = [];
-      const positive = ['basar','heves','bagimsiz','dogru','katilim','katildi','surdur','ilerle','artti','uzun sure','dengede','yerine yerlestirdi','sakin','tamamladi'];
-      const severe = ['kavga','vur','isir','firlat','kendine zarar','siddet','yaral'];
-      const warn   = ['zorlan','yardim','hatirlatma','sinirli','kacin','tereddut','uyari','destek','zorluk','mudahale','huzursuz','odaklanamadi','dikkati dagildi','kurala uymadi'];
+      const positive = ['basar', 'heves', 'bagimsiz', 'dogru', 'katilim', 'katildi', 'surdur', 'ilerle', 'artti', 'uzun sure', 'dengede', 'yerine yerlestirdi', 'sakin', 'tamamladi'];
+      const severe = ['kavga', 'vur', 'isir', 'firlat', 'kendine zarar', 'siddet', 'yaral'];
+      const warn = ['zorlan', 'yardim', 'hatirlatma', 'sinirli', 'kacin', 'tereddut', 'uyari', 'destek', 'zorluk', 'mudahale', 'huzursuz', 'odaklanamadi', 'dikkati dagildi', 'kurala uymadi'];
 
       const found = (list: string[]) => list.filter(w => text.includes(w));
       const severeFound = found(severe);
@@ -151,7 +151,7 @@ const ChildObservationsScreen: React.FC<Props> = ({ childId, navigate }) => {
       const positiveFound = found(positive);
 
 
-      const riskLabel = (function(){ const c = computeRiskFromNote(noteText); return c === 'high' ? 'yüksek' : c === 'medium' ? 'orta' : 'düşük'; })();
+      const riskLabel = (function () { const c = computeRiskFromNote(noteText); return c === 'high' ? 'yüksek' : c === 'medium' ? 'orta' : 'düşük'; })();
 
       if (severeFound.length > 0) reasons.push(`Notta şu ciddi ifadeler bulundu: ${severeFound.join(", ")}`);
       if (warnFound.length > 0) reasons.push(`Notta şu uyarı işaretleri görüldü: ${warnFound.join(", ")}`);
@@ -241,19 +241,10 @@ const ChildObservationsScreen: React.FC<Props> = ({ childId, navigate }) => {
                             </span>
                           )}
                         </div>
-                        {it.assessments?.risk ? (
-                          <button
-                            type="button"
-                            className="cursor-pointer"
-                            title="Risk açıklaması"
-                            onClick={() => setRiskInfo(it.assessments as any)}
-                          >
-                            <RiskPill risk={computeRiskFromNote(it.note)} />
-                          </button>
-                        ) : null}
+
                       </div>
                       <p className="mt-2 text-gray-800 whitespace-pre-wrap">{it.note}</p>
-                      
+
                       {/* Fotoğraflar */}
                       {it.media_ids && it.media_ids.length > 0 && (
                         <div className="mt-3 grid grid-cols-2 sm:grid-cols-3 gap-2">
@@ -263,8 +254,8 @@ const ChildObservationsScreen: React.FC<Props> = ({ childId, navigate }) => {
                             if (!url) return null;
                             return (
                               <div key={mediaId} className="relative group">
-                                <img 
-                                  src={url} 
+                                <img
+                                  src={url}
                                   alt={media?.name || 'Gözlem fotoğrafı'}
                                   className="w-full h-32 object-cover rounded-lg border-2 border-gray-200 group-hover:border-indigo-400 transition-all cursor-pointer shadow-sm"
                                   onClick={() => window.open(url, '_blank')}
@@ -279,16 +270,16 @@ const ChildObservationsScreen: React.FC<Props> = ({ childId, navigate }) => {
                           })}
                         </div>
                       )}
-                      
+
                       <div className="mt-3 flex gap-2">
-                        <button 
-                          className="px-3 py-1.5 bg-blue-50 hover:bg-blue-100 text-blue-700 border border-blue-200 rounded transition-colors" 
+                        <button
+                          className="px-3 py-1.5 bg-blue-50 hover:bg-blue-100 text-blue-700 border border-blue-200 rounded transition-colors"
                           onClick={() => navigate('edit-observation', { observation: it, childId })}
                         >
                           ✏️ {t('edit')}
                         </button>
-                        <button 
-                          className="px-3 py-1.5 bg-red-50 hover:bg-red-100 text-red-700 border border-red-200 rounded transition-colors" 
+                        <button
+                          className="px-3 py-1.5 bg-red-50 hover:bg-red-100 text-red-700 border border-red-200 rounded transition-colors"
                           onClick={() => handleDelete(it.id)}
                         >
                           🗑️ Sil
@@ -306,63 +297,9 @@ const ChildObservationsScreen: React.FC<Props> = ({ childId, navigate }) => {
           )}
         </section>
       </div>
-      {riskInfo && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center">
-          <div className="absolute inset-0 bg-black/40" onClick={() => setRiskInfo(null)} />
-          <div className="relative bg-white rounded-lg shadow-xl w-full max-w-lg mx-4 p-5">
-            <div className="flex items-center justify-between mb-3">
-              <h3 className="text-lg font-semibold">Risk açıklaması</h3>
-              <button className="px-2 py-1 text-sm bg-gray-100 rounded" onClick={() => setRiskInfo(null)}>Kapat</button>
-            </div>
-            <div className="space-y-3 text-sm text-gray-700">
-              <div className="flex items-center gap-2">
-                <span className="font-medium">Risk:</span>
-                <RiskPill risk={computeRiskFromNote(riskNote)} />
-              {(() => { const exp = buildRiskExplanation(riskInfo, riskNote); return (
-                <div>
-                  <div className="font-medium mb-1\">Gerekçe</div>
-                  <ul className="list-disc list-inside space-y-1\">
-                    {exp.reasons.map((r, i) => <li key={i}>{r}</li>)}
-                  </ul>
-                  {exp.header && <p className="mt-1 text-gray-600\">{exp.header}</p>}
-                </div>
-              ); })()}
-              </div>
-              {riskInfo?.summary ? (
-                <div>
-                  <div className="font-medium mb-1">Özet</div>
-                  <p className="whitespace-pre-wrap">{riskInfo.summary}</p>
-                </div>
-              ) : null}
-              {riskInfo?.domain_scores && Object.keys(riskInfo.domain_scores).length > 0 ? (
-                <div>
-                  <div className="font-medium mb-1">Alan puanları</div>
-                  <ul className="list-disc list-inside space-y-1">
-                    {Object.entries(riskInfo.domain_scores).map(([k, v]) => (
-                      <li key={k}>{(DEVELOPMENT_DOMAINS as any)[k] || k}: {String(v)}</li>
-                    ))}
-                  </ul>
-                </div>
-              ) : null}
-              {Array.isArray(riskInfo?.suggestions) && riskInfo!.suggestions.length > 0 ? (
-                <div>
-                  <div className="font-medium mb-1">Öneriler</div>
-                  <ul className="list-disc list-inside space-y-1">
-                    {riskInfo!.suggestions.map((s, i) => (
-                      <li key={i}>{s}</li>
-                    ))}
-                  </ul>
-                </div>
-              ) : null}
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 };
-
-export default ChildObservationsScreen;
 
 
 
