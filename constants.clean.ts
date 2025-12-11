@@ -103,6 +103,7 @@ const translations: { [key: string]: string } = {
   syncAttempt: 'Veriler senkronize ediliyor...',
   syncSuccess: 'Veriler ba\u015Far\u0131yla senkronize edildi.',
   syncError: 'Senkronizasyon s\u0131ras\u0131nda hata olu\u015Ftu.',
+  noInternetConnection: '\u0130nternet ba\u011Flant\u0131n\u0131z bulunmuyor. Baz\u0131 \u00F6zellikler \u00E7al\u0131\u015Fmayabilir.',
   exportData: 'Verileri D\u0131\u015Fa Aktar',
   exportChildData: '\u00C7ocu\u011Fun Verilerini D\u0131\u015Fa Aktar (JSON)',
   legal: 'Yasal Bilgiler',

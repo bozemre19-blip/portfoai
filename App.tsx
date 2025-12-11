@@ -117,6 +117,13 @@ const App: React.FC = () => {
     }
   }, [isOnline]);
 
+  useEffect(() => {
+    if (!navigator.onLine) {
+      // Small delay to ensure UI is ready
+      setTimeout(() => alert(t('noInternetConnection')), 500);
+    }
+  }, []);
+
   const navigate = useCallback((page: string, params: any = {}) => {
     try {
       if (params && params.observation) {
