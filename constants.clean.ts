@@ -1,7 +1,8 @@
 
 import type { DevelopmentDomain, ObservationContext } from './types';
 
-export const DEVELOPMENT_DOMAINS: Record<DevelopmentDomain, string> = {
+export const DEVELOPMENT_DOMAINS: Record<string, string> = {
+  // Maarif Modeli (Yeni)
   turkish: 'Türkçe',
   math: 'Matematik',
   science: 'Fen',
@@ -9,6 +10,14 @@ export const DEVELOPMENT_DOMAINS: Record<DevelopmentDomain, string> = {
   motor_health: 'Hareket ve Sağlık',
   art: 'Sanat',
   music: 'Müzik',
+
+  // Legacy (Eski Veri Desteği)
+  cognitive: 'Bilişsel Beceriler',
+  language: 'Dil ve Konuşma',
+  social_emotional: 'Sosyal-Duygusal',
+  fine_motor: 'İnce Motor',
+  gross_motor: 'Kaba Motor',
+  self_care: 'Öz Bakım',
 };
 
 export const OBSERVATION_CONTEXTS: Record<ObservationContext, string> = {
