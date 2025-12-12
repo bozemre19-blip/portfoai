@@ -83,7 +83,7 @@ function buildHtml(opts: {
   const obsBlocks = (observations || []).map(o => {
     const a = o.assessments;
     const note = (o as any).note ?? '';
-    const created = (o as any).created_at ?? o.createdAt;
+    const created = (o as any).created_at;
 
     const sugg = a?.suggestions?.length
       ? `<ul class="ul">${a.suggestions.map(s => `<li>${escapeHtml(s)}</li>`).join('')}</ul>`

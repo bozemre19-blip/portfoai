@@ -218,7 +218,7 @@ const translations: Record<Language, Record<string, string>> = {
     strengthsSection: 'Güçlü Yönler',
     guardiansSection: 'Veli ve İletişim Bilgileri',
     noGuardiansAdded: 'Veli bilgisi eklenmemiş.',
-    age: 'Yaş',
+
     enrollmentDate: 'Kayıt Tarihi',
     importantNotes: 'Önemli Notlar',
     aiInsights: 'Yapay Zekâ Öngörüleri',
@@ -275,7 +275,7 @@ const translations: Record<Language, Record<string, string>> = {
     pinned: 'Sabit',
     last7daysObs: 'Son 7 Gün Gözlem',
     last7daysProducts: 'Son 7 Gün Ürün',
-    searchChild: 'Çocuk Ara',
+
     nameSurnamePlaceholder: 'Ad Soyad...',
     developmentTrend: 'Gelişim Alanı Trendi (8 Hafta)',
     deleteClassConfirm: '"{classroom}" sınıfını silmek istediğinize emin misiniz?',
@@ -292,7 +292,7 @@ const translations: Record<Language, Record<string, string>> = {
     starting: 'Başlıyor...',
     completed: 'Tamamlandı.',
     errorPrefix: 'Hata:',
-    unknown: 'bilinmiyor',
+
     creating: 'Oluşturuluyor...',
     createDemoBtn: 'Demo Verisini Oluştur',
     demoNote: 'Not: İşlem internet hızına göre zaman alabilir.',
@@ -316,7 +316,7 @@ const translations: Record<Language, Record<string, string>> = {
     totalObservations: 'Toplam Gözlem',
     mediaCount: 'Ürün/Medya Sayısı',
     lastObservation: 'Son Gözlem',
-    consentYes: 'Var',
+
     consentPending: 'Bekliyor',
     uploadProduct: 'Ürün Yükle',
     noProductsAdded: 'Henüz ürün eklenmedi.',
@@ -362,8 +362,8 @@ const translations: Record<Language, Record<string, string>> = {
     // Teacher profile
     teacherFirstName: 'Öğretmen Adı',
     teacherLastName: 'Öğretmen Soyadı',
-    schoolName: 'Okul Adı',
-    missingTeacherFields: 'Lütfen ad, soyad ve okul adını girin.',
+
+
     profileUpdateSuccess: 'Profil güncellendi.',
     // Getting Started
     gettingStarted: 'Başlarken',
@@ -389,10 +389,10 @@ const translations: Record<Language, Record<string, string>> = {
     send: 'Gönder',
     assistantTyping: 'Asistan yazıyor…',
     noteDisclaimer: 'Not: Tıbbi tanı koymaz; pratik sınıf içi öneriler sunar.',
-    classCount: 'Sınıf sayısı',
-    childrenPerClass: 'Sınıf başına çocuk',
-    obsPerChild: 'Çocuk başına gözlem',
-    mediaPerChild: 'Çocuk başına ürün',
+
+
+
+
     createClass: 'Sınıf Oluştur',
     noClassFound: 'Sınıf bulunamadı. Üstten yeni sınıf oluşturabilirsiniz.',
     allChildren: 'Tüm Çocuklar',
@@ -440,7 +440,7 @@ const translations: Record<Language, Record<string, string>> = {
     step4Title: '4) Rapor ve PDF Alma',
     step4Desc: 'Çocuk veya sınıf sayfalarındaki Rapor bölümünden gelişim özetlerini görüntüleyebilir, PDF olarak indirebilirsiniz.',
     demoDataTip: 'İpucu: Demo Veri ile Hızlı Keşif',
-    demoDataDesc: 'Ayarlar → Demo Verisi Oluştur butonuna tıklayın; örnek sınıflar ve çocuklar otomatik eklenir.',
+
     goToSettings: 'Ayarlar\'a Git',
     frequentActions: 'Sık Kullanılan İşlemler',
     searchChildTip: 'Çocuk ara: üst kısımdaki arama kutusunu kullanın.',
@@ -450,12 +450,12 @@ const translations: Record<Language, Record<string, string>> = {
     attendanceSystem: 'Yoklama Sistemi',
     dailyAttendanceTracking: 'Günlük devam takibi ve istatistikler',
     thisMonthAttendance: 'Bu Ay Devam',
-    present: 'Geldi',
-    absent: 'Gelmedi',
-    late: 'Geç Geldi',
+
+
+
     excused: 'Mazeret',
     unmarked: 'İşaretlenmedi',
-    filtering: 'Filtreleniyor',
+
     allList: 'Tüm Liste',
     selectDate: 'Tarih Seç',
     quickAction: 'Hızlı İşlem',
@@ -617,7 +617,7 @@ const translations: Record<Language, Record<string, string>> = {
     strengthsSection: 'Strengths',
     guardiansSection: 'Guardian & Contact Information',
     noGuardiansAdded: 'No guardian information added.',
-    age: 'Age',
+
     enrollmentDate: 'Enrollment Date',
     importantNotes: 'Important Notes',
     aiInsights: 'AI Insights',
@@ -674,7 +674,7 @@ const translations: Record<Language, Record<string, string>> = {
     pinned: 'Pinned',
     last7daysObs: 'Last 7 Days Obs.',
     last7daysProducts: 'Last 7 Days Products',
-    searchChild: 'Search Child',
+
     nameSurnamePlaceholder: 'Name Surname...',
     developmentTrend: 'Development Area Trend (8 Weeks)',
     deleteClassConfirm: 'Are you sure you want to delete the class "{classroom}"?',
@@ -691,7 +691,7 @@ const translations: Record<Language, Record<string, string>> = {
     starting: 'Starting...',
     completed: 'Completed.',
     errorPrefix: 'Error:',
-    unknown: 'unknown',
+
     creating: 'Creating...',
     createDemoBtn: 'Create Demo Data',
     demoNote: 'Note: This may take time depending on internet speed.',
@@ -715,7 +715,7 @@ const translations: Record<Language, Record<string, string>> = {
     totalObservations: 'Total Observations',
     mediaCount: 'Product/Media Count',
     lastObservation: 'Last Observation',
-    consentYes: 'Yes',
+
     consentPending: 'Pending',
     uploadProduct: 'Upload Product',
     noProductsAdded: 'No products added yet.',
@@ -761,8 +761,8 @@ const translations: Record<Language, Record<string, string>> = {
     // Teacher profile
     teacherFirstName: 'Teacher First Name',
     teacherLastName: 'Teacher Last Name',
-    schoolName: 'School Name',
-    missingTeacherFields: 'Please enter first name, last name, and school name.',
+
+
     profileUpdateSuccess: 'Profile updated.',
     // Getting Started
     gettingStarted: 'Getting Started',
@@ -788,10 +788,10 @@ const translations: Record<Language, Record<string, string>> = {
     send: 'Send',
     assistantTyping: 'Assistant is typing...',
     noteDisclaimer: 'Note: Does not provide medical diagnoses; offers practical classroom suggestions.',
-    classCount: 'Number of classes',
-    childrenPerClass: 'Children per class',
-    obsPerChild: 'Observations per child',
-    mediaPerChild: 'Products per child',
+
+
+
+
     createClass: 'Create Class',
     noClassFound: 'No classes found. You can create a new class above.',
     allChildren: 'All Children',
@@ -849,12 +849,12 @@ const translations: Record<Language, Record<string, string>> = {
     attendanceSystem: 'Attendance System',
     dailyAttendanceTracking: 'Daily attendance tracking and statistics',
     thisMonthAttendance: 'This Month Attendance',
-    present: 'Present',
-    absent: 'Absent',
-    late: 'Late',
+
+
+
     excused: 'Excused',
     unmarked: 'Unmarked',
-    filtering: 'Filtering',
+
     allList: 'All List',
     selectDate: 'Select Date',
     quickAction: 'Quick Action',
