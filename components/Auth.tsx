@@ -305,26 +305,7 @@ const Auth: React.FC = () => {
   return (
     <div className="min-h-screen flex relative">
       {/* Language Switcher - Absolute Top Right */}
-      <div className="absolute top-20 lg:top-6 right-4 z-50 flex gap-2">
-        <button
-          onClick={() => changeLanguage('tr')}
-          className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${lang === 'tr'
-            ? 'bg-emerald-600 text-white shadow-md'
-            : 'bg-white/80 text-gray-600 hover:bg-gray-100 backdrop-blur-sm'
-            }`}
-        >
-          TR
-        </button>
-        <button
-          onClick={() => changeLanguage('en')}
-          className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${lang === 'en'
-            ? 'bg-emerald-600 text-white shadow-md'
-            : 'bg-white/80 text-gray-600 hover:bg-gray-100 backdrop-blur-sm'
-            }`}
-        >
-          EN
-        </button>
-      </div>
+
 
       {/* Sol Taraf - Bilgilendirme & Branding */}
       <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 relative overflow-hidden">
@@ -409,6 +390,28 @@ const Auth: React.FC = () => {
           <div className="bg-white rounded-3xl shadow-2xl p-10 border border-gray-100 relative overflow-hidden">
             {/* Decorative gradient */}
             <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-emerald-500 via-teal-500 to-emerald-500"></div>
+
+            {/* Language Switcher - Absolute Top Right INSIDE CARD */}
+            <div className="absolute top-6 right-6 z-10 flex gap-2">
+              <button
+                onClick={() => changeLanguage('tr')}
+                className={`px-2 py-1 rounded-md text-xs font-bold transition-all ${lang === 'tr'
+                  ? 'bg-emerald-100 text-emerald-700 ring-1 ring-emerald-200'
+                  : 'bg-gray-50 text-gray-400 hover:bg-gray-100'
+                  }`}
+              >
+                TR
+              </button>
+              <button
+                onClick={() => changeLanguage('en')}
+                className={`px-2 py-1 rounded-md text-xs font-bold transition-all ${lang === 'en'
+                  ? 'bg-emerald-100 text-emerald-700 ring-1 ring-emerald-200'
+                  : 'bg-gray-50 text-gray-400 hover:bg-gray-100'
+                  }`}
+              >
+                EN
+              </button>
+            </div>
 
             <div className="mb-10">
               <h2 className="text-3xl font-bold text-slate-800 mb-2">
