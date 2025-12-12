@@ -839,7 +839,7 @@ const translations: Record<Language, Record<string, string>> = {
     step4Title: '4) Get Report and PDF',
     step4Desc: 'View development summaries from the Report section on child or class pages, and download as PDF.',
     demoDataTip: 'Tip: Quick Exploration with Demo Data',
-    demoDataDesc: 'Click Settings → Create Demo Data; sample classes and children will be added automatically.',
+
     goToSettings: 'Go to Settings',
     frequentActions: 'Frequent Actions',
     searchChildTip: 'Search child: use the search box at the top.',
