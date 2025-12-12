@@ -305,7 +305,7 @@ const Auth: React.FC = () => {
   return (
     <div className="min-h-screen flex relative">
       {/* Language Switcher - Absolute Top Right */}
-      <div className="absolute top-14 lg:top-6 right-4 z-50 flex gap-2">
+      <div className="absolute top-20 lg:top-6 right-4 z-50 flex gap-2">
         <button
           onClick={() => changeLanguage('tr')}
           className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${lang === 'tr'
