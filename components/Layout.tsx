@@ -280,7 +280,7 @@ const Layout: React.FC<LayoutProps> = ({ children, navigate }) => {
                   </button>
 
                   <div className="backdrop-blur-sm rounded-xl p-3 shadow-sm hidden sm:block bg-emerald-500/20 border border-emerald-500/30">
-                    <span className="text-3xl">🎓</span>
+                    <DocumentTextIcon className="w-8 h-8 text-emerald-100" />
                   </div>
                   <div>
                     <h1 className="text-xl sm:text-2xl font-bold flex items-center gap-2 text-white">

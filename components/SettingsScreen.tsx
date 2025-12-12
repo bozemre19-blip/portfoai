@@ -127,9 +127,9 @@ const SettingsScreen: React.FC = () => {
             <button
               onClick={handleSaveProfile}
               disabled={saving}
-              className="px-4 py-2 bg-primary text-white rounded disabled:bg-gray-400"
+              className="px-4 py-2 bg-primary text-white rounded hover:bg-primary-dark disabled:opacity-50"
             >
-              {saving ? t('loading') : t('saveProfile')}
+              {saving ? t('loading') : t('save')}
             </button>
             <button
               onClick={async () => {
