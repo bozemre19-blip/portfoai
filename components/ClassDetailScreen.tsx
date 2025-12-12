@@ -5,6 +5,7 @@ import { getChildren, getChildrenByClassroom, getClassAiSuggestions, deleteClass
 import ClassTrends from './ClassTrends2';
 import { exportClassReportPDF } from './ClassPdfReport';
 import type { Child, RiskLevel } from '../types';
+import { t, getDateLocale } from '../constants.clean';
 
 interface Props {
   classroom: string;
@@ -188,13 +189,13 @@ const ClassDetailScreen: React.FC<Props> = ({ classroom, navigate }) => {
     if (!user) return;
     const childCount = children.length;
     const msg = childCount > 0
-      ? `"${classroom}" sınıfını silmek istediğinize emin misiniz?\n\nBu işlem ${childCount} çocuğu ve tüm gözlem/ürün kayıtlarını kalıcı olarak silecektir!`
-      : `"${classroom}" sınıfını silmek istediğinize emin misiniz?`;
+      ? t('deleteClassConfirmWithChildren').replace('{classroom}', classroom).replace('{childCount}', childCount.toString())
+      : t('deleteClassConfirm').replace('{classroom}', classroom);
 
     if (!confirm(msg)) return;
 
     setDeleting(true);
-    setDeleteProgress('Sınıf siliniyor...');
+    setDeleteProgress(t('classDeleting'));
     try {
       await deleteClass(user.id, classroom, (progress) => setDeleteProgress(progress));
       setShowEdit(false);
@@ -213,13 +214,13 @@ const ClassDetailScreen: React.FC<Props> = ({ classroom, navigate }) => {
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-3">
           <span className="inline-block w-3 h-3 rounded-full" style={{ backgroundColor: metaColor }} />
-          <h1 className="text-2xl font-bold text-gray-900">{"S\u0131n\u0131f: "}{title}</h1>
-          {metaPinned && <span className="text-xs text-gray-500">(Sabit)</span>}
+          <h1 className="text-2xl font-bold text-gray-900">{t('classLabel')} {title}</h1>
+          {metaPinned && <span className="text-xs text-gray-500">({t('pinned')})</span>}
         </div>
         <div className="flex items-center gap-2">
-          <button className="px-3 py-2 bg-gray-200 rounded" onClick={() => setShowEdit(true)}>{"D\u00FCzenle"}</button>
-          <button className="px-3 py-2 bg-gray-200 rounded" onClick={() => exportClassReportPDF({ className: title, children, obs7d, media7d, activity: activityDays, aiSummary, aiSuggestions })}>{"PDF \u0130ndir"}</button>
-          <button className="px-3 py-2 bg-gray-200 rounded" onClick={() => navigate('classes')}>{"S\u0131n\u0131flara D\u00F6n"}</button>
+          <button className="px-3 py-2 bg-gray-200 rounded" onClick={() => setShowEdit(true)}>{t('edit')}</button>
+          <button className="px-3 py-2 bg-gray-200 rounded" onClick={() => exportClassReportPDF({ className: title, children, obs7d, media7d, activity: activityDays, aiSummary, aiSuggestions })}>{t('pdfDownload')}</button>
+          <button className="px-3 py-2 bg-gray-200 rounded" onClick={() => navigate('classes')}>{t('backToClasses')}</button>
         </div>
       </div>
 
@@ -228,15 +229,15 @@ const ClassDetailScreen: React.FC<Props> = ({ classroom, navigate }) => {
       {/* Stats */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
         <div className="bg-white rounded-lg shadow p-4">
-          <div className="text-sm text-gray-500">{"\u00C7ocuk"}</div>
+          <div className="text-sm text-gray-500">{t('childrenList')}</div>
           <div className="text-3xl font-bold text-gray-900 mt-1">{children.length}</div>
         </div>
         <div className="bg-white rounded-lg shadow p-4">
-          <div className="text-sm text-gray-500">{"Son 7 G\u00FCn G\u00F6zlem"}</div>
+          <div className="text-sm text-gray-500">{t('last7daysObs')}</div>
           <div className="text-3xl font-bold text-gray-900 mt-1">{obs7d}</div>
         </div>
         <div className="bg-white rounded-lg shadow p-4">
-          <div className="text-sm text-gray-500">{"Son 7 G\u00FCn \u00DCr\u00FCn"}</div>
+          <div className="text-sm text-gray-500">{t('last7daysProducts')}</div>
           <div className="text-3xl font-bold text-gray-900 mt-1">{media7d}</div>
         </div>
       </div>
@@ -244,18 +245,18 @@ const ClassDetailScreen: React.FC<Props> = ({ classroom, navigate }) => {
       {/* Filters */}
       <div className="bg-white rounded-lg shadow p-4 mb-4">
         <div>
-          <label className="block text-sm text-gray-600 mb-1">{"\u00C7ocuk Ara"}</label>
-          <input className="w-full border rounded px-2 py-1.5" value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Ad Soyad..." />
+          <label className="block text-sm text-gray-600 mb-1">{t('searchChild')}</label>
+          <input className="w-full border rounded px-2 py-1.5" value={search} onChange={(e) => setSearch(e.target.value)} placeholder={t('nameSurnamePlaceholder')} />
         </div>
       </div>
 
       {/* Children in class (moved above activity) */}
       <div className="mt-4">
-        <h2 className="text-lg font-medium text-gray-900">Çocuklar</h2>
+        <h2 className="text-lg font-medium text-gray-900">{t('childrenList')}</h2>
         {childrenLoading ? (
-          <p>Yükleniyor...</p>
+          <p>{t('loading')}</p>
         ) : filteredChildren.length === 0 ? (
-          <p className="text-gray-500">Bu sınıfta çocuk yok.</p>
+          <p className="text-gray-500">{t('noChildInClass')}</p>
         ) : (
           <div className="mt-3 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {filteredChildren.map((c) => (
@@ -274,7 +275,7 @@ const ClassDetailScreen: React.FC<Props> = ({ classroom, navigate }) => {
       {/* Activity chart */}
       <div className="mt-2 bg-white rounded-lg shadow p-4">
         <div className="flex items-center justify-between mb-2">
-          <h2 className="text-lg font-medium text-gray-900">Aktivite (7 gün)</h2>
+          <h2 className="text-lg font-medium text-gray-900">{t('activity7days')}</h2>
         </div>
         {activityDays.length === 0 ? (
           <p className="text-gray-500">Veri yok.</p>
@@ -297,11 +298,11 @@ const ClassDetailScreen: React.FC<Props> = ({ classroom, navigate }) => {
 
       {/* Class AI suggestions */}
       <div className="mt-6">
-        <h2 className="text-lg font-medium text-gray-900">Sınıf için Yapay Zekâ Önerileri</h2>
+        <h2 className="text-lg font-medium text-gray-900">{t('aiSuggestionsForClass')}</h2>
         <div className="mt-2 bg-white rounded-lg shadow p-4">
           {aiSummary && <p className="text-gray-800 mb-2 whitespace-pre-wrap">{aiSummary}</p>}
           {aiSuggestions.length === 0 ? (
-            <p className="text-gray-500">Henüz öneri yok.</p>
+            <p className="text-gray-500">{t('noSuggestionsYet')}</p>
           ) : (
             <ul className="list-disc list-inside space-y-1 text-gray-800">
               {aiSuggestions.map((s, i) => <li key={i}>{s}</li>)}
@@ -315,21 +316,21 @@ const ClassDetailScreen: React.FC<Props> = ({ classroom, navigate }) => {
       {showEdit && (
         <div className="fixed inset-0 bg-black/50 z-40 flex items-center justify-center p-4" onClick={() => setShowEdit(false)}>
           <div className="bg-white rounded-lg shadow-xl p-6 w-full max-w-lg" onClick={(e) => e.stopPropagation()}>
-            <h3 className="text-lg font-semibold mb-3">Sınıfı Düzenle</h3>
+            <h3 className="text-lg font-semibold mb-3">{t('editClassTitle')}</h3>
             <div className="space-y-3">
               <div>
-                <label className="block text-sm text-gray-700 mb-1">Sınıf Adı</label>
+                <label className="block text-sm text-gray-700 mb-1">{t('className')}</label>
                 <input className="w-full border rounded px-2 py-1.5" value={renameValue} onChange={(e) => setRenameValue(e.target.value)} />
               </div>
               <div>
-                <div className="text-sm text-gray-700 mb-1">Renk</div>
+                <div className="text-sm text-gray-700 mb-1">{t('color')}</div>
                 <div className="flex flex-wrap gap-2">
                   {colors.map(c => (
                     <button key={c} className={`w-6 h-6 rounded-full ring-2 ${metaColor === c ? 'ring-black' : 'ring-transparent'}`} style={{ backgroundColor: c }} onClick={() => handleColorPick(c)} aria-label={c} />
                   ))}
                 </div>
               </div>
-              <label className="inline-flex items-center gap-2 text-sm"><input type="checkbox" checked={metaPinned} onChange={handlePinToggle} />Sınıfı sabitle</label>
+              <label className="inline-flex items-center gap-2 text-sm"><input type="checkbox" checked={metaPinned} onChange={handlePinToggle} />{t('pinClass')}</label>
             </div>
             <div className="mt-5 flex justify-between">
               <button
@@ -337,11 +338,11 @@ const ClassDetailScreen: React.FC<Props> = ({ classroom, navigate }) => {
                 onClick={handleDeleteClass}
                 disabled={deleting}
               >
-                {deleting ? 'Siliniyor...' : 'Sınıfı Sil'}
+                {deleting ? t('deleting') : t('deleteClass')}
               </button>
               <div className="flex gap-2">
-                <button className="px-3 py-2 bg-gray-200 rounded" onClick={() => setShowEdit(false)} disabled={deleting}>İptal</button>
-                <button className="px-3 py-2 bg-primary text-white rounded" onClick={handleRename} disabled={deleting}>Kaydet</button>
+                <button className="px-3 py-2 bg-gray-200 rounded" onClick={() => setShowEdit(false)} disabled={deleting}>{t('cancel')}</button>
+                <button className="px-3 py-2 bg-primary text-white rounded" onClick={handleRename} disabled={deleting}>{t('save')}</button>
               </div>
             </div>
             {deleteProgress && (

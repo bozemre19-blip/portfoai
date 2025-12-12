@@ -1,6 +1,6 @@
 ﻿import React, { useEffect, useMemo, useState } from 'react';
 import { useAuth } from '../App';
-import { DEVELOPMENT_DOMAINS, t } from '../constants.clean';
+import { getDomains, t } from '../constants.clean';
 import type { DevelopmentDomain, Media } from '../types';
 import { addMediaRecord, deleteMedia, getMediaForChild, getSignedUrlForMedia, uploadMediaViaFunction, updateMediaViaFunction } from '../services/api';
 import { TrashIcon } from './Icons';
@@ -25,7 +25,7 @@ const MediaSection: React.FC<MediaSectionProps> = ({ childId }) => {
   const [editItem, setEditItem] = useState<MediaWithUrl | null>(null);
   const [editFile, setEditFile] = useState<File | null>(null);
 
-  const domainOptions = useMemo(() => Object.keys(DEVELOPMENT_DOMAINS) as DevelopmentDomain[], []);
+  const domainOptions = useMemo(() => Object.keys(getDomains()) as DevelopmentDomain[], []);
 
   const fetchMedia = async () => {
     try {
@@ -164,7 +164,7 @@ const MediaSection: React.FC<MediaSectionProps> = ({ childId }) => {
               {m.description && <p className="text-sm text-gray-600 mt-1 line-clamp-2">{m.description}</p>}
               {m.domain && (
                 <span className="mt-2 inline-block text-xs bg-primary/10 text-primary rounded-full px-2 py-1">
-                  {DEVELOPMENT_DOMAINS[m.domain as DevelopmentDomain]}
+                  {getDomains()[m.domain as DevelopmentDomain]}
                 </span>
               )}
             </div>
@@ -190,7 +190,7 @@ const MediaSection: React.FC<MediaSectionProps> = ({ childId }) => {
                 <select className="mt-1 w-full border rounded p-2" value={domain} onChange={(e) => setDomain(e.target.value as DevelopmentDomain | '')}>
                   <option value="">{t('selectDomainPrompt')}</option>
                   {domainOptions.map((d) => (
-                    <option key={d} value={d}>{DEVELOPMENT_DOMAINS[d]}</option>
+                    <option key={d} value={d}>{getDomains()[d]}</option>
                   ))}
                 </select>
               </div>
@@ -227,7 +227,7 @@ const MediaSection: React.FC<MediaSectionProps> = ({ childId }) => {
                 <select className="mt-1 w-full border rounded p-2" value={domain} onChange={(e) => setDomain(e.target.value as DevelopmentDomain | '')}>
                   <option value="">{t('selectDomainPrompt')}</option>
                   {domainOptions.map((d) => (
-                    <option key={d} value={d}>{DEVELOPMENT_DOMAINS[d]}</option>
+                    <option key={d} value={d}>{getDomains()[d]}</option>
                   ))}
                 </select>
               </div>

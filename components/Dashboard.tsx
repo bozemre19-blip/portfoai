@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { useAuth } from '../App';
-import { t } from '../constants.clean';
+import { t, getDateLocale, getDomains } from '../constants.clean';
 import { PlusIcon, UserGroupIcon } from './Icons';
 import { supabase } from '../services/supabase';
 import { getChildren } from '../services/api';
@@ -33,14 +33,7 @@ type RecentItem = {
   assessment_risk?: string | null;
 };
 
-const DOMAIN_TR: Record<string, string> = {
-  cognitive: 'Bilişsel',
-  language: 'Dil',
-  social_emotional: 'Sosyal-Duygusal',
-  fine_motor: 'İnce Motor',
-  gross_motor: 'Kaba Motor',
-  self_care: 'Öz Bakım',
-};
+const DOMAIN_TR: Record<string, string> = getDomains();
 
 const Dashboard: React.FC<DashboardProps> = ({ navigate }) => {
   const { user } = useAuth();
@@ -169,7 +162,7 @@ const Dashboard: React.FC<DashboardProps> = ({ navigate }) => {
       {/* Activity (7 days) */}
       <div className="mt-6 bg-white rounded-lg shadow p-4 card-colorful card-colorful-blue">
         <div className="flex items-center justify-between mb-2">
-          <h2 className="text-lg font-semibold text-gray-900">📊 Aktivite (7 gün)</h2>
+          <h2 className="text-lg font-semibold text-gray-900">📊 {t('activity7days')}</h2>
         </div>
         <div className="grid grid-cols-7 gap-2 items-end h-28">
           {activityDays.map((d, i) => {
@@ -190,7 +183,7 @@ const Dashboard: React.FC<DashboardProps> = ({ navigate }) => {
       {/* Pinned children */}
       {pinnedIds.length > 0 && (
         <div className="mt-6">
-          <h2 className="text-lg font-semibold text-gray-900">📌 Sabitlenen Çocuklar</h2>
+          <h2 className="text-lg font-semibold text-gray-900">📌 {t('pinnedChildren')}</h2>
           <div className="mt-3 grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-4 gap-3">
             {children.filter((c) => pinnedIds.includes(c.id)).slice(0, 8).map((c, idx) => {
               const initials = `${(c.first_name || '')[0] || ''}${(c.last_name || '')[0] || ''}`.toUpperCase();
@@ -204,8 +197,8 @@ const Dashboard: React.FC<DashboardProps> = ({ navigate }) => {
                     <div className="text-xs text-gray-500 truncate">{c.classroom || ''}</div>
                   </div>
                   <div className="flex flex-col gap-1">
-                    <button className="text-primary text-sm hover:underline font-medium" onClick={() => navigate('child-detail', { id: c.id })}>Profil</button>
-                    <button className="text-secondary text-sm hover:underline font-medium" onClick={() => navigate('add-observation', { childId: c.id })}>Gözlem</button>
+                    <button className="text-primary text-sm hover:underline font-medium" onClick={() => navigate('child-detail', { id: c.id })}>{t('profile')}</button>
+                    <button className="text-secondary text-sm hover:underline font-medium" onClick={() => navigate('add-observation', { childId: c.id })}>{t('observations')}</button>
                   </div>
                 </div>
               );
@@ -230,7 +223,7 @@ const Dashboard: React.FC<DashboardProps> = ({ navigate }) => {
                   <li key={r.id} className={`border-l-4 ${cardColors[idx % cardColors.length]} border rounded-lg p-4 bg-gradient-to-r from-gray-50 to-white hover:shadow-md transition-shadow`}>
                     <div className="flex items-center justify-between text-sm text-gray-600">
                       <div className="font-medium">
-                        {new Date(r.created_at).toLocaleString('tr-TR')} - <span className="text-gray-900">{children.find(c => c.id === r.child_id)?.first_name} {children.find(c => c.id === r.child_id)?.last_name}</span>
+                        {new Date(r.created_at).toLocaleString(getDateLocale())} - <span className="text-gray-900">{children.find(c => c.id === r.child_id)?.first_name} {children.find(c => c.id === r.child_id)?.last_name}</span>
                       </div>
                     </div>
                     <div className="mt-2 text-gray-800 line-clamp-3 whitespace-pre-wrap">{r.note}</div>
@@ -242,7 +235,7 @@ const Dashboard: React.FC<DashboardProps> = ({ navigate }) => {
                       </div>
                     )}
                     <div className="mt-3">
-                      <button className="px-3 py-1 bg-primary text-white rounded-md hover:bg-opacity-90 text-sm font-medium" onClick={() => navigate('child-detail', { id: r.child_id })}>Çocuğa Git →</button>
+                      <button className="px-3 py-1 bg-primary text-white rounded-md hover:bg-opacity-90 text-sm font-medium" onClick={() => navigate('child-detail', { id: r.child_id })}>{t('viewChild')} →</button>
                     </div>
                   </li>
                 );

@@ -12,6 +12,7 @@ import { addAssessmentForObservation } from './assessments';
 import { uploadMedia, addMediaRecord } from './media';
 import { dispatchDataChangedEvent } from './common';
 import { v4 as uuidv4 } from 'uuid';
+import { getLanguage } from '../../constants.clean';
 
 export type SeedOptions = {
   classNames?: string[];
@@ -45,23 +46,50 @@ const pickManyUnique = <T,>(arr: T[], n: number): T[] => {
 // Türkçe isim havuzları
 const turkishFirstNames = ['Emir', 'Ali', 'Eymen', 'Mert', 'Kerem', 'Aras', 'Deniz', 'Atlas', 'Can', 'Yiğit', 'Eylül', 'Zeynep', 'Elif', 'Defne', 'Asel', 'Naz', 'Mira', 'Ada', 'Ecrin', 'Lina'];
 const turkishLastNames = ['Yılmaz', 'Demir', 'Şahin', 'Çelik', 'Yıldız', 'Yıldırım', 'Öztürk', 'Aydın', 'Arslan', 'Doğan', 'Kaya', 'Koç', 'Polat', 'Işık', 'Uzun'];
-const adultFirstNames = ['Ayşe', 'Fatma', 'Zehra', 'Merve', 'Seda', 'Derya', 'Gizem', 'Tuğba', 'Esra', 'Pelin', 'Ahmet', 'Mehmet', 'Mustafa', 'Emre', 'Hakan', 'Cem', 'Caner', 'Serkan', 'Murat', 'Burak'];
-const adultLastNames = ['Kara', 'Yalçın', 'Korkmaz', 'Şimşek', 'Özkan', 'Aksoy', 'Taş', 'Yurt', 'Türkmen', 'Duman', 'Özdemir', 'Taşdemir'];
-const guardianRelations = ['Anne', 'Baba', 'Veli', 'Teyze', 'Amca'];
-const allergyPool = ['Yumurta', 'Fıstık', 'Süt', 'Gluten', 'Polen', 'Arı', 'Domates', 'Kivi'];
-const interestPool = ['lego', 'resim', 'müzik', 'hikaye', 'bahçe', 'drama', 'dans', 'bilmece', 'yapboz', 'matematik oyunları'];
-const strengthPool = ['paylaşımcı', 'sabırlı', 'yaratıcı', 'iletişimi kuvvetli', 'detaycı', 'sebatlı', 'meraklı'];
+const adultFirstNamesTR = ['Ayşe', 'Fatma', 'Zehra', 'Merve', 'Seda', 'Derya', 'Gizem', 'Tuğba', 'Esra', 'Pelin', 'Ahmet', 'Mehmet', 'Mustafa', 'Emre', 'Hakan', 'Cem', 'Caner', 'Serkan', 'Murat', 'Burak'];
+const adultLastNamesTR = ['Kara', 'Yalçın', 'Korkmaz', 'Şimşek', 'Özkan', 'Aksoy', 'Taş', 'Yurt', 'Türkmen', 'Duman', 'Özdemir', 'Taşdemir'];
+const guardianRelationsTR = ['Anne', 'Baba', 'Veli', 'Teyze', 'Amca'];
+const allergyPoolTR = ['Yumurta', 'Fıstık', 'Süt', 'Gluten', 'Polen', 'Arı', 'Domates', 'Kivi'];
+const interestPoolTR = ['lego', 'resim', 'müzik', 'hikaye', 'bahçe', 'drama', 'dans', 'bilmece', 'yapboz', 'matematik oyunları'];
+const strengthPoolTR = ['paylaşımcı', 'sabırlı', 'yaratıcı', 'iletişimi kuvvetli', 'detaycı', 'sebatlı', 'meraklı'];
+
+// English name pools
+const englishFirstNames = ['Emma', 'Liam', 'Olivia', 'Noah', 'Ava', 'Oliver', 'Sophia', 'Elijah', 'Isabella', 'James', 'Mia', 'William', 'Charlotte', 'Benjamin', 'Amelia', 'Lucas', 'Harper', 'Henry', 'Evelyn', 'Alexander'];
+const englishLastNames = ['Smith', 'Johnson', 'Williams', 'Brown', 'Jones', 'Garcia', 'Miller', 'Davis', 'Rodriguez', 'Martinez', 'Anderson', 'Taylor', 'Thomas', 'Moore', 'Jackson'];
+const adultFirstNamesEN = ['Sarah', 'Michael', 'Jennifer', 'David', 'Emily', 'Robert', 'Jessica', 'John', 'Ashley', 'Christopher', 'Amanda', 'Daniel', 'Stephanie', 'Matthew', 'Nicole', 'Andrew', 'Elizabeth', 'Joshua', 'Megan', 'Ryan'];
+const adultLastNamesEN = ['Wilson', 'White', 'Harris', 'Martin', 'Thompson', 'Clark', 'Lewis', 'Lee', 'Walker', 'Hall', 'Allen', 'Young'];
+const guardianRelationsEN = ['Mother', 'Father', 'Guardian', 'Aunt', 'Uncle'];
+const allergyPoolEN = ['Eggs', 'Peanuts', 'Milk', 'Gluten', 'Pollen', 'Bee', 'Tomato', 'Kiwi'];
+const interestPoolEN = ['lego', 'drawing', 'music', 'stories', 'gardening', 'drama', 'dance', 'puzzles', 'jigsaw', 'math games'];
+const strengthPoolEN = ['sharing', 'patient', 'creative', 'good communicator', 'detail-oriented', 'persistent', 'curious'];
+
+// Language-aware getters
+const getFirstNames = () => getLanguage() === 'en' ? englishFirstNames : turkishFirstNames;
+const getLastNames = () => getLanguage() === 'en' ? englishLastNames : turkishLastNames;
+const getAdultFirstNames = () => getLanguage() === 'en' ? adultFirstNamesEN : adultFirstNamesTR;
+const getAdultLastNames = () => getLanguage() === 'en' ? adultLastNamesEN : adultLastNamesTR;
+const getGuardianRelations = () => getLanguage() === 'en' ? guardianRelationsEN : guardianRelationsTR;
+const getAllergyPool = () => getLanguage() === 'en' ? allergyPoolEN : allergyPoolTR;
+const getInterestPool = () => getLanguage() === 'en' ? interestPoolEN : interestPoolTR;
+const getStrengthPool = () => getLanguage() === 'en' ? strengthPoolEN : strengthPoolTR;
 
 // Gözlem bağlamı metinleri
-const ctxText: Record<ObservationContext, string> = {
+const ctxTextTR: Record<ObservationContext, string> = {
   classroom: 'sınıf içinde',
   outdoor: 'bahçede',
   home: 'ev ortamında',
   other: 'etkinlik sırasında',
 };
+const ctxTextEN: Record<ObservationContext, string> = {
+  classroom: 'in classroom',
+  outdoor: 'in the garden',
+  home: 'at home',
+  other: 'during activity',
+};
+const getCtxText = () => getLanguage() === 'en' ? ctxTextEN : ctxTextTR;
 
-// Gelişim alanlarına göre aktiviteler (MEB 7 Alan - olumlu + dikkat gerektiren)
-const domainActivities: Record<DevelopmentDomain, string[]> = {
+// Gelişim alanlarına göre aktiviteler (MEB 7 Alan - olumlu + dikkat gerektiren) - Türkçe
+const domainActivitiesTR: Record<DevelopmentDomain, string[]> = {
   turkish: [
     'hikâyedeki olayları kendi sözleriyle özetledi',
     'görsellerden çıkarım yaparak soruları yanıtladı',
@@ -143,8 +171,96 @@ const domainActivities: Record<DevelopmentDomain, string[]> = {
   ],
 };
 
-const adverbs = ['dikkatle', 'hevesle', 'sakin bir şekilde', 'kısa hatırlatma ile', 'bağımsız', 'tereddütle', 'çekinerek', 'zorlanarak', 'yardımla'];
-const closers = [
+// English domain activities
+const domainActivitiesEN: Record<DevelopmentDomain, string[]> = {
+  turkish: [
+    'summarized story events in their own words',
+    'answered questions by making inferences from visuals',
+    'tried using new words in sentences',
+    'initiated and maintained conversation with peers',
+    'sang rhyming songs rhythmically',
+    'used limited vocabulary when summarizing the story',
+    'gave single-word answers to questions',
+    'was hesitant in communication',
+    'had difficulty expressing themselves',
+  ],
+  math: [
+    'made correct connections in matching games',
+    'correctly sequenced numbers',
+    'recognized and classified geometric shapes',
+    'completed simple patterns',
+    'understood measuring and weighing concepts',
+    'confused numbers, needed more practice',
+    'struggled with shape classification task',
+    'hesitated in pattern completion',
+    'had difficulty understanding measurement concepts',
+  ],
+  science: [
+    'expressed curiosity questions during nature observation',
+    'followed experiment steps correctly',
+    'observed and recorded plant growth process',
+    'noticed weather changes',
+    'correctly distinguished living and non-living things',
+    'struggled to follow experiment steps',
+    'had difficulty paying attention during observation',
+    'struggled to establish cause-effect relationships',
+    'showed disinterest in questions',
+  ],
+  social: [
+    'showed patience while waiting in line',
+    'cooperated by passing materials to friends',
+    'expressed emotions verbally',
+    'resolved simple conflicts through discussion',
+    'showed positive attitude towards following rules',
+    'became restless while waiting in line',
+    'was reluctant to share',
+    'had disagreement with friend',
+    'reacted emotionally',
+    'had difficulty sharing toys',
+  ],
+  motor_health: [
+    'threw and caught ball towards target',
+    'walked on balance beam with control',
+    'cut along lines carefully with scissors',
+    'used two-hand coordination while threading beads',
+    'washed hands correctly step by step',
+    'tried to close zipper while dressing',
+    'showed coordination deficiency in catching ball',
+    'struggled to maintain balance',
+    'weak hand coordination when cutting with scissors',
+    'needed reminders for hand washing',
+  ],
+  art: [
+    'used colors freely in painting activity',
+    'created three-dimensional shapes with playdough',
+    'completed collage work',
+    'increased detail and expression in drawings',
+    'enjoyed trying new materials',
+    'was reluctant to participate in art activity',
+    'struggled to use materials',
+    'showed lack of confidence in drawing',
+    'was indecisive about color selection',
+  ],
+  music: [
+    'sang songs rhythmically and energetically',
+    'used rhythm instruments correctly',
+    'moved along with music',
+    'recognized and imitated melodies',
+    'synchronized with rhythm while dancing',
+    'struggled to keep rhythm',
+    'avoided singing',
+    'was hesitant to participate in music activity',
+    'had difficulty using rhythm instruments',
+  ],
+};
+
+const getDomainActivities = () => getLanguage() === 'en' ? domainActivitiesEN : domainActivitiesTR;
+
+const adverbsTR = ['dikkatle', 'hevesle', 'sakin bir şekilde', 'kısa hatırlatma ile', 'bağımsız', 'tereddütle', 'çekinerek', 'zorlanarak', 'yardımla'];
+const adverbsEN = ['carefully', 'eagerly', 'calmly', 'with a brief reminder', 'independently', 'hesitantly', 'shyly', 'with difficulty', 'with help'];
+const getAdverbs = () => getLanguage() === 'en' ? adverbsEN : adverbsTR;
+
+const closersTR = [
   'Süre boyunca odağını korudu.',
   'Modelleme sonrasında denemeye devam etti.',
   'Akran desteğiyle görevi tamamladı.',
@@ -154,9 +270,20 @@ const closers = [
   'Desteğe ihtiyaç duydu.',
   'Müdahale gerekti.',
 ];
+const closersEN = [
+  'Maintained focus throughout.',
+  'Continued to try after modeling.',
+  'Completed task with peer support.',
+  'Participated longer compared to last week.',
+  'Took frequent breaks due to distraction.',
+  'Task was left incomplete.',
+  'Needed support.',
+  'Intervention was required.',
+];
+const getClosers = () => getLanguage() === 'en' ? closersEN : closersTR;
 
-// Alan bazlı öneriler (MEB 7 Alan)
-const domainSuggestions: Record<DevelopmentDomain, string[]> = {
+// Alan bazlı öneriler (MEB 7 Alan) - Türkçe
+const domainSuggestionsTR: Record<DevelopmentDomain, string[]> = {
   turkish: [
     'Günlük rutinde açık uçlu sorular sorun ve yanıtları genişletin.',
     'Günlük bir kitap okuma saati belirleyin ve resimlerden çıkarım yaptırın.',
@@ -194,15 +321,56 @@ const domainSuggestions: Record<DevelopmentDomain, string[]> = {
   ],
 };
 
+// English domain suggestions
+const domainSuggestionsEN: Record<DevelopmentDomain, string[]> = {
+  turkish: [
+    'Ask open-ended questions in daily routine and expand responses.',
+    'Set a daily reading time and encourage inferences from pictures.',
+    'Encourage using new words in sentences throughout the day.',
+  ],
+  math: [
+    'Add short daily sessions of matching and classification games.',
+    'Do counting and sequencing activities.',
+    'Try to show geometric shapes in daily life.',
+  ],
+  science: [
+    'Ask observation questions during nature walks.',
+    'Support curiosity by doing simple experiments.',
+    'Start a plant growing project.',
+  ],
+  social: [
+    'Plan cooperative games involving waiting in line and sharing.',
+    'Use "emotion cards" to help express feelings.',
+    'Practice resolving conflicts through role play.',
+  ],
+  motor_health: [
+    'Dedicate time to balance beam, hopscotch and target games.',
+    'Remind and reinforce hand washing steps with posters.',
+    'Do cutting along lines and fine motor activities with scissors.',
+  ],
+  art: [
+    'Give opportunities to experiment with different art materials.',
+    'Allow time for free drawing activities.',
+    'Support creativity with 3D work (playdough, clay).',
+  ],
+  music: [
+    'Add daily rhythm and song activities.',
+    'Encourage making music using simple rhythm instruments.',
+    'Combine music with dance and movement activities.',
+  ],
+};
+
+const getDomainSuggestions = () => getLanguage() === 'en' ? domainSuggestionsEN : domainSuggestionsTR;
+
 const domainList: DevelopmentDomain[] = ['turkish', 'math', 'science', 'social', 'motor_health', 'art', 'music'];
 const contextList: ObservationContext[] = ['classroom', 'outdoor', 'home', 'other'];
 
 // Gözlem notu oluştur (çeşitli risk seviyeleriyle)
 const makeObservationNote = (fullName: string, domains: DevelopmentDomain[], context: ObservationContext, targetRisk?: 'low' | 'medium' | 'high'): string => {
   const parts: string[] = [];
-  const ctx = ctxText[context] || 'etkinlikte';
+  const ctx = getCtxText()[context] || (getLanguage() === 'en' ? 'during activity' : 'etkinlikte');
   const dom = pick(domains);
-  const activities = domainActivities[dom];
+  const activities = getDomainActivities()[dom];
 
   // Risk seviyesine göre aktivite seç
   let act: string;
@@ -219,11 +387,12 @@ const makeObservationNote = (fullName: string, domains: DevelopmentDomain[], con
     act = pick(positiveActs);
   }
 
-  const adv = pick(adverbs);
+  const adv = pick(getAdverbs());
   parts.push(`${ctx} ${act} (${adv}).`);
 
-  if (Math.random() < 0.6) parts.push(pick(closers));
-  if (Math.random() < 0.4) parts.unshift(`${fullName} bugün gözlemlendi.`);
+  if (Math.random() < 0.6) parts.push(pick(getClosers()));
+  const observedText = getLanguage() === 'en' ? `${fullName} was observed today.` : `${fullName} bugün gözlemlendi.`;
+  if (Math.random() < 0.4) parts.unshift(observedText);
 
   return parts.join(' ');
 };
@@ -256,8 +425,8 @@ const makeSeedAssessment = (note: string, domains: DevelopmentDomain[]) => {
   }
 
   const pool: string[] = [];
-  for (const d of domains) pool.push(...domainSuggestions[d]);
-  if (pool.length < 3) pool.push(...Object.values(domainSuggestions).flat());
+  for (const d of domains) pool.push(...getDomainSuggestions()[d]);
+  if (pool.length < 3) pool.push(...Object.values(getDomainSuggestions()).flat());
   const suggestions = pickManyUnique(pool, 3);
 
   const trRisk = risk === 'low' ? 'düşük' : risk === 'medium' ? 'orta' : 'yüksek';
@@ -291,7 +460,7 @@ const makeEmail = (name: string, last: string) =>
     .replace(/ö/g, 'o')
     .replace(/ç/g, 'c');
 
-const pickAdultName = () => ({ f: pick(adultFirstNames), l: pick(adultLastNames) });
+const pickAdultName = () => ({ f: pick(getAdultFirstNames()), l: pick(getAdultLastNames()) });
 
 const makeChildMeta = () => {
   const gCount = rand(1, 2);
@@ -300,15 +469,15 @@ const makeChildMeta = () => {
     return {
       id: uuidv4(),
       name: `${n.f} ${n.l}`,
-      relation: pick(guardianRelations),
+      relation: pick(getGuardianRelations()),
       phone: makePhone(),
       email: makeEmail(n.f, n.l),
     };
   });
-  const allergies = Math.random() < 0.6 ? pickManyUnique(allergyPool, rand(0, 2)) : [];
+  const allergies = Math.random() < 0.6 ? pickManyUnique(getAllergyPool(), rand(0, 2)) : [];
   const healthNotes = Math.random() < 0.4 ? 'Düzenli kontrol önerildi.' : '';
-  const interests = pickManyUnique(interestPool, rand(2, 4));
-  const strengths = pickManyUnique(strengthPool, rand(2, 3));
+  const interests = pickManyUnique(getInterestPool(), rand(2, 4));
+  const strengths = pickManyUnique(getStrengthPool(), rand(1, 3));
   return {
     guardians,
     health: { allergies, notes: healthNotes },
@@ -360,7 +529,13 @@ export const seedDemoData = async (userId: string, opts: SeedOptions = {}) => {
   const classes =
     opts.classNames && opts.classNames.length > 0
       ? opts.classNames
-      : Array.from({ length: opts.classes ?? 2 }, (_, i) => (i === 0 ? 'Sınıf A' : i === 1 ? 'Sınıf B' : `Sınıf ${i + 1}`));
+      : Array.from({ length: opts.classes ?? 2 }, (_, i) => {
+        const lang = getLanguage();
+        if (lang === 'en') {
+          return i === 0 ? 'Class A' : i === 1 ? 'Class B' : `Class ${i + 1}`;
+        }
+        return i === 0 ? 'Sınıf A' : i === 1 ? 'Sınıf B' : `Sınıf ${i + 1}`;
+      });
 
   const perClass = opts.childrenPerClass ?? 15;
   const obsPerChild = opts.observationsPerChild ?? 7;
@@ -384,8 +559,8 @@ export const seedDemoData = async (userId: string, opts: SeedOptions = {}) => {
     log(`${className} için ${perClass} çocuk oluşturuluyor...`);
 
     for (let i = 0; i < perClass; i++) {
-      const first = pick(turkishFirstNames);
-      const last = pick(turkishLastNames);
+      const first = pick(getFirstNames());
+      const last = pick(getLastNames());
       const meta = makeChildMeta();
 
       const childPayload: Omit<Child, 'id' | 'user_id' | 'created_at'> = {

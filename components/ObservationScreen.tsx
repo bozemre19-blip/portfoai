@@ -3,7 +3,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useAuth } from '../App';
 import { addObservation, updateObservation, getAiAnalysis, addAssessmentForObservation, uploadMediaViaFunction } from '../services/api';
 import type { DevelopmentDomain, ObservationContext, Observation } from '../types';
-import { t, DEVELOPMENT_DOMAINS, OBSERVATION_CONTEXTS } from '../constants.clean';
+import { t, getDomains, getContexts } from '../constants.clean';
 
 interface ObservationScreenProps {
   childId: string;
@@ -25,7 +25,7 @@ const ObservationScreen: React.FC<ObservationScreenProps> = ({ childId, navigate
   const [baseNote, setBaseNote] = useState<string>('');
   const [sessionTranscript, setSessionTranscript] = useState<string>('');
   const fileInputRef = useRef<HTMLInputElement | null>(null);
-  
+
 
   const isEditMode = !!observationToEdit;
 
@@ -65,37 +65,37 @@ const ObservationScreen: React.FC<ObservationScreenProps> = ({ childId, navigate
       setSttSupported(false);
     }
     return () => {
-      try { recognitionRef.current?.stop?.(); } catch {}
+      try { recognitionRef.current?.stop?.(); } catch { }
     };
   }, []);
 
   const toggleRecording = () => {
     if (!sttSupported || !recognitionRef.current) { alert('Tarayıcı sesten metne özelliğini desteklemiyor. Lütfen Chrome/Edge kullanın.'); return; } const rec = recognitionRef.current as any;
-    if (isRecording) { try { rec.stop(); } catch {} setIsRecording(false); }
+    if (isRecording) { try { rec.stop(); } catch { } setIsRecording(false); }
     else { try { setBaseNote(note); setSessionTranscript(''); rec.start(); setIsRecording(true); } catch { /* already started */ } }
   };
 
-  
+
 
 
   const handleDomainToggle = (domain: DevelopmentDomain) => {
-    setDomains(prev => 
+    setDomains(prev =>
       prev.includes(domain) ? prev.filter(d => d !== domain) : [...prev, domain]
     );
   };
-  
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!user || !note) {
-        alert(t('errorOccurred'));
-        return;
+      alert(t('errorOccurred'));
+      return;
     }
     if (domains.length === 0) {
-        alert((t as any)('domainsRequired') || 'Lütfen en az bir gelişim alanı seçin.');
-        return;
+      alert((t as any)('domainsRequired') || 'Lütfen en az bir gelişim alanı seçin.');
+      return;
     }
     setLoading(true);
-    
+
     const observationData: any = {
       child_id: childId,
       note,
@@ -167,8 +167,8 @@ const ObservationScreen: React.FC<ObservationScreenProps> = ({ childId, navigate
         <div>
           <label htmlFor="note" className="block text-sm font-medium text-gray-700">{t('observationNote')}</label>
           <div className="mt-1 relative">
-            <textarea 
-              id="note" 
+            <textarea
+              id="note"
               rows={6}
               value={note}
               onChange={e => setNote(e.target.value)}
@@ -184,7 +184,7 @@ const ObservationScreen: React.FC<ObservationScreenProps> = ({ childId, navigate
             >
               {isRecording ? 'â€¢' : 'ğŸ™ï¸'}
             </button>
-            
+
           </div>
           {isRecording && sessionTranscript && (
             <div className="mt-1 text-xs text-gray-500">Anlık: {sessionTranscript}</div>
@@ -196,46 +196,46 @@ const ObservationScreen: React.FC<ObservationScreenProps> = ({ childId, navigate
             <div className="mt-1 text-xs text-gray-500">Ses dosyası çözümleniyor…</div>
           )}
           <div className="mt-3">
-            <label htmlFor="attach-obs" className="block text-sm font-medium text-gray-700">Ek Fotoğraf (isteğe bağlı)</label>
-            <input id="attach-obs" type="file" accept="image/*" onChange={(e)=> setAttachFile(e.target.files?.[0] || null)} className="mt-1 block w-full text-sm" />
+            <label htmlFor="attach-obs" className="block text-sm font-medium text-gray-700">{t('attachPhotoOptional')}</label>
+            <input id="attach-obs" type="file" accept="image/*" onChange={(e) => setAttachFile(e.target.files?.[0] || null)} className="mt-1 block w-full text-sm" />
           </div>
         </div>
 
         <div>
-            <h3 className="text-sm font-medium text-gray-700">{t('developmentDomains')}</h3>
-            <p className="text-xs text-gray-500 mb-2">{t('selectDomains')}</p>
-            <div className="flex flex-wrap gap-2">
-                {Object.keys(DEVELOPMENT_DOMAINS).map(key => {
-                    const domain = key as DevelopmentDomain;
-                    const isSelected = domains.includes(domain);
-                    return (
-                        <button type="button" key={domain} onClick={() => handleDomainToggle(domain)} className={`px-3 py-1.5 text-sm rounded-full border ${isSelected ? 'bg-primary text-white border-primary' : 'bg-white text-gray-700'}`}>
-                            {DEVELOPMENT_DOMAINS[domain]}
-                        </button>
-                    )
-                })}
-            </div>
+          <h3 className="text-sm font-medium text-gray-700">{t('developmentDomains')}</h3>
+          <p className="text-xs text-gray-500 mb-2">{t('selectDomains')}</p>
+          <div className="flex flex-wrap gap-2">
+            {Object.keys(getDomains()).map(key => {
+              const domain = key as DevelopmentDomain;
+              const isSelected = domains.includes(domain);
+              return (
+                <button type="button" key={domain} onClick={() => handleDomainToggle(domain)} className={`px-3 py-1.5 text-sm rounded-full border ${isSelected ? 'bg-primary text-white border-primary' : 'bg-white text-gray-700'}`}>
+                  {getDomains()[domain]}
+                </button>
+              )
+            })}
+          </div>
         </div>
 
         <div>
           <label htmlFor="context" className="block text-sm font-medium text-gray-700">{t('context')}</label>
           <select id="context" value={context} onChange={e => setContext(e.target.value as ObservationContext)} className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-primary focus:border-primary sm:text-sm rounded-md">
-            {Object.keys(OBSERVATION_CONTEXTS).map(key => (
-              <option key={key} value={key}>{OBSERVATION_CONTEXTS[key as ObservationContext]}</option>
+            {Object.keys(getContexts()).map(key => (
+              <option key={key} value={key}>{getContexts()[key as ObservationContext]}</option>
             ))}
           </select>
         </div>
 
         <div>
-            <label htmlFor="tags" className="block text-sm font-medium text-gray-700">{t('tags')}</label>
-            <input type="text" id="tags" value={tags} onChange={e => setTags(e.target.value)} className="mt-1 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md" placeholder={t('tagsPlaceholder')} />
+          <label htmlFor="tags" className="block text-sm font-medium text-gray-700">{t('tags')}</label>
+          <input type="text" id="tags" value={tags} onChange={e => setTags(e.target.value)} className="mt-1 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md" placeholder={t('tagsPlaceholder')} />
         </div>
 
         <div className="flex justify-end gap-4">
-            <button type="button" onClick={() => navigate('child-detail', {id: childId})} className="px-4 py-2 bg-gray-200 rounded-md">{t('cancel')}</button>
-            <button type="submit" disabled={loading || domains.length === 0} className="px-4 py-2 bg-primary text-white rounded-md disabled:bg-gray-400">
-                {loading ? t('loading') : t('save')}
-            </button>
+          <button type="button" onClick={() => navigate('child-detail', { id: childId })} className="px-4 py-2 bg-gray-200 rounded-md">{t('cancel')}</button>
+          <button type="submit" disabled={loading || domains.length === 0} className="px-4 py-2 bg-primary text-white rounded-md disabled:bg-gray-400">
+            {loading ? t('loading') : t('save')}
+          </button>
         </div>
       </form>
     </div>

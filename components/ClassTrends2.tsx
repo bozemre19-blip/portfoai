@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useAuth } from '../App';
 import { supabase } from '../services/supabase';
 import type { DevelopmentDomain, RiskLevel } from '../types';
+import { t, getDomains, getDateLocale, getLanguage } from '../constants.clean';
 
 interface Props { classroom: string }
 
@@ -9,22 +10,18 @@ const DOMAINS: DevelopmentDomain[] = [
   'turkish', 'math', 'science', 'social', 'motor_health', 'art', 'music'
 ];
 
-// Türkçe etiketler (UTF-8)
-const DOMAIN_TR: Record<DevelopmentDomain, string> = {
-  turkish: 'Türkçe',
-  math: 'Matematik',
-  science: 'Fen',
-  social: 'Sosyal',
-  motor_health: 'Hareket ve Sağlık',
-  art: 'Sanat',
-  music: 'Müzik',
-};
-
+// Türkçe etiketler (UTF-8) - artık getDomains() kullanılıyor
 const RISK_TR: Record<RiskLevel, string> = {
   low: 'Düşük',
   medium: 'Orta',
   high: 'Yüksek',
 };
+const RISK_EN: Record<RiskLevel, string> = {
+  low: 'Low',
+  medium: 'Medium',
+  high: 'High',
+};
+const getRiskLabels = () => getLanguage() === 'en' ? RISK_EN : RISK_TR;
 
 const ClassTrends: React.FC<Props> = ({ classroom }) => {
   const { user } = useAuth();
@@ -58,9 +55,10 @@ const ClassTrends: React.FC<Props> = ({ classroom }) => {
           .gte('created_at', since8w.toISOString());
 
         const labels: string[] = [];
+        const locale = getDateLocale();
         for (let i = 7; i >= 0; i--) {
           const d = new Date(); d.setDate(d.getDate() - i * 7);
-          labels.push(new Intl.DateTimeFormat('tr-TR', { day: '2-digit', month: 'short' }).format(d));
+          labels.push(new Intl.DateTimeFormat(locale, { day: '2-digit', month: 'short' }).format(d));
         }
         const initArr = () => Array(8).fill(0) as number[];
         const domMap: Record<DevelopmentDomain, number[]> = {
@@ -92,7 +90,7 @@ const ClassTrends: React.FC<Props> = ({ classroom }) => {
   return (
     <>
       <div className="mt-4 bg-white rounded-lg shadow p-4">
-        <h2 className="text-lg font-medium text-gray-900 mb-2">Gelişim Alanı Trendi (8 Hafta)</h2>
+        <h2 className="text-lg font-medium text-gray-900 mb-2">{t('developmentTrend')}</h2>
         {error && <p className="text-red-600 text-sm">{error}</p>}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {DOMAINS.map((k) => {
@@ -100,7 +98,7 @@ const ClassTrends: React.FC<Props> = ({ classroom }) => {
             const max = Math.max(1, ...arr);
             return (
               <div key={k} className="border rounded p-2">
-                <div className="text-sm text-gray-700 mb-1">{DOMAIN_TR[k] || k}</div>
+                <div className="text-sm text-gray-700 mb-1">{getDomains()[k] || k}</div>
                 <div className="flex items-end gap-1 h-16">
                   {arr.map((v, i) => (
                     <div key={i} style={{ height: `${Math.max(6, Math.round((v / max) * 100))}%` }} className="w-3 bg-blue-400 rounded"></div>
@@ -126,9 +124,9 @@ const ClassTrends: React.FC<Props> = ({ classroom }) => {
             const bg = r === 'high' ? '#ef4444' : r === 'medium' ? '#f59e0b' : '#10b981';
             return (
               <React.Fragment key={r}>
-                <div className="text-gray-700">{RISK_TR[r]}</div>
+                <div className="text-gray-700">{getRiskLabels()[r]}</div>
                 {arr.map((v, i) => (
-                  <div key={i} className="w-6 h-6 rounded-sm" style={{ opacity: Math.max(0.15, v / max), backgroundColor: bg }} title={`${RISK_TR[r]}: ${v}`}></div>
+                  <div key={i} className="w-6 h-6 rounded-sm" style={{ opacity: Math.max(0.15, v / max), backgroundColor: bg }} title={`${getRiskLabels()[r]}: ${v}`}></div>
                 ))}
               </React.Fragment>
             );

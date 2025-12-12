@@ -2,7 +2,7 @@
 import { useAuth } from '../App';
 import { addObservation, updateObservation, getAiAnalysis, addAssessmentForObservation, uploadMediaViaFunction } from '../services/api';
 import type { DevelopmentDomain, ObservationContext, Observation } from '../types';
-import { t, DEVELOPMENT_DOMAINS, OBSERVATION_CONTEXTS } from '../constants.clean';
+import { t, getDomains, getContexts } from '../constants.clean';
 
 interface Props {
   childId: string;
@@ -128,7 +128,7 @@ const ObservationScreen: React.FC<Props> = ({ childId, navigate, observationToEd
           <h3 className="text-sm font-medium text-gray-700">{t('developmentDomains')}</h3>
           <p className="text-xs text-gray-500 mb-2">{t('selectDomains')}</p>
           <div className="flex flex-wrap gap-2">
-            {Object.keys(DEVELOPMENT_DOMAINS).map((key) => {
+            {Object.keys(getDomains()).map((key) => {
               const d = key as DevelopmentDomain;
               const selected = domains.includes(d);
               return (
@@ -138,7 +138,7 @@ const ObservationScreen: React.FC<Props> = ({ childId, navigate, observationToEd
                   onClick={() => toggleDomain(d)}
                   className={`px-3 py-1.5 text-sm rounded-full border ${selected ? 'bg-primary text-white border-primary' : 'bg-white text-gray-700'}`}
                 >
-                  {DEVELOPMENT_DOMAINS[d]}
+                  {getDomains()[d]}
                 </button>
               );
             })}
@@ -146,8 +146,8 @@ const ObservationScreen: React.FC<Props> = ({ childId, navigate, observationToEd
         </div>
 
         <div>
-          <label htmlFor="attach" className="block text-sm font-medium text-gray-700">Ek Fotoğraf (isteğe bağlı)</label>
-          <input id="attach" type="file" accept="image/*" onChange={(e)=> setAttachFile(e.target.files?.[0] || null)} className="mt-1 block w-full text-sm" />
+          <label htmlFor="attach" className="block text-sm font-medium text-gray-700">{t('attachPhotoOptional')}</label>
+          <input id="attach" type="file" accept="image/*" onChange={(e) => setAttachFile(e.target.files?.[0] || null)} className="mt-1 block w-full text-sm" />
         </div>
 
         <div>
@@ -158,8 +158,8 @@ const ObservationScreen: React.FC<Props> = ({ childId, navigate, observationToEd
             onChange={(e) => setContext(e.target.value as ObservationContext)}
             className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-primary focus:border-primary sm:text-sm rounded-md"
           >
-            {Object.keys(OBSERVATION_CONTEXTS).map((key) => (
-              <option key={key} value={key}>{OBSERVATION_CONTEXTS[key as ObservationContext]}</option>
+            {Object.keys(getContexts()).map((key) => (
+              <option key={key} value={key}>{getContexts()[key as ObservationContext]}</option>
             ))}
           </select>
         </div>

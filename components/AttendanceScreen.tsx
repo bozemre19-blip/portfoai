@@ -1,14 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { Child, Attendance, AttendanceStatus } from '../types';
-import { 
-  getChildren, 
-  getTodayAttendance, 
-  bulkRecordAttendance, 
+import {
+  getChildren,
+  getTodayAttendance,
+  bulkRecordAttendance,
   getAttendanceStats,
   getAttendanceByDate,
   updateAttendance
 } from '../services/api';
 import { useAuth } from '../App';
+import { t } from '../constants.clean';
 
 interface AttendanceScreenProps {
   navigate: (page: string, params?: any) => void;
@@ -36,19 +37,19 @@ const AttendanceScreen: React.FC<AttendanceScreenProps> = ({ navigate }) => {
 
   const loadData = async () => {
     if (!user) return;
-    
+
     setLoading(true);
     setError('');
-    
+
     try {
       const [childrenData, attendanceData] = await Promise.all([
         getChildren(user.id),
         getAttendanceByDate(user.id, selectedDate)
       ]);
-      
+
       setChildren(childrenData);
       setTodayAttendance(attendanceData);
-      
+
       // Initialize attendance map
       const map = new Map<string, AttendanceStatus>();
       attendanceData.forEach(att => {
@@ -56,7 +57,7 @@ const AttendanceScreen: React.FC<AttendanceScreenProps> = ({ navigate }) => {
       });
       setAttendanceRecords(map);
     } catch (e: any) {
-      setError(e?.message || 'Veri yüklenemedi');
+      setError(e?.message || t('dataLoadFailed'));
     } finally {
       setLoading(false);
     }
@@ -64,13 +65,13 @@ const AttendanceScreen: React.FC<AttendanceScreenProps> = ({ navigate }) => {
 
   const loadStats = async () => {
     if (!user) return;
-    
+
     try {
       // Get this month's stats
       const now = new Date();
       const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1).toISOString().split('T')[0];
       const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).toISOString().split('T')[0];
-      
+
       const monthStats = await getAttendanceStats(user.id, startOfMonth, endOfMonth);
       setStats(monthStats);
     } catch (e) {
@@ -86,10 +87,10 @@ const AttendanceScreen: React.FC<AttendanceScreenProps> = ({ navigate }) => {
 
   const handleSaveAttendance = async () => {
     if (!user) return;
-    
+
     setSaving(true);
     setError('');
-    
+
     try {
       const records = Array.from(attendanceRecords.entries()).map(([childId, status]) => ({
         childId,
@@ -97,14 +98,14 @@ const AttendanceScreen: React.FC<AttendanceScreenProps> = ({ navigate }) => {
         date: selectedDate,
         status,
       }));
-      
+
       await bulkRecordAttendance(records);
       await loadData();
       await loadStats();
-      alert('✅ Yoklama başarıyla kaydedildi!');
+      alert('✅ ' + t('attendanceSaved'));
     } catch (e: any) {
-      setError(e?.message || 'Yoklama kaydedilemedi');
-      alert('❌ Hata: ' + (e?.message || 'Yoklama kaydedilemedi'));
+      setError(e?.message || t('attendanceSaveFailed'));
+      alert('❌ ' + t('errorOccurred') + ': ' + (e?.message || t('attendanceSaveFailed')));
     } finally {
       setSaving(false);
     }
@@ -139,23 +140,23 @@ const AttendanceScreen: React.FC<AttendanceScreenProps> = ({ navigate }) => {
   };
 
   const getStatusText = (status?: AttendanceStatus) => {
-    if (!status) return 'İşaretlenmedi';
+    if (!status) return t('unmarked');
     switch (status) {
-      case 'present': return 'Geldi';
-      case 'absent': return 'Gelmedi';
-      case 'late': return 'Geç Geldi';
-      case 'excused': return 'Mazeret';
+      case 'present': return t('present');
+      case 'absent': return t('absent');
+      case 'late': return t('late');
+      case 'excused': return t('excused');
     }
   };
 
   const classrooms = [...new Set(children.map(c => c.classroom).filter(Boolean))];
-  
+
   const filteredChildren = children.filter(child => {
     // Sınıf filtresi
     if (classroomFilter && child.classroom !== classroomFilter) {
       return false;
     }
-    
+
     // Durum filtresi
     if (statusFilter) {
       const childStatus = attendanceRecords.get(child.id);
@@ -163,7 +164,7 @@ const AttendanceScreen: React.FC<AttendanceScreenProps> = ({ navigate }) => {
         return childStatus === statusFilter;
       }
     }
-    
+
     return true;
   });
 
@@ -175,7 +176,7 @@ const AttendanceScreen: React.FC<AttendanceScreenProps> = ({ navigate }) => {
 
   const isToday = selectedDate === new Date().toISOString().split('T')[0];
 
-  if (loading) return <p className="text-gray-600">Yükleniyor...</p>;
+  if (loading) return <p className="text-gray-600">{t('loading')}</p>;
   if (error) return <p className="text-red-600 bg-red-50 p-3 rounded-lg">{error}</p>;
 
   return (
@@ -185,14 +186,14 @@ const AttendanceScreen: React.FC<AttendanceScreenProps> = ({ navigate }) => {
         <div className="flex items-center justify-between mb-4">
           <div>
             <h1 className="text-3xl font-bold flex items-center gap-3">
-              📋 Yoklama Sistemi
+              📋 {t('attendanceSystem')}
             </h1>
-            <p className="text-white/80 mt-1">Günlük devam takibi ve istatistikler</p>
+            <p className="text-white/80 mt-1">{t('dailyAttendanceTracking')}</p>
           </div>
           {stats && (
             <div className="bg-white/20 backdrop-blur-sm rounded-xl p-4 text-center">
               <div className="text-4xl font-bold">{stats.attendanceRate}%</div>
-              <div className="text-sm mt-1">Bu Ay Devam</div>
+              <div className="text-sm mt-1">{t('thisMonthAttendance')}</div>
             </div>
           )}
         </div>
@@ -201,50 +202,46 @@ const AttendanceScreen: React.FC<AttendanceScreenProps> = ({ navigate }) => {
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mt-4">
           <button
             onClick={() => setStatusFilter(statusFilter === 'present' ? null : 'present')}
-            className={`bg-white/10 backdrop-blur-sm rounded-lg p-3 text-center transition-all hover:bg-white/20 hover:scale-105 ${
-              statusFilter === 'present' ? 'ring-4 ring-white/50 scale-105' : ''
-            }`}
+            className={`bg-white/10 backdrop-blur-sm rounded-lg p-3 text-center transition-all hover:bg-white/20 hover:scale-105 ${statusFilter === 'present' ? 'ring-4 ring-white/50 scale-105' : ''
+              }`}
           >
             <div className="text-2xl font-bold">{presentCount}</div>
-            <div className="text-sm opacity-80">✅ Geldi</div>
+            <div className="text-sm opacity-80">✅ {t('present')}</div>
             {statusFilter === 'present' && (
-              <div className="text-xs mt-1 bg-white/30 rounded px-2 py-0.5 inline-block">Filtreleniyor</div>
+              <div className="text-xs mt-1 bg-white/30 rounded px-2 py-0.5 inline-block">{t('filtering')}</div>
             )}
           </button>
           <button
             onClick={() => setStatusFilter(statusFilter === 'absent' ? null : 'absent')}
-            className={`bg-white/10 backdrop-blur-sm rounded-lg p-3 text-center transition-all hover:bg-white/20 hover:scale-105 ${
-              statusFilter === 'absent' ? 'ring-4 ring-white/50 scale-105' : ''
-            }`}
+            className={`bg-white/10 backdrop-blur-sm rounded-lg p-3 text-center transition-all hover:bg-white/20 hover:scale-105 ${statusFilter === 'absent' ? 'ring-4 ring-white/50 scale-105' : ''
+              }`}
           >
             <div className="text-2xl font-bold">{absentCount}</div>
-            <div className="text-sm opacity-80">❌ Gelmedi</div>
+            <div className="text-sm opacity-80">❌ {t('absent')}</div>
             {statusFilter === 'absent' && (
-              <div className="text-xs mt-1 bg-white/30 rounded px-2 py-0.5 inline-block">Filtreleniyor</div>
+              <div className="text-xs mt-1 bg-white/30 rounded px-2 py-0.5 inline-block">{t('filtering')}</div>
             )}
           </button>
           <button
             onClick={() => setStatusFilter(statusFilter === 'late' ? null : 'late')}
-            className={`bg-white/10 backdrop-blur-sm rounded-lg p-3 text-center transition-all hover:bg-white/20 hover:scale-105 ${
-              statusFilter === 'late' ? 'ring-4 ring-white/50 scale-105' : ''
-            }`}
+            className={`bg-white/10 backdrop-blur-sm rounded-lg p-3 text-center transition-all hover:bg-white/20 hover:scale-105 ${statusFilter === 'late' ? 'ring-4 ring-white/50 scale-105' : ''
+              }`}
           >
             <div className="text-2xl font-bold">{lateCount}</div>
-            <div className="text-sm opacity-80">⏰ Geç</div>
+            <div className="text-sm opacity-80">⏰ {t('late')}</div>
             {statusFilter === 'late' && (
-              <div className="text-xs mt-1 bg-white/30 rounded px-2 py-0.5 inline-block">Filtreleniyor</div>
+              <div className="text-xs mt-1 bg-white/30 rounded px-2 py-0.5 inline-block">{t('filtering')}</div>
             )}
           </button>
           <button
             onClick={() => setStatusFilter(null)}
-            className={`bg-white/10 backdrop-blur-sm rounded-lg p-3 text-center transition-all hover:bg-white/20 hover:scale-105 ${
-              !statusFilter ? 'ring-4 ring-white/50 scale-105' : ''
-            }`}
+            className={`bg-white/10 backdrop-blur-sm rounded-lg p-3 text-center transition-all hover:bg-white/20 hover:scale-105 ${!statusFilter ? 'ring-4 ring-white/50 scale-105' : ''
+              }`}
           >
             <div className="text-2xl font-bold">{children.length}</div>
-            <div className="text-sm opacity-80">👥 Tümü</div>
+            <div className="text-sm opacity-80">👥 {t('allItems')}</div>
             {!statusFilter && (
-              <div className="text-xs mt-1 bg-white/30 rounded px-2 py-0.5 inline-block">Tüm Liste</div>
+              <div className="text-xs mt-1 bg-white/30 rounded px-2 py-0.5 inline-block">{t('fullList')}</div>
             )}
           </button>
         </div>
@@ -254,7 +251,7 @@ const AttendanceScreen: React.FC<AttendanceScreenProps> = ({ navigate }) => {
       <div className="bg-white rounded-xl shadow-md p-6 space-y-4">
         <div className="flex flex-wrap gap-4 items-end">
           <div className="flex-1 min-w-[200px]">
-            <label className="block text-sm font-semibold text-gray-700 mb-2">Tarih Seç</label>
+            <label className="block text-sm font-semibold text-gray-700 mb-2">{t('selectDate')}</label>
             <input
               type="date"
               value={selectedDate}
@@ -266,13 +263,13 @@ const AttendanceScreen: React.FC<AttendanceScreenProps> = ({ navigate }) => {
 
           {classrooms.length > 0 && (
             <div className="flex-1 min-w-[200px]">
-              <label className="block text-sm font-semibold text-gray-700 mb-2">Sınıf Filtrele</label>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">{t('filterClass')}</label>
               <select
                 value={classroomFilter}
                 onChange={(e) => setClassroomFilter(e.target.value)}
                 className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500"
               >
-                <option value="">Tüm Sınıflar</option>
+                <option value="">{t('allClasses')}</option>
                 {classrooms.map(cls => (
                   <option key={cls} value={cls}>{cls}</option>
                 ))}
@@ -283,18 +280,18 @@ const AttendanceScreen: React.FC<AttendanceScreenProps> = ({ navigate }) => {
 
         {/* Quick Actions */}
         <div className="flex flex-wrap gap-2 pt-4 border-t">
-          <span className="text-sm font-semibold text-gray-700 mr-2">Hızlı İşlem:</span>
+          <span className="text-sm font-semibold text-gray-700 mr-2">{t('quickAction')}:</span>
           <button
             onClick={() => handleQuickMarkAll('present')}
             className="px-3 py-1 bg-green-100 text-green-700 rounded-lg hover:bg-green-200 transition-all text-sm font-medium"
           >
-            ✅ Hepsini Geldi İşaretle
+            ✅ {t('markAllPresent')}
           </button>
           <button
             onClick={() => handleQuickMarkAll('absent')}
             className="px-3 py-1 bg-red-100 text-red-700 rounded-lg hover:bg-red-200 transition-all text-sm font-medium"
           >
-            ❌ Hepsini Gelmedi İşaretle
+            ❌ {t('markAllAbsent')}
           </button>
         </div>
       </div>
@@ -314,7 +311,7 @@ const AttendanceScreen: React.FC<AttendanceScreenProps> = ({ navigate }) => {
                 Filtre: {getStatusText(statusFilter)}
               </div>
               <div className="text-sm text-gray-600">
-                {filteredChildren.length} öğrenci gösteriliyor
+                {filteredChildren.length} {t('studentsShown')}
               </div>
             </div>
           </div>
@@ -322,7 +319,7 @@ const AttendanceScreen: React.FC<AttendanceScreenProps> = ({ navigate }) => {
             onClick={() => setStatusFilter(null)}
             className="px-4 py-2 bg-white hover:bg-gray-50 text-gray-700 rounded-lg border-2 border-gray-300 font-medium transition-all hover:shadow-md"
           >
-            🔄 Filtreyi Temizle
+            🔄 {t('clearFilter')}
           </button>
         </div>
       )}
@@ -334,7 +331,7 @@ const AttendanceScreen: React.FC<AttendanceScreenProps> = ({ navigate }) => {
             {statusFilter ? '🔍' : '👦'}
           </span>
           <p className="text-gray-600 font-medium">
-            {statusFilter 
+            {statusFilter
               ? `"${getStatusText(statusFilter)}" durumunda öğrenci bulunamadı.`
               : 'Hiç çocuk bulunamadı.'}
           </p>
@@ -343,7 +340,7 @@ const AttendanceScreen: React.FC<AttendanceScreenProps> = ({ navigate }) => {
               onClick={() => setStatusFilter(null)}
               className="mt-4 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-all"
             >
-              Tüm Listeyi Göster
+              {t('showAll')}
             </button>
           )}
         </div>
@@ -354,9 +351,9 @@ const AttendanceScreen: React.FC<AttendanceScreenProps> = ({ navigate }) => {
             <div className="flex items-center gap-3">
               <span className="text-lg">👥</span>
               <div>
-                <div className="font-bold text-gray-900">Öğrenci Listesi</div>
+                <div className="font-bold text-gray-900">{t('studentList')}</div>
                 <div className="text-sm text-gray-600">
-                  {filteredChildren.length} öğrenci gösteriliyor
+                  {filteredChildren.length} {t('studentsShown')}
                   {statusFilter && ` (${getStatusText(statusFilter)})`}
                 </div>
               </div>
@@ -366,20 +363,20 @@ const AttendanceScreen: React.FC<AttendanceScreenProps> = ({ navigate }) => {
                 onClick={() => setStatusFilter(null)}
                 className="text-sm px-3 py-1 bg-white hover:bg-gray-50 text-gray-700 rounded-lg border border-gray-300 transition-all"
               >
-                Tümünü Göster
+                {t('showAllList')}
               </button>
             )}
           </div>
-          
+
           <div className="overflow-x-auto">
             <table className="w-full">
               <thead className="bg-gradient-to-r from-gray-50 to-gray-100">
                 <tr>
-                  <th className="px-6 py-4 text-left text-sm font-bold text-gray-900">Fotoğraf</th>
-                  <th className="px-6 py-4 text-left text-sm font-bold text-gray-900">Ad Soyad</th>
-                  <th className="px-6 py-4 text-left text-sm font-bold text-gray-900">Sınıf</th>
-                  <th className="px-6 py-4 text-center text-sm font-bold text-gray-900">Durum</th>
-                  <th className="px-6 py-4 text-center text-sm font-bold text-gray-900">İşlem</th>
+                  <th className="px-6 py-4 text-left text-sm font-bold text-gray-900">{t('photo')}</th>
+                  <th className="px-6 py-4 text-left text-sm font-bold text-gray-900">{t('nameSurname')}</th>
+                  <th className="px-6 py-4 text-left text-sm font-bold text-gray-900">{t('classroom')}</th>
+                  <th className="px-6 py-4 text-center text-sm font-bold text-gray-900">{t('status')}</th>
+                  <th className="px-6 py-4 text-center text-sm font-bold text-gray-900">{t('action')}</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200">
@@ -462,7 +459,7 @@ const AttendanceScreen: React.FC<AttendanceScreenProps> = ({ navigate }) => {
             disabled={saving || attendanceRecords.size === 0}
             className="px-8 py-4 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-xl shadow-2xl hover:shadow-3xl hover:scale-105 transition-all font-bold text-lg disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
           >
-            {saving ? '💾 Kaydediliyor...' : '💾 Yoklamayı Kaydet'}
+            {saving ? '💾 ' + t('savingAttendance') : '💾 ' + t('saveAttendance')}
           </button>
         </div>
       )}

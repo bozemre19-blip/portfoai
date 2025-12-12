@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { useAuth } from '../App';
 import { supabase } from '../services/supabase';
 import { askTeacherAssistant, addChatMessage, createChatThread, getChatMessages, listChatThreads, updateChatThread, deleteChatThread } from '../services/api';
+import { t, getDateLocale } from '../constants.clean';
 
 type Msg = { role: 'user' | 'assistant' | 'system'; content: string; at: string };
 type Thread = { id: string; title: string; mode: 'general' | 'class' | 'child'; classroom?: string | null; child_id?: string | null; updated_at: string };
@@ -137,7 +138,7 @@ const TeacherChat: React.FC<{ navigate: (page: string, params?: any) => void; ch
 
     const handleDelete = async (thr: Thread, e: React.MouseEvent) => {
       e.stopPropagation();
-      if (!confirm(`"${thr.title}" sohbetini silmek istiyor musunuz?`)) return;
+      if (!confirm(`"${thr.title}" ${t('confirmDeleteChat')}`)) return;
       try {
         await deleteChatThread(thr.id);
         // If deleting active thread, reset
@@ -157,17 +158,17 @@ const TeacherChat: React.FC<{ navigate: (page: string, params?: any) => void; ch
         <aside className="md:col-span-4 lg:col-span-3">
           <div className="bg-white rounded-lg shadow p-3 h-[70vh] flex flex-col">
             <div className="flex items-center justify-between mb-2">
-              <h2 className="font-semibold">Sohbetler</h2>
-              <button className="text-primary text-sm hover:underline" onClick={newChat}>Yeni Sohbet</button>
+              <h2 className="font-semibold">{t('chats')}</h2>
+              <button className="text-primary text-sm hover:underline" onClick={newChat}>{t('newChat')}</button>
             </div>
             <div className="overflow-y-auto divide-y flex-1">
-              {loadingThreads ? (<div className="text-sm text-gray-500 p-2">Yükleniyor…</div>) : (
+              {loadingThreads ? (<div className="text-sm text-gray-500 p-2">{t('loading')}</div>) : (
                 threads.length === 0 ? (
-                  <div className="text-sm text-gray-500 p-2">Henüz sohbet yok.</div>
+                  <div className="text-sm text-gray-500 p-2">{t('noChatYet')}</div>
                 ) : (
-                  threads.map(t => (
-                    <div key={t.id} className={`relative group ${activeThread?.id === t.id ? 'bg-gray-100' : ''}`}>
-                      {editingThreadId === t.id ? (
+                  threads.map(thr => (
+                    <div key={thr.id} className={`relative group ${activeThread?.id === thr.id ? 'bg-gray-100' : ''}`}>
+                      {editingThreadId === thr.id ? (
                         <div className="p-2 flex items-center gap-1" onClick={(e) => e.stopPropagation()}>
                           <input
                             type="text"
@@ -186,26 +187,26 @@ const TeacherChat: React.FC<{ navigate: (page: string, params?: any) => void; ch
                       ) : (
                         <button
                           className="w-full text-left p-2 hover:bg-gray-50"
-                          onClick={() => loadThreadMessages(t)}
+                          onClick={() => loadThreadMessages(thr)}
                         >
-                          <div className="text-sm font-medium truncate pr-12">{t.title}</div>
-                          <div className="text-[11px] text-gray-500">{new Date(t.updated_at).toLocaleString('tr-TR')}</div>
+                          <div className="text-sm font-medium truncate pr-12">{thr.title}</div>
+                          <div className="text-[11px] text-gray-500">{new Date(thr.updated_at).toLocaleString(getDateLocale())}</div>
                         </button>
                       )}
                       {/* Action buttons - visible on hover */}
-                      {editingThreadId !== t.id && (
+                      {editingThreadId !== thr.id && (
                         <div className="absolute right-1 top-1 opacity-0 group-hover:opacity-100 transition-opacity flex gap-1">
                           <button
-                            onClick={(e) => handleEditStart(t, e)}
+                            onClick={(e) => handleEditStart(thr, e)}
                             className="p-1 text-gray-500 hover:text-blue-600 text-xs"
-                            title="Düzenle"
+                            title={t('edit')}
                           >
                             ✏️
                           </button>
                           <button
-                            onClick={(e) => handleDelete(t, e)}
+                            onClick={(e) => handleDelete(thr, e)}
                             className="p-1 text-gray-500 hover:text-red-600 text-xs"
-                            title="Sil"
+                            title={t('delete')}
                           >
                             🗑️
                           </button>
@@ -222,38 +223,38 @@ const TeacherChat: React.FC<{ navigate: (page: string, params?: any) => void; ch
         {/* Chat area */}
         <div className="md:col-span-8 lg:col-span-9">
           <div className="flex items-center justify-between mb-4">
-            <h1 className="text-2xl font-bold text-gray-900">Yapay Zekâ Asistanı</h1>
-            <button className="text-primary hover:underline" onClick={() => navigate('dashboard')}>Ana sayfa</button>
+            <h1 className="text-2xl font-bold text-gray-900">{t('aiAssistant')}</h1>
+            <button className="text-primary hover:underline" onClick={() => navigate('dashboard')}>{t('dashboard')}</button>
           </div>
 
           <div className="bg-white rounded-lg shadow p-4 mb-4">
             <div className="flex flex-wrap items-end gap-3">
               <div className="flex items-center gap-2">
-                <label className="inline-flex items-center gap-1 text-sm"><input type="radio" checked={mode === 'general'} onChange={() => setMode('general')} /> Genel</label>
-                <label className="inline-flex items-center gap-1 text-sm"><input type="radio" checked={mode === 'class'} onChange={() => setMode('class')} /> Sınıf</label>
-                <label className="inline-flex items-center gap-1 text-sm"><input type="radio" checked={mode === 'child'} onChange={() => setMode('child')} /> Çocuk</label>
+                <label className="inline-flex items-center gap-1 text-sm"><input type="radio" checked={mode === 'general'} onChange={() => setMode('general')} /> {t('general')}</label>
+                <label className="inline-flex items-center gap-1 text-sm"><input type="radio" checked={mode === 'class'} onChange={() => setMode('class')} /> {t('classroom')}</label>
+                <label className="inline-flex items-center gap-1 text-sm"><input type="radio" checked={mode === 'child'} onChange={() => setMode('child')} /> {t('child')}</label>
               </div>
               {mode === 'class' && (
                 <select value={selClass || ''} onChange={(e) => setSelClass(e.target.value)} className="border rounded px-2 py-1 text-sm">
-                  <option value="">Sınıf seçin…</option>
+                  <option value="">{t('selectClass')}</option>
                   {classrooms.map((c) => <option key={c} value={c}>{c}</option>)}
                 </select>
               )}
               {mode === 'child' && (
                 <select value={selChild || ''} onChange={(e) => setSelChild(e.target.value)} className="border rounded px-2 py-1 text-sm min-w-[200px]">
-                  <option value="">Çocuk seçin…</option>
+                  <option value="">{t('selectChild')}</option>
                   {children.map((c) => <option key={c.id} value={c.id}>{c.first_name} {c.last_name}</option>)}
                 </select>
               )}
-              <div className="text-xs text-gray-500 ml-auto">Not: Tıbbi tanı koymaz; pratik sınıf içi öneriler sunar.</div>
+              <div className="text-xs text-gray-500 ml-auto">{t('noteDisclaimer')}</div>
             </div>
           </div>
 
           <div className="bg-white rounded-lg shadow p-4 h-[60vh] overflow-y-auto">
             {loadingMsgs ? (
-              <div className="text-gray-500">Yükleniyor…</div>
+              <div className="text-gray-500">{t('loading')}</div>
             ) : history.length === 0 ? (
-              <p className="text-gray-500">Sorunuzu yazın. Örn: "3-4 yaş grubu için ince motoru güçlendiren etkinlik önerir misin?"</p>) : (
+              <p className="text-gray-500">{t('askAnything')}</p>) : (
               <ul className="space-y-3">
                 {history.map((m, idx) => (
                   <li key={idx} className={`max-w-[85%] ${m.role === 'user' ? 'ml-auto' : ''}`}>

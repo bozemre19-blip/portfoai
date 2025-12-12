@@ -1,7 +1,7 @@
 ﻿import React, { useEffect, useMemo, useState } from 'react';
 import { getObservationsForChild, deleteObservation, getMediaForChild, getSignedUrlForMedia } from '../services/api';
 import type { Observation, Assessment, DevelopmentDomain, Media } from '../types';
-import { DEVELOPMENT_DOMAINS, t } from '../constants.clean';
+import { getDomains, t } from '../constants.clean';
 
 type ObsItem = Observation & { assessments: Assessment | null };
 
@@ -26,7 +26,7 @@ const RiskPill: React.FC<{ risk?: string | null }> = ({ risk }) => {
 
 const DomainPill: React.FC<{ name: string }> = ({ name }) => (
   <span className="inline-block px-2 py-0.5 rounded-full text-xs bg-blue-50 text-blue-700 border border-blue-100">
-    {DEVELOPMENT_DOMAINS[name as DevelopmentDomain] || name}
+    {getDomains()[name as DevelopmentDomain] || name}
   </span>
 );
 
@@ -71,7 +71,7 @@ const ChildObservationsScreen: React.FC<Props> = ({ childId, navigate }) => {
     })();
   }, [childId]);
 
-  const domainKeys = useMemo(() => Object.keys(DEVELOPMENT_DOMAINS) as DevelopmentDomain[], []);
+  const domainKeys = useMemo(() => Object.keys(getDomains()) as DevelopmentDomain[], []);
 
   const filtered = useMemo(() => {
     const q = search.trim().toLocaleLowerCase('tr-TR');
@@ -200,7 +200,7 @@ const ChildObservationsScreen: React.FC<Props> = ({ childId, navigate }) => {
                 {domainKeys.map((d) => (
                   <label key={d} className="flex items-center gap-2 text-sm">
                     <input type="checkbox" checked={selected.has(d)} onChange={() => toggleDomain(d)} />
-                    <span>{DEVELOPMENT_DOMAINS[d]}</span>
+                    <span>{getDomains()[d]}</span>
                   </label>
                 ))}
               </div>
@@ -224,7 +224,7 @@ const ChildObservationsScreen: React.FC<Props> = ({ childId, navigate }) => {
             return (
               <div key={d} className="mb-5">
                 <div className="flex items-center gap-2 mb-2">
-                  <h3 className="text-sm font-semibold text-gray-700">{DEVELOPMENT_DOMAINS[d]}</h3>
+                  <h3 className="text-sm font-semibold text-gray-700">{getDomains()[d]}</h3>
                   <span className="text-xs text-gray-500">({list.length})</span>
                 </div>
                 <div className="space-y-3">

@@ -4,7 +4,7 @@ import { supabase } from '../services/supabase';
 import type { Child, Assessment, Guardian } from '../types';
 import { getObservationsForChild, getMediaForChild, updateChild, uploadChildPhoto, getAiAnalysis, addAssessmentForObservation, getSignedUrlForMedia } from '../services/api';
 import { generatePdf } from './PdfReport';
-import { t, DEVELOPMENT_DOMAINS } from '../constants.clean';
+import { t, getDomains, getLanguage, getDateLocale } from '../constants.clean';
 import { useAuth } from '../App';
 import { ChildForm } from './ChildForm';
 import GoalsSection from './GoalsSection';
@@ -60,18 +60,18 @@ const computeRiskFromAssessment = (a: any, noteText?: string): Risk | undefined 
   let m = now.getMonth() - birth.getMonth();
   if (now.getDate() < birth.getDate()) m--;
   if (m < 0) { y--; m += 12; }
-  return `${y} yıl, ${m} ay`;
+  return getLanguage() === 'tr' ? `${y} yıl, ${m} ay` : `${y} yr, ${m} mo`;
 };
 
 const formatDate = (isoDate?: string): string => {
   if (!isoDate) return '—';
-  try { return new Intl.DateTimeFormat('tr-TR', { day: '2-digit', month: 'long', year: 'numeric' }).format(new Date(isoDate)); }
+  try { return new Intl.DateTimeFormat(getDateLocale(), { day: '2-digit', month: 'long', year: 'numeric' }).format(new Date(isoDate)); }
   catch { return '—'; }
 };
 
 const formatDateTime = (isoDate?: string): string => {
   if (!isoDate) return '—';
-  try { return new Intl.DateTimeFormat('tr-TR', { day: '2-digit', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' }).format(new Date(isoDate)); }
+  try { return new Intl.DateTimeFormat(getDateLocale(), { day: '2-digit', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' }).format(new Date(isoDate)); }
   catch { return '—'; }
 };
 
@@ -107,11 +107,11 @@ const Badge: React.FC<{ children: React.ReactNode; className?: string }> = ({ ch
 
 const RiskBadge: React.FC<{ risk?: Risk }> = ({ risk }) => {
   const map: Record<Risk, { label: string; className: string }> = {
-    low: { label: 'Düşük Risk', className: 'bg-green-100 text-green-700 ring-green-600/20' },
-    medium: { label: 'Orta Risk', className: 'bg-amber-100 text-amber-700 ring-amber-600/20' },
-    high: { label: 'Yüksek Risk', className: 'bg-red-100 text-red-700 ring-red-600/20' },
+    low: { label: t('lowRisk'), className: 'bg-green-100 text-green-700 ring-green-600/20' },
+    medium: { label: t('mediumRisk'), className: 'bg-amber-100 text-amber-700 ring-amber-600/20' },
+    high: { label: t('highRisk'), className: 'bg-red-100 text-red-700 ring-red-600/20' },
   };
-  const conf = risk ? map[risk] : { label: 'Belirsiz', className: 'bg-gray-100 text-gray-700 ring-gray-600/20' };
+  const conf = risk ? map[risk] : { label: t('unknown'), className: 'bg-gray-100 text-gray-700 ring-gray-600/20' };
   return <Badge className={conf.className}>{conf.label}</Badge>;
 };
 
@@ -150,7 +150,7 @@ const InfoRow: React.FC<{ label: string; value?: string | React.ReactNode }> = (
 );
 
 const TagList: React.FC<{ tags?: string[] }> = ({ tags }) => {
-  if (!tags || tags.length === 0) return <p className="text-sm text-gray-500 italic">Henüz eklenmedi.</p>;
+  if (!tags || tags.length === 0) return <p className="text-sm text-gray-500 italic">{t('notAddedYet')}</p>;
   return (
     <div className="flex flex-wrap gap-2">
       {tags.map((tag, index) => (
@@ -188,7 +188,7 @@ const ChildProfileCard: React.FC<ChildProfileCardProps> = ({ data, onAddObservat
           <div className="relative">
             <Avatar photoUrl={data.photoUrl} firstName={data.firstName} lastName={data.lastName} />
             <label className="absolute -bottom-2 right-0 bg-gray-900 border border-gray-700 rounded-md px-2 py-1 text-xs shadow cursor-pointer hover:bg-gray-800 text-white transition-colors">
-              Fotoğrafı Değiştir
+              {t('changePhoto')}
               <input type="file" accept="image/*" className="hidden" onChange={(e) => { if (e.target.files && e.target.files[0]) onChangePhoto(e.target.files[0]); }} />
             </label>
           </div>
@@ -196,18 +196,18 @@ const ChildProfileCard: React.FC<ChildProfileCardProps> = ({ data, onAddObservat
             <h1 className="text-3xl md:text-4xl font-bold text-gray-900">{data.firstName} {data.lastName}</h1>
             <div className="mt-3 flex flex-wrap justify-center sm:justify-start gap-2">
               <Badge className="bg-gray-100 text-gray-700 ring-gray-600/20">{calculateAge(data.dob)}</Badge>
-              {data.classroom && <Badge className="bg-gray-100 text-gray-700 ring-gray-600/20">Sınıf: {data.classroom}</Badge>}
-              <Badge className="bg-gray-100 text-gray-700 ring-gray-600/20">Veli Onayı: {data.consentObtained ? 'Var' : 'Bekliyor'}</Badge>
+              {data.classroom && <Badge className="bg-gray-100 text-gray-700 ring-gray-600/20">{t('classroom')}: {data.classroom}</Badge>}
+              <Badge className="bg-gray-100 text-gray-700 ring-gray-600/20">{t('parentalConsent')}: {data.consentObtained ? t('consentYes') : t('consentPending')}</Badge>
               {/* RiskBadge removed per user request */}
             </div>
           </div>
           <div className="flex-shrink-0 flex flex-col sm:items-end gap-2 w-full sm:w-auto">
             <div className="flex gap-2 w-full sm:w-auto">
               <button onClick={() => onAddObservation(data.id)} className="w-full sm:w-auto flex items-center justify-center gap-2 px-4 py-2 bg-primary text-white rounded-md shadow-sm hover:bg-primary/90 transition-colors">
-                <PlusIcon className="w-5 h-5" /> Gözlem Ekle
+                <PlusIcon className="w-5 h-5" /> {t('addObservation')}
               </button>
               <button onClick={() => onOpenMedia && onOpenMedia()} className="w-full sm:w-auto flex items-center justify-center gap-2 px-4 py-2 bg-primary text-white rounded-md shadow-sm hover:bg-primary/90 transition-colors">
-                Ürünler
+                {t('products')}
               </button>
             </div>
             <div className="flex gap-2 w-full sm:w-auto">
@@ -217,8 +217,8 @@ const ChildProfileCard: React.FC<ChildProfileCardProps> = ({ data, onAddObservat
               <button onClick={onEdit} aria-label="Çocuk profilini {t('edit')}" className="flex-1 sm:flex-auto px-3 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 transition-colors">
                 {t('edit')}
               </button>
-              <button onClick={onRefreshInsights} aria-label="Yapay Zekâ analizini yenile" className="flex-1 sm:flex-auto px-3 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 transition-colors">
-                Yenile
+              <button onClick={onRefreshInsights} aria-label="Yapay Zeka analizini yenile" className="flex-1 sm:flex-auto px-3 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 transition-colors">
+                {t('refresh')}
               </button>
             </div>
           </div>
@@ -227,9 +227,9 @@ const ChildProfileCard: React.FC<ChildProfileCardProps> = ({ data, onAddObservat
 
       {/* İstatistik barı */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-2 px-4 sm:px-0">
-        <StatCard label="Toplam Gözlem" value={data.stats?.observations ?? '—'} onClick={() => onOpenObservations && onOpenObservations()} />
-        <StatCard label="Ürün/Medya Sayısı" value={data.stats?.products ?? '—'} onClick={() => onOpenMedia && onOpenMedia()} />
-        <StatCard label="Son Gözlem" value={formatDate(data.lastObservationAt)} />
+        <StatCard label={t('totalObservations')} value={data.stats?.observations ?? '—'} onClick={() => onOpenObservations && onOpenObservations()} />
+        <StatCard label={t('mediaCount')} value={data.stats?.products ?? '—'} onClick={() => onOpenMedia && onOpenMedia()} />
+        <StatCard label={t('lastObservation')} value={formatDate(data.lastObservationAt)} />
       </div>
       <div className="h-4 bg-gradient-to-b from-gray-100 to-transparent rounded-b-lg mb-6" />
     </div>
@@ -310,24 +310,36 @@ const ChildDetailScreen: React.FC<ChildDetailScreenProps> = ({ childId, navigate
       const topDomains = Object.entries(domainCounts)
         .sort((a, b) => b[1] - a[1])
         .slice(0, 2)
-        .map(([k]) => DEVELOPMENT_DOMAINS[k as keyof typeof DEVELOPMENT_DOMAINS] || k);
+        .map(([k]) => getDomains()[k] || k);
 
       const low = counts.low; const med = counts.medium; const high = counts.high;
 
-      // Risk cümlesi (Daha yumuşak bir dille)
-      const riskPhrase = high > 0
-        ? 'belirli beceri alanlarında ek destek ihtiyacı sinyalleri mevcut'
-        : med > 0
-          ? 'gelişim sürecinde izlenmesi gereken alanlar var'
-          : 'beceri edinimi beklenen seyrinde ilerliyor';
+      // Risk phrase (bilingual)
+      const riskPhrase = getLanguage() === 'en'
+        ? (high > 0
+          ? 'signals indicate additional support needed in certain skill areas'
+          : med > 0
+            ? 'there are areas to monitor during development'
+            : 'skill acquisition is progressing as expected')
+        : (high > 0
+          ? 'belirli beceri alanlarında ek destek ihtiyacı sinyalleri mevcut'
+          : med > 0
+            ? 'gelişim sürecinde izlenmesi gereken alanlar var'
+            : 'beceri edinimi beklenen seyrinde ilerliyor');
 
-      // Alan cümlesi
-      const domainPhrase = topDomains.length > 0
-        ? `yapılan gözlemler ağırlıklı olarak **${topDomains.join('** ve **')}** üzerine yoğunlaşmıştır`
-        : 'gözlem alanları dengeli bir dağılım göstermektedir';
+      // Domain phrase (bilingual)
+      const domainPhrase = getLanguage() === 'en'
+        ? (topDomains.length > 0
+          ? `observations are primarily focused on **${topDomains.join('** and **')}**`
+          : 'observation areas show a balanced distribution')
+        : (topDomains.length > 0
+          ? `yapılan gözlemler ağırlıklı olarak **${topDomains.join('** ve **')}** üzerine yoğunlaşmıştır`
+          : 'gözlem alanları dengeli bir dağılım göstermektedir');
 
-      // Final Özet (Markdown yıldızlarını kaldırdım, düzgün görünsün)
-      const aiSummary = `GENEL DURUM: Son ${n} gözlem verisine göre, ${domainPhrase}. SÜREÇ ANALİZİ: ${riskPhrase}.`;
+      // Final Summary (bilingual)
+      const aiSummary = getLanguage() === 'en'
+        ? `GENERAL STATUS: Based on the last ${n} observation data, ${domainPhrase}. PROGRESS ANALYSIS: ${riskPhrase}.`
+        : `GENEL DURUM: Son ${n} gözlem verisine göre, ${domainPhrase}. SÜREÇ ANALİZİ: ${riskPhrase}.`;
 
       const data: ChildProfileData = {
         id: childData.id,
@@ -457,40 +469,40 @@ const ChildDetailScreen: React.FC<ChildDetailScreenProps> = ({ childId, navigate
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
         {/* Sol */}
         <div className="lg:col-span-5 flex flex-col gap-6">
-          <Section title="Temel Bilgiler" onEdit={() => setIsEditModalOpen(true)}>
-            <InfoRow label="Ad Soyad" value={`${profileData.firstName} ${profileData.lastName}`} />
-            <InfoRow label="Doğum Tarihi" value={formatDate(profileData.dob)} />
-            <InfoRow label="Yaş" value={calculateAge(profileData.dob)} />
-            <InfoRow label="Sınıf" value={profileData.classroom || '—'} />
-            <InfoRow label="Kayıt Tarihi" value={formatDate(profileData.enrolledAt)} />
+          <Section title={t('basicInfo')} onEdit={() => setIsEditModalOpen(true)}>
+            <InfoRow label={t('nameSurname')} value={`${profileData.firstName} ${profileData.lastName}`} />
+            <InfoRow label={t('dob')} value={formatDate(profileData.dob)} />
+            <InfoRow label={t('age')} value={calculateAge(profileData.dob)} />
+            <InfoRow label={t('classroom')} value={profileData.classroom || '—'} />
+            <InfoRow label={t('enrollmentDate')} value={formatDate(profileData.enrolledAt)} />
           </Section>
-          <Section title="İlgi Alanları">
+          <Section title={t('interestsSection')}>
             <TagList tags={profileData.interests} />
           </Section>
-          <Section title="Güçlü Yönler">
+          <Section title={t('strengthsSection')}>
             <TagList tags={profileData.strengths} />
           </Section>
         </div>
         {/* Sağ */}
         <div className="lg:col-span-7 flex flex-col gap-6">
-          <Section title="Veli ve İletişim Bilgileri">
+          <Section title={t('guardiansSection')}>
             {profileData.guardians && profileData.guardians.length > 0 ? (
               <div className="space-y-3">{profileData.guardians.map((g, i) => <GuardianCard key={i} guardian={g} />)}</div>
             ) : (
-              <p className="text-sm text-gray-500 italic">Veli bilgisi eklenmemiş.</p>
+              <p className="text-sm text-gray-500 italic">{t('noGuardiansAdded')}</p>
             )}
           </Section>
-          <Section title="Sağlık Bilgileri">
+          <Section title={t('healthInfo')}>
             <div>
-              <h4 className="font-semibold text-gray-700">Alerjiler</h4>
+              <h4 className="font-semibold text-gray-700">{t('allergies')}</h4>
               <TagList tags={(profileData.health?.allergies as any) || []} />
             </div>
             <div>
-              <h4 className="font-semibold text-gray-700">Önemli Notlar</h4>
+              <h4 className="font-semibold text-gray-700">{t('importantNotes')}</h4>
               <p className="text-sm text-gray-600 mt-1">{profileData.health?.notes || '—'}</p>
             </div>
           </Section>
-          <Section title="Yapay Zekâ Öngörüleri">
+          <Section title={t('aiInsights')}>
             {profileData.aiSummary && (
               <div className="mb-4 p-3 bg-indigo-50 border border-indigo-100 rounded-md shadow-sm ai-summary-container">
                 <p className="text-sm text-indigo-900 leading-relaxed font-medium">{profileData.aiSummary}</p>

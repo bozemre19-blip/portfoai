@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Goal, GoalStatus, GoalPriority, DevelopmentDomain } from '../types';
 import { getGoalsByChild, createGoal, updateGoal, deleteGoal } from '../services/api';
-import { DEVELOPMENT_DOMAINS } from '../constants.clean';
+import { getDomains, t, getDateLocale } from '../constants.clean';
 
 interface GoalsSectionProps {
   childId: string;
@@ -34,7 +34,7 @@ const GoalsSection: React.FC<GoalsSectionProps> = ({ childId, userId }) => {
       const data = await getGoalsByChild(childId);
       setGoals(data);
     } catch (e: any) {
-      setError(e?.message || 'Hedefler yüklenemedi');
+      setError(e?.message || t('goalsLoadError'));
     } finally {
       setLoading(false);
     }
@@ -103,10 +103,10 @@ const GoalsSection: React.FC<GoalsSectionProps> = ({ childId, userId }) => {
 
   const getStatusText = (status: GoalStatus) => {
     switch (status) {
-      case 'completed': return '✅ Tamamlandı';
-      case 'in_progress': return '🔄 Devam Ediyor';
-      case 'not_started': return '⏸️ Başlamadı';
-      case 'cancelled': return '❌ İptal Edildi';
+      case 'completed': return `✅ ${t('statusCompleted')}`;
+      case 'in_progress': return `🔄 ${t('statusInProgress')}`;
+      case 'not_started': return `⏸️ ${t('statusNotStarted')}`;
+      case 'cancelled': return `❌ ${t('statusCancelled')}`;
     }
   };
 
@@ -120,13 +120,13 @@ const GoalsSection: React.FC<GoalsSectionProps> = ({ childId, userId }) => {
 
   const getPriorityText = (priority: GoalPriority) => {
     switch (priority) {
-      case 'high': return '🔴 Yüksek';
-      case 'medium': return '🟡 Orta';
-      case 'low': return '🟢 Düşük';
+      case 'high': return `🔴 ${t('priorityHigh')}`;
+      case 'medium': return `🟡 ${t('priorityMedium')}`;
+      case 'low': return `🟢 ${t('priorityLow')}`;
     }
   };
 
-  if (loading) return <p className="text-gray-600">Hedefler yükleniyor...</p>;
+  if (loading) return <p className="text-gray-600">{t('goalsLoading')}</p>;
   if (error) return <p className="text-red-600 bg-red-50 p-3 rounded-lg">{error}</p>;
 
   return (
@@ -134,62 +134,62 @@ const GoalsSection: React.FC<GoalsSectionProps> = ({ childId, userId }) => {
       {/* Header */}
       <div className="flex items-center justify-between">
         <h3 className="text-xl font-bold text-gray-900 flex items-center gap-2">
-          🎯 Gelişim Hedefleri
+          🎯 {t('developmentGoals')}
           <span className="text-sm font-normal text-gray-500">({goals.length})</span>
         </h3>
         <button
           onClick={() => setShowAddForm(!showAddForm)}
           className="px-4 py-2 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-lg hover:shadow-lg transition-all text-sm font-medium"
         >
-          {showAddForm ? '❌ İptal' : '➕ Hedef Ekle'}
+          {showAddForm ? `❌ ${t('cancel')}` : `➕ ${t('addGoal')}`}
         </button>
       </div>
 
       {/* Add Form */}
       {showAddForm && (
         <div className="bg-gradient-to-r from-indigo-50 to-purple-50 p-6 rounded-xl border-2 border-indigo-200 space-y-4 goal-add-form-container">
-          <h4 className="font-bold text-indigo-900">Yeni Hedef Ekle</h4>
+          <h4 className="font-bold text-indigo-900">{t('addNewGoal')}</h4>
 
           <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-1">Hedef Başlığı *</label>
+            <label className="block text-sm font-semibold text-gray-700 mb-1">{t('goalTitle')} *</label>
             <input
               type="text"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              placeholder="Örn: 10 kelime öğrenme"
+              placeholder={t('goalTitlePlaceholder')}
               className="w-full px-4 py-2 border-2 border-indigo-200 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-white text-gray-900"
             />
           </div>
 
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-1">Gelişim Alanı *</label>
+              <label className="block text-sm font-semibold text-gray-700 mb-1">{t('developmentArea')} *</label>
               <select
                 value={domain}
                 onChange={(e) => setDomain(e.target.value as DevelopmentDomain)}
                 className="w-full px-4 py-2 border-2 border-indigo-200 rounded-lg focus:ring-2 focus:ring-indigo-500 bg-white text-gray-900"
               >
-                {Object.entries(DEVELOPMENT_DOMAINS).map(([key, label]) => (
+                {Object.entries(getDomains()).map(([key, label]) => (
                   <option key={key} value={key}>{label}</option>
                 ))}
               </select>
             </div>
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-1">Öncelik *</label>
+              <label className="block text-sm font-semibold text-gray-700 mb-1">{t('priority')} *</label>
               <select
                 value={priority}
                 onChange={(e) => setPriority(e.target.value as GoalPriority)}
                 className="w-full px-4 py-2 border-2 border-indigo-200 rounded-lg focus:ring-2 focus:ring-indigo-500 bg-white text-gray-900"
               >
-                <option value="low">🟢 Düşük</option>
-                <option value="medium">🟡 Orta</option>
-                <option value="high">🔴 Yüksek</option>
+                <option value="low">🟢 {t('priorityLow')}</option>
+                <option value="medium">🟡 {t('priorityMedium')}</option>
+                <option value="high">🔴 {t('priorityHigh')}</option>
               </select>
             </div>
           </div>
 
           <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-1">Hedef Tarihi</label>
+            <label className="block text-sm font-semibold text-gray-700 mb-1">{t('targetDate')}</label>
             <input
               type="date"
               value={targetDate}
@@ -199,11 +199,11 @@ const GoalsSection: React.FC<GoalsSectionProps> = ({ childId, userId }) => {
           </div>
 
           <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-1">Açıklama</label>
+            <label className="block text-sm font-semibold text-gray-700 mb-1">{t('descriptionLabel')}</label>
             <textarea
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              placeholder="Hedef hakkında detaylı açıklama..."
+              placeholder={t('descriptionPlaceholder')}
               rows={3}
               className="w-full px-4 py-2 border-2 border-indigo-200 rounded-lg focus:ring-2 focus:ring-indigo-500 bg-white text-gray-900"
             />
@@ -214,13 +214,13 @@ const GoalsSection: React.FC<GoalsSectionProps> = ({ childId, userId }) => {
               onClick={handleAddGoal}
               className="flex-1 px-4 py-2 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-lg hover:shadow-lg transition-all font-medium"
             >
-              ✅ Kaydet
+              ✅ {t('save')}
             </button>
             <button
               onClick={resetForm}
               className="px-4 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 transition-all"
             >
-              İptal
+              {t('cancel')}
             </button>
           </div>
         </div>
@@ -230,8 +230,8 @@ const GoalsSection: React.FC<GoalsSectionProps> = ({ childId, userId }) => {
       {goals.length === 0 ? (
         <div className="text-center py-12 bg-gray-50 rounded-xl border-2 border-dashed border-gray-300">
           <span className="text-6xl mb-4 block">🎯</span>
-          <p className="text-gray-600 font-medium">Henüz hedef belirlenmemiş.</p>
-          <p className="text-sm text-gray-500 mt-1">Yukarıdaki butondan yeni hedef ekleyebilirsiniz.</p>
+          <p className="text-gray-600 font-medium">{t('noGoalsYet')}</p>
+          <p className="text-sm text-gray-500 mt-1">{t('addGoalHint')}</p>
         </div>
       ) : (
         <div className="grid grid-cols-1 gap-4">
@@ -251,11 +251,11 @@ const GoalsSection: React.FC<GoalsSectionProps> = ({ childId, userId }) => {
                       {getPriorityText(goal.priority)}
                     </span>
                     <span className="text-xs px-3 py-1 rounded-full font-semibold bg-purple-100 text-purple-800">
-                      📚 {DEVELOPMENT_DOMAINS[goal.domain]}
+                      📚 {getDomains()[goal.domain]}
                     </span>
                     {goal.target_date && (
                       <span className="text-xs px-3 py-1 rounded-full font-semibold bg-blue-100 text-blue-800">
-                        📅 {new Date(goal.target_date).toLocaleDateString('tr-TR')}
+                        📅 {new Date(goal.target_date).toLocaleDateString(getDateLocale())}
                       </span>
                     )}
                   </div>

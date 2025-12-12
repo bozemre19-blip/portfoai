@@ -30,7 +30,7 @@ async function handler(req: Request) {
   }
 
   try {
-    const { observationNote, domains } = await req.json();
+    const { observationNote, domains, language = 'tr' } = await req.json();
 
     if (!observationNote || !domains || !Array.isArray(domains) || domains.length === 0) {
       return new Response(JSON.stringify({ error: 'observationNote and domains are required.' }), {
@@ -41,7 +41,7 @@ async function handler(req: Request) {
 
     // Prefer OpenAI if key is present; otherwise fall back to Gemini; otherwise fallback static
     if (OPENAI_API_KEY) {
-      const assessment = await analyzeWithOpenAI(OPENAI_API_KEY, observationNote, domains);
+      const assessment = await analyzeWithOpenAI(OPENAI_API_KEY, observationNote, domains, language);
       return new Response(JSON.stringify({ assessment }), {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         status: 200,
@@ -49,7 +49,7 @@ async function handler(req: Request) {
     }
 
     if (API_KEY) {
-      const assessment = await analyzeWithGemini(API_KEY, observationNote, domains);
+      const assessment = await analyzeWithGemini(API_KEY, observationNote, domains, language);
       return new Response(JSON.stringify({ assessment }), {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         status: 200,
@@ -58,7 +58,7 @@ async function handler(req: Request) {
 
     // No keys: return deterministic fallback
     console.warn("No OPENAI_API_KEY or API_KEY provided. Using fallback analysis.");
-    const fallbackAssessment = createFallbackAssessment(observationNote, domains);
+    const fallbackAssessment = createFallbackAssessment(observationNote, domains, language);
     return new Response(JSON.stringify({ assessment: fallbackAssessment }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       status: 200,
@@ -66,7 +66,7 @@ async function handler(req: Request) {
 
   } catch (error) {
     console.error(error);
-    const fallbackAssessment = createFallbackAssessment("AI service failed.", ["cognitive"]);
+    const fallbackAssessment = createFallbackAssessment("AI service failed.", ["cognitive"], 'tr');
     return new Response(JSON.stringify({ assessment: fallbackAssessment, error: (error as Error).message }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       status: 500,
@@ -75,7 +75,42 @@ async function handler(req: Request) {
 }
 
 // Maarif Model Enhanced System Prompt (Skill & Outcome Based - 2024 Program)
-const getMaarifSystemPrompt = () => `
+const getMaarifSystemPrompt = (language: string) => {
+  if (language === 'en') {
+    return `
+You are an educational assistant specialized in the 'Turkey Century Maarif Model Pre-School Education Program' (2024).
+Your analyses should ONLY follow the new program structure (7 Core Areas). DO NOT use old program terms.
+
+**STRICTLY PROHIBITED TERMS (NEVER use these):**
+- "Cognitive Development" (USE INSTEAD: Mathematics or Science Area)
+- "Motor Development" (USE INSTEAD: Movement and Health Area)
+- "Self-Care" (USE INSTEAD: Movement and Health or Social Area)
+- "Acquisition" and "Indicator" (USE INSTEAD: Learning Outcome)
+- "Developmental Areas" (USE INSTEAD: Skill Areas)
+
+**1. VALID SKILL AREAS (Only reference these):**
+*   **Turkish Language Area:** (Listening, Speaking, Vocabulary, Early Literacy)
+*   **Mathematics Area:** (Mathematical Relationships, Numbers, Operations, Geometry, Data)
+*   **Science Area:** (Scientific Process, Living Things, Earth and Universe, Matter and Energy)
+*   **Social Area:** (Self, Social-Emotional, Cultural Heritage, Life Knowledge)
+*   **Movement and Health Area:** (Physical Activity, Healthy Living, Safety)
+*   **Art Area:** (Visual Arts, Aesthetics)
+*   **Music Area:** (Auditory Perception, Musical Expression)
+
+**2. INTEGRATED SKILLS (Highlight if present):**
+*   **Conceptual Skills**
+*   **Social-Emotional Learning (SEL)**
+*   **Values** (Justice, Friendship, Honesty, Patience, Respect, Love, Responsibility, Patriotism, Helpfulness)
+
+**Analysis Format:**
+- Interpret the child's action in the context of **"Learning Outcome"**.
+- Instead of "developmental delay", use **"Process components that need support"**.
+- In the summary, indicate which **Skill Area** the child has acquired or is in process of acquiring.
+
+Respond ONLY in English and in the specified JSON format.`;
+  }
+
+  return `
 Sen 'Türkiye Yüzyılı Maarif Modeli Okul Öncesi Eğitim Programı' (2024) konusunda uzmanlaşmış bir eğitim asistanısın.
 Analizlerini SADECE programın yeni yapısına (7 Temel Alan) göre yapmalısın. Eski program terimlerini KULLANMA.
 
@@ -106,11 +141,18 @@ Analizlerini SADECE programın yeni yapısına (7 Temel Alan) göre yapmalısın
 - Özet kısmında; çocuğun hangi **Alan Becerisini** edindiğini veya süreçte olduğunu belirt.
 
 Yanıtı SADECE Türkçe ve belirtilen JSON formatında ver.`;
+};
 
 // Analyze with OpenAI (Chat Completions)
-async function analyzeWithOpenAI(apiKey: string, observationNote: string, domains: string[]) {
-  const system = getMaarifSystemPrompt();
-  const prompt = `Aşağıdaki öğretmen gözlem notunu Maarif Modeli (Beceri ve Çıktı Temelli) perspektifiyle analiz et. Alanlar: ${domains.join(", ")}.\n\nGözlem Notu: "${observationNote}"\n\nSadece Türkçe bir JSON döndür: { summary: string, domain_scores: { [domain]: 1..5 }, risk: 'low'|'medium'|'high', suggestions: string[3] }. Bir alan değerlendirilemiyorsa o alanı atla. JSON dışında hiçbir metin yazma.`;
+async function analyzeWithOpenAI(apiKey: string, observationNote: string, domains: string[], language: string) {
+  const system = getMaarifSystemPrompt(language);
+  const langInstruction = language === 'en'
+    ? 'Return ONLY an English JSON'
+    : 'Sadece Türkçe bir JSON döndür';
+  const prompt = language === 'en'
+    ? `Analyze the following teacher observation note from the Maarif Model (Skill and Outcome Based) perspective. Areas: ${domains.join(", ")}.\n\nObservation Note: "${observationNote}"\n\n${langInstruction}: { summary: string, domain_scores: { [domain]: 1..5 }, risk: 'low'|'medium'|'high', suggestions: string[3] }. If an area cannot be evaluated, skip it. Do not write any text other than JSON.`
+    : `Aşağıdaki öğretmen gözlem notunu Maarif Modeli (Beceri ve Çıktı Temelli) perspektifiyle analiz et. Alanlar: ${domains.join(", ")}.\n\nGözlem Notu: "${observationNote}"\n\n${langInstruction}: { summary: string, domain_scores: { [domain]: 1..5 }, risk: 'low'|'medium'|'high', suggestions: string[3] }. Bir alan değerlendirilemiyorsa o alanı atla. JSON dışında hiçbir metin yazma.`;
+
   const body = {
     model: "gpt-4o-mini",
     temperature: 0.5,
@@ -140,9 +182,14 @@ async function analyzeWithOpenAI(apiKey: string, observationNote: string, domain
 }
 
 // Analyze with Gemini via REST API (tries multiple model/version combos)
-async function analyzeWithGemini(apiKey: string, observationNote: string, domains: string[]) {
-  const system = getMaarifSystemPrompt();
-  const prompt = `Öğretmen gözlem notunu Maarif Modeli (Beceri ve Çıktı Temelli) perspektifiyle analiz et. Alanlar: ${domains.join(', ')}.\n\nGözlem Notu: "${observationNote}"\n\nSadece Türkçe bir JSON döndür: { summary: string, domain_scores: { [domain]: 1..5 }, risk: 'low'|'medium'|'high', suggestions: string[3] }. Bir alan değerlendirilemiyorsa o alanı atla. JSON dışında hiçbir şey yazma.`;
+async function analyzeWithGemini(apiKey: string, observationNote: string, domains: string[], language: string) {
+  const system = getMaarifSystemPrompt(language);
+  const langInstruction = language === 'en'
+    ? 'Return ONLY an English JSON'
+    : 'Sadece Türkçe bir JSON döndür';
+  const prompt = language === 'en'
+    ? `Analyze the teacher observation note from the Maarif Model (Skill and Outcome Based) perspective. Areas: ${domains.join(', ')}.\n\nObservation Note: "${observationNote}"\n\n${langInstruction}: { summary: string, domain_scores: { [domain]: 1..5 }, risk: 'low'|'medium'|'high', suggestions: string[3] }. If an area cannot be evaluated, skip it. Do not write anything other than JSON.`
+    : `Öğretmen gözlem notunu Maarif Modeli (Beceri ve Çıktı Temelli) perspektifiyle analiz et. Alanlar: ${domains.join(', ')}.\n\nGözlem Notu: "${observationNote}"\n\n${langInstruction}: { summary: string, domain_scores: { [domain]: 1..5 }, risk: 'low'|'medium'|'high', suggestions: string[3] }. Bir alan değerlendirilemiyorsa o alanı atla. JSON dışında hiçbir şey yazma.`;
 
   const body = {
     system_instruction: { role: 'system', parts: [{ text: system }] },
@@ -180,7 +227,19 @@ async function analyzeWithGemini(apiKey: string, observationNote: string, domain
 }
 
 // Fallback function for when AI service is unavailable
-function createFallbackAssessment(note: string, domains: string[]) {
+function createFallbackAssessment(note: string, domains: string[], language: string) {
+  if (language === 'en') {
+    return {
+      summary: `This is a standard response generated when the AI service is unavailable. Observation note: "${note}"`,
+      domain_scores: domains.reduce((acc, domain) => ({ ...acc, [domain]: 3 }), {}),
+      risk: 'low',
+      suggestions: [
+        'Spend one-on-one time with the child to discover their interests.',
+        'Encourage language development by asking open-ended questions.',
+        'Create opportunities for positive social interactions with peers.',
+      ],
+    };
+  }
   return {
     summary: `Bu, yapay zeka servisi kullanılamadığında oluşturulan standart bir yanıttır. Gözlem notu: "${note}"`,
     domain_scores: domains.reduce((acc, domain) => ({ ...acc, [domain]: 3 }), {}),

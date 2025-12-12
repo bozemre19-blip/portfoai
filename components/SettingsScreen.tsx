@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { useAuth } from '../App';
 import { supabase } from '../services/supabase';
-import { t } from '../constants.clean';
+import { t, getLanguage, setLanguage, Language } from '../constants.clean';
 import { seedDemoData, removeDemoData, recomputeAssessmentsForUser, getChildren, exportChildData } from '../services/api';
 import { manualSync } from '../services/syncService';
 import { getOfflineQueue } from '../services/api/common';
@@ -22,7 +22,7 @@ const SettingsScreen: React.FC = () => {
   const [obsPerChild, setObsPerChild] = useState(7);
   const [mediaPerChild, setMediaPerChild] = useState(2);
   const [classCount, setClassCount] = useState(2);
-  const defaultClassNames = ['Sınıf A', 'Sınıf B', 'Sınıf C', 'Sınıf D', 'Sınıf E'];
+  const defaultClassNames = ['Class A', 'Class B', 'Class C', 'Class D', 'Class E'];
   const [classNames, setClassNames] = useState<string[]>(defaultClassNames);
   const [removing, setRemoving] = useState(false);
   const [removeMsg, setRemoveMsg] = useState('');
@@ -34,6 +34,7 @@ const SettingsScreen: React.FC = () => {
   const [syncing, setSyncing] = useState(false);
   const [syncMsg, setSyncMsg] = useState('');
   const [offlineQueueCount, setOfflineQueueCount] = useState(0);
+  const [currentLang, setCurrentLang] = useState<Language>(getLanguage());
 
   // Offline queue sayısını güncelle
   React.useEffect(() => {
@@ -47,6 +48,13 @@ const SettingsScreen: React.FC = () => {
 
     return () => window.removeEventListener('datachanged', updateCount);
   }, []);
+
+  const handleLanguageChange = (lang: Language) => {
+    setLanguage(lang);
+    setCurrentLang(lang);
+    // Reload the page to apply language changes
+    window.location.reload();
+  };
 
   const handleSaveProfile = async () => {
     setSaving(true);
@@ -81,7 +89,7 @@ const SettingsScreen: React.FC = () => {
       const queue = getOfflineQueue();
       setOfflineQueueCount(queue.length);
     } catch (e: any) {
-      setSyncMsg('❌ Senkronizasyon sırasında hata oluştu: ' + (e?.message || 'Bilinmeyen hata'));
+      setSyncMsg('❌ ' + t('syncError') + ': ' + (e?.message || t('errorOccurred')));
     } finally {
       setSyncing(false);
     }
@@ -92,6 +100,28 @@ const SettingsScreen: React.FC = () => {
       <h1 className="text-3xl font-bold text-gray-900">{t('settings')}</h1>
 
       <div className="mt-8 space-y-8">
+        {/* Language Selection */}
+        <div className="bg-white p-6 rounded-lg shadow">
+          <h2 className="text-xl font-semibold text-gray-800">{t('language')}</h2>
+          <p className="text-gray-600 mb-3">
+            {t('changeLanguageDesc')}
+          </p>
+          <div className="mt-4 flex gap-3">
+            <button
+              onClick={() => handleLanguageChange('tr')}
+              className={`px-4 py-2 rounded-lg font-medium transition ${currentLang === 'tr' ? 'bg-primary text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'}`}
+            >
+              🇹🇷 Türkçe
+            </button>
+            <button
+              onClick={() => handleLanguageChange('en')}
+              className={`px-4 py-2 rounded-lg font-medium transition ${currentLang === 'en' ? 'bg-primary text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'}`}
+            >
+              🇬🇧 English
+            </button>
+          </div>
+        </div>
+
         <div className="bg-white p-6 rounded-lg shadow space-y-4">
           <h2 className="text-xl font-semibold text-gray-800">{t('profile')}</h2>
           <p className="text-gray-600"><strong>{t('emailLabel')}:</strong> {user?.email}</p>
@@ -154,26 +184,26 @@ const SettingsScreen: React.FC = () => {
         </div>
 
         <div className="bg-white p-6 rounded-lg shadow">
-          <h2 className="text-xl font-semibold text-gray-800">Demo Verisi Oluştur</h2>
-          <p className="mt-2 text-gray-600">Mevcut hesabınıza örnek sınıf, çocuk, gözlem ve ürün fotoğrafları ekler.</p>
+          <h2 className="text-xl font-semibold text-gray-800">{t('createDemoData')}</h2>
+          <p className="mt-2 text-gray-600">{t('demoDataDesc')}</p>
           <div className="mt-4 grid grid-cols-1 sm:grid-cols-3 gap-3">
             <div>
-              <div className="text-sm text-gray-700">Sınıf sayısı (1–5)</div>
+              <div className="text-sm text-gray-700">{t('classCount')}</div>
               <input type="number" className="border rounded px-2 py-1 w-full" min={1} max={5} value={classCount} onChange={(e) => {
                 const v = Math.max(1, Math.min(5, parseInt(e.target.value || '0') || 0));
                 setClassCount(v);
               }} />
             </div>
             <div>
-              <div className="text-sm text-gray-700">Sınıf başına çocuk</div>
+              <div className="text-sm text-gray-700">{t('childrenPerClass')}</div>
               <input type="number" className="border rounded px-2 py-1 w-full" min={1} max={30} value={childrenPerClass} onChange={(e) => setChildrenPerClass(parseInt(e.target.value || '0') || 0)} />
             </div>
             <div>
-              <div className="text-sm text-gray-700">Çocuk başına gözlem</div>
+              <div className="text-sm text-gray-700">{t('obsPerChild')}</div>
               <input type="number" className="border rounded px-2 py-1 w-full" min={1} max={15} value={obsPerChild} onChange={(e) => setObsPerChild(parseInt(e.target.value || '0') || 0)} />
             </div>
             <div>
-              <div className="text-sm text-gray-700">Çocuk başına ürün</div>
+              <div className="text-sm text-gray-700">{t('mediaPerChild')}</div>
               <input type="number" className="border rounded px-2 py-1 w-full" min={1} max={8} value={mediaPerChild} onChange={(e) => setMediaPerChild(parseInt(e.target.value || '0') || 0)} />
             </div>
           </div>
@@ -221,9 +251,9 @@ const SettingsScreen: React.FC = () => {
                 } finally { setSeeding(false); }
               }}
             >
-              {seeding ? 'Oluşturuluyor...' : 'Demo Verisini Oluştur'}
+              {seeding ? t('creating') : t('createDemoBtn')}
             </button>
-            <span className="text-xs text-gray-500">Not: İşlem internet hızına göre zaman alabilir.</span>
+            <span className="text-xs text-gray-500">{t('demoNote')}</span>
           </div>
           <div className="mt-4 flex items-center gap-2">
             <button
@@ -241,7 +271,7 @@ const SettingsScreen: React.FC = () => {
                 } finally { setRemoving(false); }
               }}
             >
-              {removing ? 'Kaldırılıyor...' : 'Demo Verisini Geri Al'}
+              {removing ? t('removing') : t('removeDemoBtn')}
             </button>
             {removeMsg && <span className="text-xs text-gray-600">{removeMsg}</span>}
           </div>
@@ -264,8 +294,8 @@ const SettingsScreen: React.FC = () => {
         </div>
 
         <div className="bg-white p-6 rounded-lg shadow">
-          <h2 className="text-xl font-semibold text-gray-800">Yapay Zekâ Öngörüleri</h2>
-          <p className="mt-2 text-gray-600">Hesabınızdaki gözlemler için eksik/yer tutucu (fallback) analizleri yeniden oluşturur.</p>
+          <h2 className="text-xl font-semibold text-gray-800">{t('aiInsights')}</h2>
+          <p className="mt-2 text-gray-600">{t('aiInsightsDesc')}</p>
           {recomputeMsg && <p className="mt-2 text-sm text-gray-600">{recomputeMsg}</p>}
           <div className="mt-3 flex gap-2">
             <button
@@ -282,7 +312,7 @@ const SettingsScreen: React.FC = () => {
                 } finally { setRecomputing(false); }
               }}
             >
-              {recomputing ? 'Oluşturuluyor...' : 'Tüm Çocuklar İçin Yeniden Oluştur'}
+              {recomputing ? t('creating') : t('recomputeBtn')}
             </button>
           </div>
         </div>
@@ -294,17 +324,17 @@ const SettingsScreen: React.FC = () => {
             className="flex items-center gap-2 text-sm text-gray-500 hover:text-gray-700 transition-colors"
           >
             <span className="text-xs">⚙️</span>
-            <span className="font-medium">Gelişmiş İşlemler</span>
+            <span className="font-medium">{t('advancedOps')}</span>
             <span className="text-xs">{showAdvanced ? '▲' : '▼'}</span>
           </button>
 
           {showAdvanced && (
             <div className="mt-4 pt-4 border-t border-gray-200 space-y-4">
               <div>
-                <h3 className="text-sm font-semibold text-gray-700 mb-2">📊 Excele Aktar (CSV)</h3>
+                <h3 className="text-sm font-semibold text-gray-700 mb-2">📊 {t('exportToExcel')}</h3>
                 <p className="text-xs text-gray-500 mb-3">
-                  Tüm çocuk verilerinizi Excel formatında (CSV) dışa aktarın.
-                  Türkçe karakterler korunur, Excelde düzenleme ve analiz yapabilirsiniz.
+                  {t('exportDesc')}
+                  {' '}{t('exportNote')}
                 </p>
                 {exportMsg && <p className="text-xs text-gray-600 mb-2">{exportMsg}</p>}
                 <button
@@ -385,10 +415,10 @@ const SettingsScreen: React.FC = () => {
                   disabled={exportingJSON || !user}
                   className="px-3 py-1.5 text-xs bg-green-600 text-white rounded hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-medium"
                 >
-                  {exportingJSON ? '⏳ Hazırlanıyor...' : '📊 Excele Aktar'}
+                  {exportingJSON ? `⏳ ${t('preparing')}` : `📊 ${t('exportBtn')}`}
                 </button>
                 <p className="text-xs text-gray-400 mt-2 italic">
-                  * Tek bir CSV dosyası indirilecek, Excelde açılabilir.
+                  {t('exportCsvNote')}
                 </p>
               </div>
             </div>

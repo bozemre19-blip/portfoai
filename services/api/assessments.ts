@@ -1,14 +1,16 @@
 import { supabase } from '../supabase';
 import type { Assessment, DevelopmentDomain, RiskLevel } from '../../types';
 import { dispatchDataChangedEvent } from './common';
+import { getLanguage } from '../../constants.clean';
 
 // Gözlem notunu AI ile analiz et
 export const getAiAnalysis = async (
   observationNote: string,
   domains: DevelopmentDomain[]
 ): Promise<Assessment> => {
+  const language = getLanguage();
   const { data, error } = await supabase.functions.invoke('ai_evaluate', {
-    body: { observationNote, domains },
+    body: { observationNote, domains, language },
   });
   if (error) throw error;
   return data.assessment as Assessment;
@@ -187,6 +189,7 @@ export const getClassAiSuggestions = async (
   }
 
   // AI için özet oluştur
+  const language = getLanguage();
   const domains = Array.from(domainSet);
   const topDomainLines = Object.entries(domainCounts)
     .sort((a, b) => b[1] - a[1])
@@ -195,7 +198,16 @@ export const getClassAiSuggestions = async (
   const riskLine = `Low:${riskLow}, Medium:${riskMed}, High:${riskHigh}`;
   const suggestionsList = suggestionPool.map((s) => `- ${s}`).join('\n');
 
-  const aggregateText = [
+  const aggregateText = language === 'en' ? [
+    `Class Summary (last ${days} days):`,
+    `Risk Distribution: ${riskLine}`,
+    `Area Distribution:\n${topDomainLines || '-'}`,
+    '',
+    'Individual Student Suggestions List (AI should SUMMARIZE this to class level):',
+    suggestionsList || '- No data',
+    '',
+    'Instruction: Analyze these individual student suggestions, remove duplicates, merge themes and create a list of 6-10 actionable suggestions applicable at the class level. Write short, actionable sentences. Speak only at the class level, do not mention individuals. OUTPUT should be JSON (summary, suggestions).',
+  ].join('\n') : [
     `Sınıf Özeti (son ${days} gün):`,
     `Risk Dağılımı: ${riskLine}`,
     `Alan Dağılımı:\n${topDomainLines || '-'}`,
@@ -208,7 +220,7 @@ export const getClassAiSuggestions = async (
 
   try {
     const { data: aiData, error: aiError } = await supabase.functions.invoke('ai_evaluate', {
-      body: { observationNote: aggregateText, domains },
+      body: { observationNote: aggregateText, domains, language },
     });
     if (aiError) throw aiError;
 

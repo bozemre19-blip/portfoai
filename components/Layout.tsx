@@ -2,7 +2,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { supabase } from '../services/supabase';
 import { useAuth } from '../App';
-import { t } from '../constants.clean';
+import { t, getDateLocale } from '../constants.clean';
 import {
   HomeIcon,
   UsersIcon,
@@ -102,12 +102,12 @@ const Layout: React.FC<LayoutProps> = ({ children, navigate }) => {
     document.head.appendChild(style);
   }, []);
 
-  const navItems = [
+  const navigation = [
     { name: t('dashboard'), icon: HomeIcon, page: 'dashboard', color: 'blue' },
     { name: t('children'), icon: UsersIcon, page: 'children', color: 'green' },
-    { name: 'Sınıflar', icon: BuildingLibraryIcon, page: 'classes', color: 'purple' },
-    { name: 'Yoklama', icon: ClipboardDocumentCheckIcon, page: 'attendance', color: 'red' },
-    { name: 'Asistana bağlan', icon: ChatBubbleLeftRightIcon, page: 'teacher-chat', color: 'pink' },
+    { name: t('classes'), icon: BuildingLibraryIcon, page: 'classes', color: 'purple' },
+    { name: t('attendance'), icon: ClipboardDocumentCheckIcon, page: 'attendance', color: 'red' },
+    { name: t('aiAssistant'), icon: ChatBubbleLeftRightIcon, page: 'teacher-chat', color: 'pink' },
     { name: t('settings'), icon: Cog6ToothIcon, page: 'settings', color: 'orange' },
   ];
 
@@ -167,7 +167,7 @@ const Layout: React.FC<LayoutProps> = ({ children, navigate }) => {
           <DocumentTextIcon className="w-6 h-6 mr-3 group-hover:scale-110 transition-transform duration-200" />
           <span className="font-medium group-hover:translate-x-1 transition-transform duration-200">{t('gettingStarted') || 'Başlarken'}</span>
         </a>
-        {navItems.map((item) => {
+        {navigation.map((item) => {
           const colorClasses = theme === 'dark'
             ? 'hover:bg-[#1e2a47]'
             : ({
@@ -208,21 +208,21 @@ const Layout: React.FC<LayoutProps> = ({ children, navigate }) => {
       </nav>
       <div className={`p-4 border-t ${colors.footerBorder}`}>
         <div className="mb-3">
-          <div className={`text-xs mb-2 font-semibold ${theme === 'dark' ? 'text-gray-300' : 'text-gray-600'}`}>🎨 Tema</div>
+          <div className={`text-xs mb-2 font-semibold ${theme === 'dark' ? 'text-gray-300' : 'text-gray-600'}`}>🎨 {t('theme')}</div>
           <div className="flex gap-3">
             <button
               className={`flex-1 px-4 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 flex items-center justify-center gap-2 ${theme === 'light' ? 'bg-gradient-to-r from-blue-500 to-blue-600 text-white shadow-lg scale-105' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`}
               onClick={() => setTheme('light')}
             >
               <SunIcon className="w-5 h-5" />
-              <span className="text-xs font-semibold">Açık</span>
+              <span className="text-xs font-semibold">{t('lightTheme')}</span>
             </button>
             <button
               className={`flex-1 px-4 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 flex items-center justify-center gap-2 ${theme === 'dark' ? 'bg-gradient-to-r from-gray-700 to-gray-900 text-white shadow-lg scale-105' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`}
               onClick={() => setTheme('dark')}
             >
               <MoonIcon className="w-5 h-5" />
-              <span className="text-xs font-semibold">Koyu</span>
+              <span className="text-xs font-semibold">{t('darkTheme')}</span>
             </button>
           </div>
         </div>
@@ -284,18 +284,18 @@ const Layout: React.FC<LayoutProps> = ({ children, navigate }) => {
                   </div>
                   <div>
                     <h1 className="text-xl sm:text-2xl font-bold flex items-center gap-2 text-white">
-                      <span className="hidden sm:inline">Erken Çocukluk Gözlem Sistemi</span>
+                      <span className="hidden sm:inline">{t('earlyChildhoodSystem')}</span>
                       <span className="sm:hidden">PortfoAI</span>
                       <span className="text-xs font-normal px-2 py-1 rounded-lg bg-emerald-500/30 text-emerald-100">Beta</span>
                     </h1>
                     <p className="text-sm mt-1 text-slate-300">
-                      Hoş geldin, <span className="font-semibold text-white">{displayName}</span> 👋
+                      {t('welcomeBack')}, <span className="font-semibold text-white">{displayName}</span> 👋
                     </p>
                   </div>
                 </div>
                 <div className="hidden lg:flex items-center gap-3">
                   <div className="backdrop-blur-sm rounded-lg px-4 py-2 text-sm bg-white/5 text-slate-200 border border-emerald-500/20">
-                    <span className="opacity-70">Bugün:</span> <span className="font-bold text-white">{new Date().toLocaleDateString('tr-TR', { day: 'numeric', month: 'long', year: 'numeric' })}</span>
+                    <span className="opacity-70">{t('today')}:</span> <span className="font-bold text-white">{new Date().toLocaleDateString(getDateLocale(), { day: 'numeric', month: 'long', year: 'numeric' })}</span>
                   </div>
                 </div>
               </div>

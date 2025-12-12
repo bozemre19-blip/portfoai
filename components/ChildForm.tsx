@@ -8,17 +8,17 @@ import CameraCapture from './CameraCapture';
 import { CameraIcon, PhotoIcon, TrashIcon } from '@heroicons/react/24/outline';
 
 interface ChildFormProps {
-  onSave: (child: Partial<Child>) => void;
-  onCancel: () => void;
-  isSaving: boolean;
-  initialData?: Child | null;
-  formTitle: string;
+    onSave: (child: Partial<Child>) => void;
+    onCancel: () => void;
+    isSaving: boolean;
+    initialData?: Child | null;
+    formTitle: string;
 }
 
 export const ChildForm: React.FC<ChildFormProps> = ({ onSave, onCancel, isSaving, initialData, formTitle }) => {
     const { user } = useAuth();
     const [activeTab, setActiveTab] = useState('basic');
-    
+
     // States for all fields
     const [firstName, setFirstName] = useState('');
     const [lastName, setLastName] = useState('');
@@ -32,7 +32,7 @@ export const ChildForm: React.FC<ChildFormProps> = ({ onSave, onCancel, isSaving
     const [healthNotes, setHealthNotes] = useState('');
     const [interests, setInterests] = useState('');
     const [strengths, setStrengths] = useState('');
-    
+
     // Profil fotoğrafı için state'ler
     const [profilePhoto, setProfilePhoto] = useState<string | null>(null);
     const [showCamera, setShowCamera] = useState(false);
@@ -97,12 +97,12 @@ export const ChildForm: React.FC<ChildFormProps> = ({ onSave, onCancel, isSaving
         if (!file) return;
 
         if (!file.type.startsWith('image/')) {
-            alert('Lütfen geçerli bir resim dosyası seçin.');
+            alert(t('selectValidImage'));
             return;
         }
 
         if (file.size > 10 * 1024 * 1024) {
-            alert('Dosya boyutu çok büyük. Maksimum 10MB olmalıdır.');
+            alert(t('fileTooLarge'));
             return;
         }
 
@@ -129,7 +129,7 @@ export const ChildForm: React.FC<ChildFormProps> = ({ onSave, onCancel, isSaving
             notes: healthNotes,
         };
         if (!classroom) {
-            alert('Lütfen bir sınıf seçin. Önce Sınıflar sayfasından sınıf oluşturmanız gerekebilir.');
+            alert(t('selectClassFirst'));
             return;
         }
         onSave({
@@ -172,8 +172,8 @@ export const ChildForm: React.FC<ChildFormProps> = ({ onSave, onCancel, isSaving
                     <div className="space-y-4">
                         {/* Profil Fotoğrafı */}
                         <div className="bg-gradient-to-r from-blue-50 to-purple-50 border-2 border-blue-200 rounded-xl p-4">
-                            <label className="block text-sm font-medium text-gray-700 mb-3">📸 Profil Fotoğrafı</label>
-                            
+                            <label className="block text-sm font-medium text-gray-700 mb-3">📸 {t('profilePhoto')}</label>
+
                             {profilePhoto ? (
                                 <div className="flex items-start gap-4">
                                     <img
@@ -188,7 +188,7 @@ export const ChildForm: React.FC<ChildFormProps> = ({ onSave, onCancel, isSaving
                                             className="flex items-center justify-center gap-2 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-medium transition-all"
                                         >
                                             <CameraIcon className="h-5 w-5" />
-                                            Yeniden Çek
+                                            {t('retakePhoto')}
                                         </button>
                                         <button
                                             type="button"
@@ -196,7 +196,7 @@ export const ChildForm: React.FC<ChildFormProps> = ({ onSave, onCancel, isSaving
                                             className="flex items-center justify-center gap-2 px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg font-medium transition-all"
                                         >
                                             <TrashIcon className="h-5 w-5" />
-                                            Fotoğrafı Sil
+                                            {t('deletePhoto')}
                                         </button>
                                     </div>
                                 </div>
@@ -208,11 +208,11 @@ export const ChildForm: React.FC<ChildFormProps> = ({ onSave, onCancel, isSaving
                                         className="flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white rounded-lg font-medium shadow-lg transition-all"
                                     >
                                         <CameraIcon className="h-5 w-5" />
-                                        Kamera ile Çek
+                                        {t('takeWithCamera')}
                                     </button>
                                     <label className="flex items-center justify-center gap-2 px-6 py-3 bg-blue-50 hover:bg-blue-100 text-blue-700 border-2 border-blue-200 rounded-lg font-medium cursor-pointer transition-all">
                                         <PhotoIcon className="h-5 w-5" />
-                                        Dosyadan Yükle
+                                        {t('uploadFromFile')}
                                         <input
                                             type="file"
                                             accept="image/*"
@@ -225,38 +225,38 @@ export const ChildForm: React.FC<ChildFormProps> = ({ onSave, onCancel, isSaving
                         </div>
 
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <input type="text" placeholder={t('firstName')} value={firstName} onChange={e => setFirstName(e.target.value)} required className="p-2 border rounded w-full"/>
-                            <input type="text" placeholder={t('lastName')} value={lastName} onChange={e => setLastName(e.target.value)} required className="p-2 border rounded w-full"/>
+                            <input type="text" placeholder={t('firstName')} value={firstName} onChange={e => setFirstName(e.target.value)} required className="p-2 border rounded w-full" />
+                            <input type="text" placeholder={t('lastName')} value={lastName} onChange={e => setLastName(e.target.value)} required className="p-2 border rounded w-full" />
                         </div>
-                        <input type="date" placeholder={t('dob')} value={dob} onChange={e => setDob(e.target.value)} required className="p-2 border rounded w-full"/>
+                        <input type="date" placeholder={t('dob')} value={dob} onChange={e => setDob(e.target.value)} required className="p-2 border rounded w-full" />
                         <div>
-                          <label className="block text-sm text-gray-700 mb-1">Sınıf</label>
-                          <select value={classroom} onChange={e => setClassroom(e.target.value)} className="p-2 border rounded w-full" required>
-                            <option value="">— Sınıf Seçin —</option>
-                            {classOptions.map((c, i) => (
-                              <option key={i} value={c.name}>{c.name}</option>
-                            ))}
-                          </select>
-                          {(!loadingClasses && classOptions.length === 0) && (
-                            <p className="text-xs text-amber-700 mt-1">Önce Sınıflar sayfasından sınıf oluşturun.</p>
-                          )}
+                            <label className="block text-sm text-gray-700 mb-1">{t('classroom')}</label>
+                            <select value={classroom} onChange={e => setClassroom(e.target.value)} className="p-2 border rounded w-full" required>
+                                <option value="">— {t('selectClass')} —</option>
+                                {classOptions.map((c, i) => (
+                                    <option key={i} value={c.name}>{c.name}</option>
+                                ))}
+                            </select>
+                            {(!loadingClasses && classOptions.length === 0) && (
+                                <p className="text-xs text-amber-700 mt-1">{t('createClassFirst')}</p>
+                            )}
                         </div>
                         <div className="flex items-center">
-                            <input type="checkbox" id="consent" checked={consent} onChange={e => setConsent(e.target.checked)} className="h-4 w-4 text-primary border-gray-300 rounded"/>
+                            <input type="checkbox" id="consent" checked={consent} onChange={e => setConsent(e.target.checked)} className="h-4 w-4 text-primary border-gray-300 rounded" />
                             <label htmlFor="consent" className="ml-2 block text-sm text-gray-900">{t('parentalConsent')}</label>
                         </div>
                     </div>
                 )}
-                
+
                 {activeTab === 'guardians' && (
                     <div className="space-y-4">
                         {guardians.map((guardian, index) => (
                             <div key={guardian.id} className="p-3 border rounded-md space-y-2 relative">
                                 <button type="button" onClick={() => removeGuardian(index)} className="absolute top-2 right-2 text-red-500 hover:text-red-700 text-2xl font-bold leading-none">&times;</button>
-                                <input type="text" placeholder={t('guardianName')} value={guardian.name} onChange={e => handleGuardianChange(index, 'name', e.target.value)} className="p-2 border rounded w-full" required/>
-                                <input type="text" placeholder={t('guardianRelation')} value={guardian.relation} onChange={e => handleGuardianChange(index, 'relation', e.target.value)} className="p-2 border rounded w-full" required/>
-                                <input type="tel" placeholder={t('guardianPhone')} value={guardian.phone || ''} onChange={e => handleGuardianChange(index, 'phone', e.target.value)} className="p-2 border rounded w-full"/>
-                                <input type="email" placeholder={t('guardianEmail')} value={guardian.email || ''} onChange={e => handleGuardianChange(index, 'email', e.target.value)} className="p-2 border rounded w-full"/>
+                                <input type="text" placeholder={t('guardianName')} value={guardian.name} onChange={e => handleGuardianChange(index, 'name', e.target.value)} className="p-2 border rounded w-full" required />
+                                <input type="text" placeholder={t('guardianRelation')} value={guardian.relation} onChange={e => handleGuardianChange(index, 'relation', e.target.value)} className="p-2 border rounded w-full" required />
+                                <input type="tel" placeholder={t('guardianPhone')} value={guardian.phone || ''} onChange={e => handleGuardianChange(index, 'phone', e.target.value)} className="p-2 border rounded w-full" />
+                                <input type="email" placeholder={t('guardianEmail')} value={guardian.email || ''} onChange={e => handleGuardianChange(index, 'email', e.target.value)} className="p-2 border rounded w-full" />
                             </div>
                         ))}
                         <button type="button" onClick={addGuardian} className="px-4 py-2 text-sm bg-gray-100 rounded hover:bg-gray-200">{t('addGuardian')}</button>
@@ -264,19 +264,19 @@ export const ChildForm: React.FC<ChildFormProps> = ({ onSave, onCancel, isSaving
                 )}
 
                 {activeTab === 'health' && (
-                     <div className="space-y-4">
-                        <textarea placeholder={t('allergies')} value={allergies} onChange={e => setAllergies(e.target.value)} className="p-2 border rounded w-full" rows={3}/>
-                        <textarea placeholder={t('healthNotes')} value={healthNotes} onChange={e => setHealthNotes(e.target.value)} className="p-2 border rounded w-full" rows={4}/>
+                    <div className="space-y-4">
+                        <textarea placeholder={t('allergies')} value={allergies} onChange={e => setAllergies(e.target.value)} className="p-2 border rounded w-full" rows={3} />
+                        <textarea placeholder={t('healthNotes')} value={healthNotes} onChange={e => setHealthNotes(e.target.value)} className="p-2 border rounded w-full" rows={4} />
                     </div>
                 )}
-                
+
                 {activeTab === 'other' && (
-                     <div className="space-y-4">
-                        <textarea placeholder={t('interests')} value={interests} onChange={e => setInterests(e.target.value)} className="p-2 border rounded w-full" rows={3}/>
-                        <textarea placeholder={t('strengths')} value={strengths} onChange={e => setStrengths(e.target.value)} className="p-2 border rounded w-full" rows={3}/>
+                    <div className="space-y-4">
+                        <textarea placeholder={t('interests')} value={interests} onChange={e => setInterests(e.target.value)} className="p-2 border rounded w-full" rows={3} />
+                        <textarea placeholder={t('strengths')} value={strengths} onChange={e => setStrengths(e.target.value)} className="p-2 border rounded w-full" rows={3} />
                     </div>
                 )}
-                
+
                 <div className="flex justify-end space-x-2 pt-4">
                     <button type="button" onClick={onCancel} disabled={isSaving} className="px-4 py-2 bg-gray-200 rounded disabled:opacity-50">{t('cancel')}</button>
                     <button type="submit" disabled={isSaving} className="px-4 py-2 bg-primary text-white rounded disabled:bg-gray-400">

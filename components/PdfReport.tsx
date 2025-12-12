@@ -1,6 +1,7 @@
 import type { Child, Observation, Assessment, Media } from '../types';
+import { t, getLanguage, getDateLocale } from '../constants.clean';
 
-export type Risk = 'low'|'medium'|'high';
+export type Risk = 'low' | 'medium' | 'high';
 type ObsWithAssess = Observation & { assessments: Assessment | null };
 type MediaWithUrl = Media & { url?: string };
 
@@ -14,27 +15,29 @@ function escapeHtml(s?: string | null) {
     .replace(/'/g, '&#39;');
 }
 
-function fmtDateTR(v?: string) {
-  try { return new Intl.DateTimeFormat('tr-TR',{day:'2-digit',month:'long',year:'numeric'}).format(new Date(v!)); }
+function fmtDate(v?: string) {
+  const locale = getDateLocale();
+  try { return new Intl.DateTimeFormat(locale, { day: '2-digit', month: 'long', year: 'numeric' }).format(new Date(v!)); }
   catch { return '—'; }
 }
-function fmtDateTimeTR(v?: string) {
-  try { return new Intl.DateTimeFormat('tr-TR',{day:'2-digit',month:'long',year:'numeric',hour:'2-digit',minute:'2-digit'}).format(new Date(v!)); }
+function fmtDateTime(v?: string) {
+  const locale = getDateLocale();
+  try { return new Intl.DateTimeFormat(locale, { day: '2-digit', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' }).format(new Date(v!)); }
   catch { return '—'; }
 }
-function calcAgeTR(dobIso?: string) {
+function calcAge(dobIso?: string) {
   if (!dobIso) return '—';
-  const b = new Date(dobIso); const t = new Date();
-  let y = t.getFullYear() - b.getFullYear();
-  let m = t.getMonth() - b.getMonth();
-  if (t.getDate() < b.getDate()) m--;
+  const b = new Date(dobIso); const now = new Date();
+  let y = now.getFullYear() - b.getFullYear();
+  let m = now.getMonth() - b.getMonth();
+  if (now.getDate() < b.getDate()) m--;
   if (m < 0) { y--; m += 12; }
-  return `${y} yıl, ${m} ay`;
+  return `${y} ${t('pdfYears')}, ${m} ${t('pdfMonths')}`;
 }
 
 function riskBadge(r?: Risk) {
   if (!r) return `<span class="badge muted">—</span>`;
-  const label = r === 'low' ? 'Düşük' : r === 'medium' ? 'Orta' : 'Yüksek';
+  const label = r === 'low' ? t('priorityLow').replace(/🟢\s*/, '') : r === 'medium' ? t('priorityMedium').replace(/🟡\s*/, '') : t('priorityHigh').replace(/🔴\s*/, '');
   return `<span class="badge ${r}">${label}</span>`;
 }
 
@@ -46,31 +49,32 @@ function buildHtml(opts: {
   schoolName?: string;
 }) {
   const { child, observations, media = [], teacherName, schoolName } = opts;
+  const lang = getLanguage();
 
   const first = (child as any).first_name ?? (child as any).firstName ?? '';
-  const last  = (child as any).last_name  ?? (child as any).lastName  ?? '';
-  const dob   = (child as any).dob as string | undefined;
+  const last = (child as any).last_name ?? (child as any).lastName ?? '';
+  const dob = (child as any).dob as string | undefined;
   const classRoom = (child as any).classroom ?? (child as any).classRoom ?? '';
   const photo = (child as any).photo_url ?? (child as any).photoUrl;
 
   const headerRight = [
-    teacherName ? `Öğretmen: ${escapeHtml(teacherName)}` : null,
-    schoolName ? `Okul: ${escapeHtml(schoolName)}` : null,
-    `Rapor: ${fmtDateTR(new Date().toISOString())}`
+    teacherName ? `${t('pdfTeacher')}: ${escapeHtml(teacherName)}` : null,
+    schoolName ? `${t('pdfSchool')}: ${escapeHtml(schoolName)}` : null,
+    `${t('pdfReport')}: ${fmtDate(new Date().toISOString())}`
   ].filter(Boolean).join('  •  ');
 
   const avatar = photo
-    ? `<img class="avatar-img" src="${escapeHtml(photo)}" alt="Fotoğraf"/>`
-    : `<div class="avatar-fallback">${escapeHtml((first?.[0]||'').toLocaleUpperCase('tr-TR') + (last?.[0]||'').toLocaleUpperCase('tr-TR'))}</div>`;
+    ? `<img class="avatar-img" src="${escapeHtml(photo)}" alt="Photo"/>`
+    : `<div class="avatar-fallback">${escapeHtml((first?.[0] || '').toUpperCase() + (last?.[0] || '').toUpperCase())}</div>`;
 
   const mediaSection = media.length
     ? `<section class="card">
-        <h2 class="sec-title">Ürün / Medya</h2>
+        <h2 class="sec-title">${t('pdfProductMedia')}</h2>
         <div class="media-grid">
           ${media.map(m => (m as any)?.url ? `
             <figure class="media-item">
-              <img src="${escapeHtml((m as any).url)}" alt="medya"/>
-              ${ (m as any)['name'] ? `<figcaption>${escapeHtml(String((m as any)['name']))}</figcaption>` : '' }
+              <img src="${escapeHtml((m as any).url)}" alt="media"/>
+              ${(m as any)['name'] ? `<figcaption>${escapeHtml(String((m as any)['name']))}</figcaption>` : ''}
             </figure>
           ` : '').join('')}
         </div>
@@ -90,28 +94,28 @@ function buildHtml(opts: {
     return `
       <section class="card obs-card">
         <div class="obs-head">
-          <div class="obs-title">Gözlem</div>
+          <div class="obs-title">${t('pdfObservation')}</div>
           <div class="obs-meta">
-            <span class="obs-date">${fmtDateTimeTR(created)}</span>
+            <span class="obs-date">${fmtDateTime(created)}</span>
             ${riskBadge(a?.risk as Risk)}
           </div>
         </div>
 
         <div class="field">
-          <div class="field-title">Gözlem Notu</div>
+          <div class="field-title">${t('pdfObservationNote')}</div>
           <div class="field-body">${escapeHtml(note) || '—'}</div>
         </div>
 
         <div class="split">
           <div class="split-col">
             <div class="field">
-              <div class="field-title">Yapay Zekâ Özeti</div>
+              <div class="field-title">${t('pdfAiSummary')}</div>
               <div class="field-body">${summary}</div>
             </div>
           </div>
           <div class="split-col">
             <div class="field">
-              <div class="field-title">Öğretmene Öneriler</div>
+              <div class="field-title">${t('pdfSuggestions')}</div>
               <div class="field-body">${sugg}</div>
             </div>
           </div>
@@ -121,10 +125,10 @@ function buildHtml(opts: {
   }).join('\n');
 
   return `<!DOCTYPE html>
-<html lang="tr">
+<html lang="${lang}">
 <head>
   <meta charset="utf-8" />
-  <title>Gelişim Raporu</title>
+  <title>${t('pdfTitle')}</title>
   <style>
     @page { size: A4; margin: 16mm 14mm; }
     :root{
@@ -184,7 +188,7 @@ function buildHtml(opts: {
 </head>
 <body>
   <header class="header">
-    <h1 class="title">Gelişim Raporu</h1>
+    <h1 class="title">${t('pdfTitle')}</h1>
     <p class="subtitle">${headerRight}</p>
   </header>
 
@@ -194,14 +198,14 @@ function buildHtml(opts: {
       <div>
         <div class="child-name">${escapeHtml(first)} ${escapeHtml(last)}</div>
         <div class="meta">
-          <div class="label">Doğum:</div><div>${dob ? fmtDateTR(dob) : '—'} <span class="chip">Yaş: ${calcAgeTR(dob)}</span></div>
-          <div class="label">Sınıf:</div><div>${classRoom ? escapeHtml(classRoom) : '—'}</div>
+          <div class="label">${t('pdfBirth')}:</div><div>${dob ? fmtDate(dob) : '—'} <span class="chip">${t('pdfAge')}: ${calcAge(dob)}</span></div>
+          <div class="label">${t('pdfClass')}:</div><div>${classRoom ? escapeHtml(classRoom) : '—'}</div>
         </div>
       </div>
     </div>
   </section>
 
-  ${obsBlocks || `<section class="card"><div class="field-body muted">Gözlem bulunamadı.</div></section>`}
+  ${obsBlocks || `<section class="card"><div class="field-body muted">${t('pdfNoObservations')}</div></section>`}
 
   ${mediaSection}
 
@@ -227,4 +231,3 @@ export const generatePdf = async (
   win.document.write(html);
   win.document.close();
 };
-

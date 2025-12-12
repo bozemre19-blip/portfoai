@@ -17,62 +17,42 @@ const GettingStarted: React.FC<Props> = ({ navigate }) => {
     <div className="max-w-5xl mx-auto">
       <div className="mb-6">
         <h1 className="text-3xl font-bold text-gray-900">{t('gettingStarted')}</h1>
-        <p className="text-gray-600 mt-1">PortfoAI ile hızlı bir başlangıç yapmanız için kısa bir kullanım kılavuzu.</p>
+        <p className="text-gray-600 mt-1">{t('gettingStartedDesc')}</p>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <Card title="1) Sınıf Oluştur ve Çocuk Ekle">
-          <p>
-            Sol menüde <strong>Sınıflar</strong> bölümünden yeni sınıf oluşturun. Ardından <strong>Çocuklar</strong>
-            sayfasından her sınıfa çocuk kartları ekleyin. Çocuk bilgilerini daha sonra dilediğiniz gibi
-            güncelleyebilirsiniz.
-          </p>
+        <Card title={t('step1Title')}>
+          <p>{t('step1Desc')}</p>
           <div className="mt-3 flex gap-2">
-            <button className="px-3 py-1.5 rounded bg-primary text-white" onClick={() => navigate('classes')}>Sınıflar</button>
-            <button className="px-3 py-1.5 rounded bg-gray-200" onClick={() => navigate('children')}>Çocuklar</button>
+            <button className="px-3 py-1.5 rounded bg-primary text-white" onClick={() => navigate('classes')}>{t('classes')}</button>
+            <button className="px-3 py-1.5 rounded bg-gray-200" onClick={() => navigate('children')}>{t('children')}</button>
           </div>
         </Card>
 
-        <Card title="2) Gözlem Ekle ve Alanları Seç">
-          <p>
-            Bir çocuğun kartına girip <strong>Gözlem Ekle</strong> deyin. Davranışı kısa bir notla yazın,
-            gözlemin geçtiği <em>ortamı</em> ve ilgili <em>gelişim alanlarını</em> seçin. Kaydettikten sonra yapay zekâ
-            arka planda özeti ve önerileri hazırlar.
-          </p>
+        <Card title={t('step2Title')}>
+          <p>{t('step2Desc')}</p>
         </Card>
 
-        <Card title="3) Ürün/Medya Yükle (Portfolyo)">
-          <p>
-            Çocuğun sayfasındaki <strong>Medya</strong> sekmesinden ürün fotoğraflarını yükleyin. Her ürüne ad ve kısa bir
-            açıklama verin; isterseniz ilgili gelişim alanını seçin. Dosyalar güvenli olarak saklanır ve sınıf/rapor
-            görünümlerinde kullanılır.
-          </p>
+        <Card title={t('step3Title')}>
+          <p>{t('step3Desc')}</p>
         </Card>
 
-        <Card title="4) Rapor ve PDF Alma">
-          <p>
-            Çocuk veya sınıf sayfalarındaki <strong>Rapor</strong> bölümünden gelişim özetlerini görüntüleyebilir,
-            PDF olarak indirebilirsiniz. Yapay zekâ tarafından oluşturulan özetler karar desteği amaçlıdır; öğretmen
-            değerlendirmesi esastır.
-          </p>
+        <Card title={t('step4Title')}>
+          <p>{t('step4Desc')}</p>
         </Card>
 
-        <Card title="İpucu: Demo Veri ile Hızlı Keşif">
-          <p>
-            Uygulamayı danışmanınıza göstermek için örnek bir içerik seti oluşturabilirsiniz. <strong>Ayarlar → Demo Verisi
-              Oluştur</strong> butonuna tıklayın; iki sınıf, çocuklar, gözlemler ve örnek ürünler otomatik eklenir. Dilediğinizde
-            aynı bölümden <strong>Geri Al</strong> ile temizleyebilirsiniz.
-          </p>
+        <Card title={t('demoDataTip')}>
+          <p>{t('demoDataDesc')}</p>
           <div className="mt-3">
-            <button className="px-3 py-1.5 rounded bg-gray-200" onClick={() => navigate('settings')}>Ayarlar'a Git</button>
+            <button className="px-3 py-1.5 rounded bg-gray-200" onClick={() => navigate('settings')}>{t('goToSettings')}</button>
           </div>
         </Card>
 
-        <Card title="Sık Kullanılan İşlemler">
+        <Card title={t('frequentActions')}>
           <ul className="list-disc pl-5 space-y-1">
-            <li>Çocuk ara: üst kısımdaki arama kutusunu kullanın.</li>
-            <li>Veri aktarımı: Ayarlar → Verileri Dışa Aktar.</li>
-            <li>Tema: Sol panel altından açık/koyu temayı değiştirin.</li>
+            <li>{t('searchChildTip')}</li>
+            <li>{t('exportDataTip')}</li>
+            <li>{t('themeTip')}</li>
           </ul>
         </Card>
       </div>
@@ -81,4 +61,3 @@ const GettingStarted: React.FC<Props> = ({ navigate }) => {
 };
 
 export default GettingStarted;
-
