@@ -305,12 +305,12 @@ const Auth: React.FC = () => {
   return (
     <div className="min-h-screen flex relative">
       {/* Language Switcher - Absolute Top Right */}
-      <div className="absolute top-4 right-4 z-50 flex gap-2">
+      <div className="absolute top-14 lg:top-6 right-4 z-50 flex gap-2">
         <button
           onClick={() => changeLanguage('tr')}
           className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${lang === 'tr'
-              ? 'bg-emerald-600 text-white shadow-md'
-              : 'bg-white/80 text-gray-600 hover:bg-gray-100 backdrop-blur-sm'
+            ? 'bg-emerald-600 text-white shadow-md'
+            : 'bg-white/80 text-gray-600 hover:bg-gray-100 backdrop-blur-sm'
             }`}
         >
           TR
@@ -318,8 +318,8 @@ const Auth: React.FC = () => {
         <button
           onClick={() => changeLanguage('en')}
           className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${lang === 'en'
-              ? 'bg-emerald-600 text-white shadow-md'
-              : 'bg-white/80 text-gray-600 hover:bg-gray-100 backdrop-blur-sm'
+            ? 'bg-emerald-600 text-white shadow-md'
+            : 'bg-white/80 text-gray-600 hover:bg-gray-100 backdrop-blur-sm'
             }`}
         >
           EN
