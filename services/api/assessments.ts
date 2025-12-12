@@ -141,7 +141,7 @@ export const getClassAiSuggestions = async (
   if (opts.domains && opts.domains.length > 0) {
     const set = new Set(opts.domains);
     observations = observations.filter((row: any) =>
-      Array.isArray(row?.domains) && row.domains.some((d: string) => set.has(d))
+      Array.isArray(row?.domains) && row.domains.some((d: any) => set.has(d))
     );
   }
 

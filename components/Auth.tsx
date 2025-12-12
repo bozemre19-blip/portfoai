@@ -308,11 +308,11 @@ const Auth: React.FC = () => {
 
 
       {/* Sol Taraf - Bilgilendirme & Branding */}
-      <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 relative overflow-hidden">
+      <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-[#0c0f1d] via-[#161b33] to-[#0c0f1d] relative overflow-hidden">
         {/* Animated background shapes */}
         <div className="absolute inset-0">
-          <div className="absolute top-10 left-10 w-72 h-72 bg-emerald-500/5 rounded-full blur-3xl"></div>
-          <div className="absolute bottom-10 right-10 w-80 h-80 bg-teal-500/5 rounded-full blur-3xl"></div>
+          <div className="absolute top-10 left-10 w-72 h-72 bg-indigo-600/10 rounded-full blur-3xl"></div>
+          <div className="absolute bottom-10 right-10 w-80 h-80 bg-orange-500/10 rounded-full blur-3xl"></div>
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-slate-700/20 rounded-full blur-3xl"></div>
         </div>
 
@@ -322,14 +322,17 @@ const Auth: React.FC = () => {
         {/* Content */}
         <div className="relative z-10 flex flex-col justify-center px-16 text-white">
           <div className="mb-12 relative">
-            <div className="absolute -inset-8 bg-gradient-to-r from-emerald-500/10 to-teal-500/10 rounded-full blur-3xl"></div>
-            <div className="relative">
+            <div className="relative flex items-center gap-4">
               <img
-                src="/portfoai-logo.svg"
-                alt="PortfoAI"
-                className="h-32 drop-shadow-[0_0_30px_rgba(16,185,129,0.3)]"
+                src="/logo.png"
+                alt="Lukid AI"
+                className="h-48 w-48 object-contain drop-shadow-2xl"
                 draggable={false}
               />
+              <div className="flex flex-col">
+                <h1 className="text-6xl font-extrabold tracking-tight text-white drop-shadow-md">Lukid AI</h1>
+                <span className="text-[#FF6B4A] font-bold tracking-widest text-sm mt-1 uppercase">SMART PORTFOLIO</span>
+              </div>
             </div>
           </div>
 
@@ -339,7 +342,7 @@ const Auth: React.FC = () => {
 
           <div className="space-y-5 max-w-md">
             <div className="flex items-start gap-4 group">
-              <div className="w-11 h-11 rounded-lg bg-emerald-500/15 border border-emerald-500/20 flex items-center justify-center flex-shrink-0 group-hover:bg-emerald-500/25 transition-all">
+              <div className="w-11 h-11 rounded-lg bg-indigo-500/20 border border-indigo-500/30 flex items-center justify-center flex-shrink-0 group-hover:bg-indigo-500/30 transition-all">
                 <span className="text-2xl">📊</span>
               </div>
               <div>
@@ -349,7 +352,7 @@ const Auth: React.FC = () => {
             </div>
 
             <div className="flex items-start gap-4 group">
-              <div className="w-11 h-11 rounded-lg bg-emerald-500/15 border border-emerald-500/20 flex items-center justify-center flex-shrink-0 group-hover:bg-emerald-500/25 transition-all">
+              <div className="w-11 h-11 rounded-lg bg-indigo-500/20 border border-indigo-500/30 flex items-center justify-center flex-shrink-0 group-hover:bg-indigo-500/30 transition-all">
                 <span className="text-2xl">🎨</span>
               </div>
               <div>
@@ -359,7 +362,7 @@ const Auth: React.FC = () => {
             </div>
 
             <div className="flex items-start gap-4 group">
-              <div className="w-11 h-11 rounded-lg bg-emerald-500/15 border border-emerald-500/20 flex items-center justify-center flex-shrink-0 group-hover:bg-emerald-500/25 transition-all">
+              <div className="w-11 h-11 rounded-lg bg-indigo-500/20 border border-indigo-500/30 flex items-center justify-center flex-shrink-0 group-hover:bg-indigo-500/30 transition-all">
                 <span className="text-2xl">📱</span>
               </div>
               <div>
@@ -376,27 +379,28 @@ const Auth: React.FC = () => {
         <div className="w-full max-w-md">
           {/* Logo - Mobile */}
           <div className="lg:hidden mb-8 text-center">
-            <div className="inline-block relative">
-              <div className="absolute -inset-4 bg-gradient-to-r from-emerald-100/40 to-teal-100/40 rounded-full blur-2xl"></div>
+            <div className="inline-flex items-center gap-3 relative">
+              <div className="absolute -inset-4 bg-gradient-to-r from-indigo-100/40 to-orange-100/40 rounded-full blur-2xl"></div>
               <img
-                src="/portfoai-logo.svg"
-                alt="PortfoAI"
-                className="h-20 mx-auto relative drop-shadow-xl"
+                src="/logo.png"
+                alt="Lukid AI"
+                className="h-20 w-20 relative shadow-lg rounded-2xl"
                 draggable={false}
               />
+              <span className="relative text-3xl font-bold text-gray-800 tracking-tight">Lukid AI</span>
             </div>
           </div>
 
           <div className="bg-white rounded-3xl shadow-2xl p-10 border border-gray-100 relative overflow-hidden">
             {/* Decorative gradient */}
-            <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-emerald-500 via-teal-500 to-emerald-500"></div>
+            <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-indigo-600 via-purple-600 to-orange-500"></div>
 
             {/* Language Switcher - Absolute Top Right INSIDE CARD */}
             <div className="absolute top-6 right-6 z-10 flex gap-2">
               <button
                 onClick={() => changeLanguage('tr')}
                 className={`px-2 py-1 rounded-md text-xs font-bold transition-all ${lang === 'tr'
-                  ? 'bg-emerald-100 text-emerald-700 ring-1 ring-emerald-200'
+                  ? 'bg-indigo-50 text-indigo-700 ring-1 ring-indigo-200'
                   : 'bg-gray-50 text-gray-400 hover:bg-gray-100'
                   }`}
               >
@@ -405,7 +409,7 @@ const Auth: React.FC = () => {
               <button
                 onClick={() => changeLanguage('en')}
                 className={`px-2 py-1 rounded-md text-xs font-bold transition-all ${lang === 'en'
-                  ? 'bg-emerald-100 text-emerald-700 ring-1 ring-emerald-200'
+                  ? 'bg-indigo-50 text-indigo-700 ring-1 ring-indigo-200'
                   : 'bg-gray-50 text-gray-400 hover:bg-gray-100'
                   }`}
               >
@@ -530,7 +534,7 @@ const Auth: React.FC = () => {
               <button
                 type="submit"
                 disabled={loading}
-                className="group relative w-full py-4 px-4 bg-gradient-to-r from-emerald-600 via-teal-600 to-emerald-600 hover:from-emerald-700 hover:via-teal-700 hover:to-emerald-700 text-white font-bold rounded-xl shadow-xl hover:shadow-2xl transform hover:-translate-y-0.5 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none overflow-hidden"
+                className="group relative w-full py-4 px-4 bg-gradient-to-r from-indigo-600 via-blue-600 to-indigo-600 hover:from-indigo-700 hover:via-blue-700 hover:to-indigo-700 text-white font-bold rounded-xl shadow-xl hover:shadow-2xl transform hover:-translate-y-0.5 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none overflow-hidden"
               >
                 <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/20 to-white/0 transform -skew-x-12 -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>
                 <span className="relative flex items-center justify-center gap-2 text-lg">
@@ -555,7 +559,7 @@ const Auth: React.FC = () => {
             <div className="mt-8 text-center">
               <button
                 onClick={() => { setIsSignUp(!isSignUp); setMessage(''); setError(''); }}
-                className="text-emerald-600 hover:text-emerald-700 font-semibold text-base transition-all hover:underline decoration-2 underline-offset-4"
+                className="text-indigo-600 hover:text-indigo-700 font-semibold text-base transition-all hover:underline decoration-2 underline-offset-4"
               >
                 {isSignUp ? t('haveAccountBtn') : t('noAccountBtn')}
               </button>

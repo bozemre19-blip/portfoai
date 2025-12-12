@@ -372,7 +372,7 @@ const translations: Record<Language, Record<string, string>> = {
     classes: 'Sınıflar',
     attendance: 'Yoklama',
     aiAssistant: 'Yapay Zekâ Asistanı',
-    earlyChildhoodSystem: 'Erken Çocukluk Gözlem Sistemi',
+    earlyChildhoodSystem: 'Erken Çocukluk Eğitiminde Yapay Zeka Destekli Dijital Portfolyo Uygulaması',
     welcomeBack: 'Hoş geldin',
     today: 'Bugün',
     activity7days: 'Aktivite (7 gün)',
@@ -829,7 +829,7 @@ const translations: Record<Language, Record<string, string>> = {
     askAnything: 'Type your question. E.g.: "Can you suggest activities to strengthen fine motor skills for 3-4 year olds?"',
     confirmDeleteChat: 'chat? Are you sure you want to delete this',
     // GettingStarted
-    gettingStartedDesc: 'A quick guide to help you get started with PortfoAI.',
+    gettingStartedDesc: 'A quick guide to help you get started with Lukid AI.',
     step1Title: '1) Create Class and Add Child',
     step1Desc: 'Create a new class from the Classes section in the left menu. Then add child cards to each class from the Children page.',
     step2Title: '2) Add Observation and Select Areas',

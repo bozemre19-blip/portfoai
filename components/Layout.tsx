@@ -144,18 +144,18 @@ const Layout: React.FC<LayoutProps> = ({ children, navigate }) => {
   const sidebarContent = (
     <div className="flex flex-col h-full">
       <div className={`p-4 border-b ${colors.headerBorder} ${theme === 'dark' ? 'bg-gradient-to-r from-[#1e2a47] via-[#1a1a2e] to-[#1e2a47]' : 'bg-gradient-to-r from-purple-50 via-pink-50 to-blue-50'}`}>
-        <div className="flex justify-center">
+        <div className="flex items-center justify-center gap-3">
           <div className="relative group">
             <div className="absolute -inset-1 bg-gradient-to-r from-purple-600 via-pink-600 to-blue-600 rounded-lg blur opacity-25 group-hover:opacity-50 transition duration-300"></div>
             <img
-              src="/portfoai-logo.svg"
-              alt="PortfoAI"
-              className="relative h-10 md:h-12 mx-auto select-none group-hover:scale-105 transition-transform duration-300"
+              src="/logo.png"
+              alt="Lukid AI"
+              className="relative h-14 w-14 object-contain select-none drop-shadow-md group-hover:scale-105 transition-transform duration-300"
               draggable={false}
             />
           </div>
+          <span className={`text-lg font-bold tracking-tight ${theme === 'dark' ? 'text-gray-100' : 'text-gray-800'}`}>Lukid AI</span>
         </div>
-        <p className={`text-center text-xs font-semibold mt-2 tracking-wide ${theme === 'dark' ? 'text-gray-300' : 'text-gray-600'}`}>✨ PortfoAI ✨</p>
       </div>
       <nav className="flex-1 px-2 py-4 space-y-2">
         <a
@@ -267,7 +267,7 @@ const Layout: React.FC<LayoutProps> = ({ children, navigate }) => {
 
         <main className="flex-1 relative z-0 overflow-y-auto focus:outline-none">
           {/* Header Banner */}
-          <div className={`${theme === 'dark' ? 'bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900' : 'bg-gradient-to-r from-slate-800 via-slate-900 to-slate-800'} shadow-lg pt-safe transition-colors duration-300`}>
+          <div className={`${theme === 'dark' ? 'bg-gradient-to-r from-[#0c0f1d] via-[#161b33] to-[#0c0f1d]' : 'bg-gradient-to-r from-[#161b33] via-[#1e2a47] to-[#161b33]'} shadow-lg pt-safe transition-colors duration-300`}>
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-4">
@@ -279,14 +279,14 @@ const Layout: React.FC<LayoutProps> = ({ children, navigate }) => {
                     <Bars3Icon className="h-7 w-7" />
                   </button>
 
-                  <div className="backdrop-blur-sm rounded-xl p-3 shadow-sm hidden sm:block bg-emerald-500/20 border border-emerald-500/30">
-                    <DocumentTextIcon className="w-8 h-8 text-emerald-100" />
+                  <div className="backdrop-blur-sm rounded-xl p-3 shadow-sm hidden sm:block bg-indigo-500/20 border border-indigo-500/30">
+                    <DocumentTextIcon className="w-8 h-8 text-indigo-100" />
                   </div>
                   <div>
                     <h1 className="text-xl sm:text-2xl font-bold flex items-center gap-2 text-white">
                       <span className="hidden sm:inline">{t('earlyChildhoodSystem')}</span>
-                      <span className="sm:hidden">PortfoAI</span>
-                      <span className="text-xs font-normal px-2 py-1 rounded-lg bg-emerald-500/30 text-emerald-100">Beta</span>
+                      <span className="sm:hidden">Lukid AI</span>
+                      <span className="text-xs font-normal px-2 py-1 rounded-lg bg-orange-500/30 text-orange-100">Beta</span>
                     </h1>
                     <p className="text-sm mt-1 text-slate-300">
                       {t('welcomeBack')}, <span className="font-semibold text-white">{displayName}</span> 👋
@@ -294,7 +294,7 @@ const Layout: React.FC<LayoutProps> = ({ children, navigate }) => {
                   </div>
                 </div>
                 <div className="hidden lg:flex items-center gap-3">
-                  <div className="backdrop-blur-sm rounded-lg px-4 py-2 text-sm bg-white/5 text-slate-200 border border-emerald-500/20">
+                  <div className="backdrop-blur-sm rounded-lg px-4 py-2 text-sm bg-white/5 text-slate-200 border border-indigo-500/20">
                     <span className="opacity-70">{t('today')}:</span> <span className="font-bold text-white">{new Date().toLocaleDateString(getDateLocale(), { day: 'numeric', month: 'long', year: 'numeric' })}</span>
                   </div>
                 </div>

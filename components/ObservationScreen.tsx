@@ -25,6 +25,7 @@ const ObservationScreen: React.FC<ObservationScreenProps> = ({ childId, navigate
   const [baseNote, setBaseNote] = useState<string>('');
   const [sessionTranscript, setSessionTranscript] = useState<string>('');
   const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const [isTranscribing, setIsTranscribing] = useState(false);
 
 
   const isEditMode = !!observationToEdit;

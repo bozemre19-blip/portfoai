@@ -144,17 +144,17 @@ const Dashboard: React.FC<DashboardProps> = ({ navigate }) => {
         <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
           <button
             onClick={() => navigate('children', { screen: 'add-child' })}
-            className="flex items-center justify-center p-6 rounded-lg shadow-md bg-gradient-to-r from-stone-500 to-stone-600 hover:from-stone-600 hover:to-stone-700 text-white transition-all transform active:scale-95"
+            className="flex items-center justify-center p-6 rounded-lg shadow-md bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white transition-all transform active:scale-95"
           >
-            <PlusIcon className="w-8 h-8 text-amber-100" />
-            <span className="ml-4 text-xl font-semibold text-amber-50">{t('addChild')}</span>
+            <PlusIcon className="w-8 h-8 text-orange-100" />
+            <span className="ml-4 text-xl font-semibold text-orange-50">{t('addChild')}</span>
           </button>
           <button
             onClick={() => navigate('children')}
-            className="flex items-center justify-center p-6 rounded-lg shadow-md bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 text-white transition-all transform active:scale-95"
+            className="flex items-center justify-center p-6 rounded-lg shadow-md bg-gradient-to-r from-indigo-600 to-indigo-700 hover:from-indigo-700 hover:to-indigo-800 text-white transition-all transform active:scale-95"
           >
-            <UserGroupIcon className="w-8 h-8 text-emerald-100" />
-            <span className="ml-4 text-xl font-semibold text-emerald-50">{t('childList')}</span>
+            <UserGroupIcon className="w-8 h-8 text-indigo-100" />
+            <span className="ml-4 text-xl font-semibold text-indigo-50">{t('childList')}</span>
           </button>
         </div>
       </div>
