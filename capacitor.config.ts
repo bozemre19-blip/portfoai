@@ -1,7 +1,7 @@
 import type { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
-  appId: 'com.portfoai.app',
+  appId: 'com.lukidai.app',
   appName: 'Lukid AI',
   webDir: 'dist'
 };
