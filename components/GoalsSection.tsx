@@ -139,7 +139,7 @@ const GoalsSection: React.FC<GoalsSectionProps> = ({ childId, userId }) => {
         </h3>
         <button
           onClick={() => setShowAddForm(!showAddForm)}
-          className="px-4 py-2 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-lg hover:shadow-lg transition-all text-sm font-medium"
+          className="px-4 py-2 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-lg hover:shadow-lg transition-all text-sm font-medium hover:scale-105"
         >
           {showAddForm ? `❌ ${t('cancel')}` : `➕ ${t('addGoal')}`}
         </button>
