@@ -252,7 +252,7 @@ const ClassDetailScreen: React.FC<Props> = ({ classroom, navigate }) => {
 
       {/* Children in class (moved above activity) */}
       <div className="mt-4">
-        <h2 className="text-lg font-medium text-gray-900">{t('childrenList')}</h2>
+        <h2 className="text-lg font-medium text-gray-900 dark:text-gray-200">{t('childrenList')}</h2>
         {childrenLoading ? (
           <p>{t('loading')}</p>
         ) : filteredChildren.length === 0 ? (
@@ -260,7 +260,7 @@ const ClassDetailScreen: React.FC<Props> = ({ classroom, navigate }) => {
         ) : (
           <div className="mt-3 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {filteredChildren.map((c) => (
-              <button key={c.id} onClick={() => navigate('child-detail', { id: c.id })} className="bg-white dark:bg-[#1a1a2e] rounded-lg shadow p-4 text-left hover:shadow-md transition-colors">
+              <button key={c.id} onClick={() => navigate('child-detail', { id: c.id })} className="bg-white dark:bg-[#1a1a2e] rounded-lg shadow p-4 text-left hover:shadow-md transition-colors border border-transparent dark:border-gray-700">
                 <div className="font-semibold text-gray-900 dark:text-white truncate">{c.first_name} {c.last_name}</div>
                 <div className="text-xs text-gray-500 dark:text-gray-400 truncate">{c.classroom || ""}</div>
               </button>
@@ -273,7 +273,7 @@ const ClassDetailScreen: React.FC<Props> = ({ classroom, navigate }) => {
       <ClassTrends classroom={classroom} />
 
       {/* Activity chart */}
-      <div className="mt-2 bg-white dark:bg-[#1a1a2e] rounded-lg shadow p-4 transition-colors">
+      <div className="mt-2 bg-white dark:bg-[#1a1a2e] rounded-lg shadow p-4 transition-colors border border-transparent dark:border-gray-700">
         <div className="flex items-center justify-between mb-2">
           <h2 className="text-lg font-medium text-gray-900 dark:text-white">{t('activity7days')}</h2>
         </div>
@@ -287,8 +287,8 @@ const ClassDetailScreen: React.FC<Props> = ({ classroom, navigate }) => {
               const h = Math.round((total / max) * 88) + 8;
               return (
                 <div key={i} className="flex flex-col items-center">
-                  <div className="w-6 bg-blue-200 rounded-t" style={{ height: `${h}px` }} title={`${d.label}: ${d.obs} gozlem, ${d.media} urun`} />
-                  <div className="mt-1 text-xs text-gray-500">{d.label}</div>
+                  <div className="w-6 bg-blue-200 dark:bg-blue-900 rounded-t" style={{ height: `${h}px` }} title={`${d.label}: ${d.obs} gozlem, ${d.media} urun`} />
+                  <div className="mt-1 text-xs text-gray-500 dark:text-gray-400">{d.label}</div>
                 </div>
               );
             })}
@@ -299,7 +299,7 @@ const ClassDetailScreen: React.FC<Props> = ({ classroom, navigate }) => {
       {/* Class AI suggestions */}
       <div className="mt-6">
         <h2 className="text-lg font-medium text-gray-900 dark:text-white">{t('aiSuggestionsForClass')}</h2>
-        <div className="mt-2 bg-white dark:bg-[#1a1a2e] rounded-lg shadow p-4 transition-colors">
+        <div className="mt-2 bg-white dark:bg-[#1a1a2e] rounded-lg shadow p-4 transition-colors border border-transparent dark:border-gray-700">
           {aiSummary && <p className="text-gray-800 dark:text-gray-200 mb-2 whitespace-pre-wrap">{aiSummary}</p>}
           {aiSuggestions.length === 0 ? (
             <p className="text-gray-500 dark:text-gray-400">{t('noSuggestionsYet')}</p>
@@ -311,26 +311,24 @@ const ClassDetailScreen: React.FC<Props> = ({ classroom, navigate }) => {
         </div>
       </div>
 
-
-
       {showEdit && (
         <div className="fixed inset-0 bg-black/50 z-40 flex items-center justify-center p-4" onClick={() => setShowEdit(false)}>
-          <div className="bg-white rounded-lg shadow-xl p-6 w-full max-w-lg" onClick={(e) => e.stopPropagation()}>
-            <h3 className="text-lg font-semibold mb-3">{t('editClassTitle')}</h3>
+          <div className="bg-white dark:bg-[#1a1a2e] rounded-lg shadow-xl p-6 w-full max-w-lg transition-colors border border-transparent dark:border-gray-700" onClick={(e) => e.stopPropagation()}>
+            <h3 className="text-lg font-semibold mb-3 text-gray-900 dark:text-white">{t('editClassTitle')}</h3>
             <div className="space-y-3">
               <div>
-                <label className="block text-sm text-gray-700 mb-1">{t('className')}</label>
-                <input className="w-full border rounded px-2 py-1.5" value={renameValue} onChange={(e) => setRenameValue(e.target.value)} />
+                <label className="block text-sm text-gray-700 dark:text-gray-300 mb-1">{t('className')}</label>
+                <input className="w-full border rounded px-2 py-1.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white" value={renameValue} onChange={(e) => setRenameValue(e.target.value)} />
               </div>
               <div>
-                <div className="text-sm text-gray-700 mb-1">{t('color')}</div>
+                <div className="text-sm text-gray-700 dark:text-gray-300 mb-1">{t('color')}</div>
                 <div className="flex flex-wrap gap-2">
                   {colors.map(c => (
-                    <button key={c} className={`w-6 h-6 rounded-full ring-2 ${metaColor === c ? 'ring-black' : 'ring-transparent'}`} style={{ backgroundColor: c }} onClick={() => handleColorPick(c)} aria-label={c} />
+                    <button key={c} className={`w-6 h-6 rounded-full ring-2 ${metaColor === c ? 'ring-black dark:ring-white' : 'ring-transparent'}`} style={{ backgroundColor: c }} onClick={() => handleColorPick(c)} aria-label={c} />
                   ))}
                 </div>
               </div>
-              <label className="inline-flex items-center gap-2 text-sm"><input type="checkbox" checked={metaPinned} onChange={handlePinToggle} />{t('pinClass')}</label>
+              <label className="inline-flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300"><input type="checkbox" checked={metaPinned} onChange={handlePinToggle} />{t('pinClass')}</label>
             </div>
             <div className="mt-5 flex justify-between">
               <button
@@ -341,12 +339,12 @@ const ClassDetailScreen: React.FC<Props> = ({ classroom, navigate }) => {
                 {deleting ? t('deleting') : t('deleteClass')}
               </button>
               <div className="flex gap-2">
-                <button className="px-3 py-2 bg-gray-200 rounded" onClick={() => setShowEdit(false)} disabled={deleting}>{t('cancel')}</button>
-                <button className="px-3 py-2 bg-primary text-white rounded" onClick={handleRename} disabled={deleting}>{t('save')}</button>
+                <button className="px-3 py-2 bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 dark:text-white rounded transition-colors" onClick={() => setShowEdit(false)} disabled={deleting}>{t('cancel')}</button>
+                <button className="px-3 py-2 bg-primary text-white rounded hover:bg-primary/90 transition-colors" onClick={handleRename} disabled={deleting}>{t('save')}</button>
               </div>
             </div>
             {deleteProgress && (
-              <p className="mt-3 text-sm text-gray-600">{deleteProgress}</p>
+              <p className="mt-3 text-sm text-gray-600 dark:text-gray-400">{deleteProgress}</p>
             )}
           </div>
         </div>

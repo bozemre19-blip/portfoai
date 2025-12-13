@@ -121,7 +121,7 @@ const StatCard: React.FC<{ label: string; value: string | number; onClick?: () =
     tabIndex={onClick ? 0 : undefined}
     onClick={onClick}
     onKeyDown={(e) => { if (onClick && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); onClick(); } }}
-    className={`flex-1 rounded-lg bg-gray-50 dark:bg-gray-700/50 px-4 py-3 text-center ${onClick ? 'cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-primary/60 ring-1 ring-transparent transition' : ''}`}
+    className={`flex-1 rounded-lg bg-gray-50 dark:bg-[#1e2a47] px-4 py-3 text-center transition-colors border border-transparent dark:border-gray-700 ${onClick ? 'cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700/80 focus:outline-none focus:ring-2 focus:ring-primary/60 ring-1 ring-transparent transition' : ''}`}
   >
     <p className="text-sm font-medium text-gray-500 dark:text-gray-400">{label}</p>
     <p className="mt-1 text-2xl font-semibold text-gray-900 dark:text-white">{value}</p>
@@ -129,7 +129,7 @@ const StatCard: React.FC<{ label: string; value: string | number; onClick?: () =
 );
 
 const Section: React.FC<{ title: string; children: React.ReactNode; className?: string; onEdit?: () => void; }> = ({ title, children, className, onEdit }) => (
-  <div className={`bg-white dark:bg-[#1a1a2e] rounded-lg shadow p-6 group transition-colors ${className}`}>
+  <div className={`bg-white dark:bg-[#1a1a2e] rounded-lg shadow p-6 group transition-colors border border-transparent dark:border-gray-700 ${className}`}>
     <div className="flex justify-between items-center border-b border-gray-100 dark:border-gray-700 pb-3 mb-4">
       <h3 className="text-lg font-bold text-gray-900 dark:text-white">{title}</h3>
       {onEdit && (
