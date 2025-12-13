@@ -6,8 +6,19 @@ import { t, getLanguage, setLanguage, Language } from '../constants.clean';
 import { seedDemoData, removeDemoData, recomputeAssessmentsForUser, getChildren, exportChildData } from '../services/api';
 import { manualSync } from '../services/syncService';
 import { getOfflineQueue } from '../services/api/common';
+import { SunIcon, MoonIcon, DocumentTextIcon, ArrowRightOnRectangleIcon } from '@heroicons/react/24/outline';
 
-const SettingsScreen: React.FC = () => {
+interface SettingsProps {
+  navigate?: (page: string, params?: any) => void;
+}
+
+const SettingsScreen: React.FC<SettingsProps> = ({ navigate }) => {
+  const [currentTheme, setCurrentTheme] = useState(() => localStorage.getItem('theme') || 'light');
+
+  const handleThemeChange = (newTheme: string) => {
+    localStorage.setItem('theme', newTheme);
+    window.location.reload();
+  };
   const { user } = useAuth();
 
   const [firstName, setFirstName] = useState<string>(user?.user_metadata?.first_name ?? '');
@@ -100,6 +111,42 @@ const SettingsScreen: React.FC = () => {
       <h1 className="text-3xl font-bold text-gray-900">{t('settings')}</h1>
 
       <div className="mt-8 space-y-8">
+        {/* Appearance & Navigation */}
+        <div className="bg-white p-6 rounded-lg shadow">
+          <h2 className="text-xl font-semibold text-gray-800 mb-4">Görünüm ve Menü</h2>
+
+          {/* Theme Switcher */}
+          <div className="mb-6">
+            <div className="text-sm font-medium text-gray-700 mb-2">🎨 {t('theme')}</div>
+            <div className="flex gap-3">
+              <button
+                className={`flex-1 px-4 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 flex items-center justify-center gap-2 ${currentTheme === 'light' ? 'bg-gradient-to-r from-blue-500 to-blue-600 text-white shadow-lg scale-105' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`}
+                onClick={() => handleThemeChange('light')}
+              >
+                <SunIcon className="w-5 h-5" />
+                <span className="text-xs font-semibold">{t('lightTheme')}</span>
+              </button>
+              <button
+                className={`flex-1 px-4 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 flex items-center justify-center gap-2 ${currentTheme === 'dark' ? 'bg-gradient-to-r from-gray-700 to-gray-900 text-white shadow-lg scale-105' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}`}
+                onClick={() => handleThemeChange('dark')}
+              >
+                <MoonIcon className="w-5 h-5" />
+                <span className="text-xs font-semibold">{t('darkTheme')}</span>
+              </button>
+            </div>
+          </div>
+
+          {/* Getting Started Link */}
+          {navigate && (
+            <button
+              onClick={() => navigate('getting-started')}
+              className="w-full flex items-center px-4 py-3 rounded-xl bg-yellow-50 text-yellow-800 hover:bg-yellow-100 border border-yellow-200 transition-all duration-200"
+            >
+              <DocumentTextIcon className="w-6 h-6 mr-3 text-yellow-600" />
+              <span className="font-medium">{t('gettingStarted') || 'Başlarken'}</span>
+            </button>
+          )}
+        </div>
         {/* Language Selection */}
         <div className="bg-white p-6 rounded-lg shadow">
           <h2 className="text-xl font-semibold text-gray-800">{t('language')}</h2>
@@ -160,25 +207,6 @@ const SettingsScreen: React.FC = () => {
               className="px-4 py-2 bg-primary text-white rounded hover:bg-primary-dark disabled:opacity-50"
             >
               {saving ? t('loading') : t('save')}
-            </button>
-            <button
-              onClick={async () => {
-                try { await supabase.auth.signOut(); } catch { }
-                try {
-                  sessionStorage.clear();
-                  const keys: string[] = [];
-                  for (let i = 0; i < localStorage.length; i++) {
-                    const k = localStorage.key(i);
-                    if (k && (k.startsWith('sb-') || k.includes('supabase'))) keys.push(k);
-                  }
-                  keys.forEach(k => localStorage.removeItem(k));
-                } catch { }
-                try { window.location.hash = ''; } catch { }
-                window.location.reload();
-              }}
-              className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600"
-            >
-              {t('signOut')}
             </button>
           </div>
         </div>
@@ -424,7 +452,30 @@ const SettingsScreen: React.FC = () => {
             </div>
           )}
         </div>
-      </div>
+      </div >
+
+      {/* Sign Out Button (Bottom) */}
+      <button
+        onClick={async () => {
+          if (!confirm(t('signOutConfirm') || 'Çıkış yapmak istediğinize emin misiniz?')) return;
+          try { await supabase.auth.signOut(); } catch { }
+          try {
+            sessionStorage.clear();
+            const keys: string[] = [];
+            for (let i = 0; i < localStorage.length; i++) {
+              const k = localStorage.key(i);
+              if (k && (k.startsWith('sb-') || k.includes('supabase'))) keys.push(k);
+            }
+            keys.forEach(k => localStorage.removeItem(k));
+          } catch { }
+          try { window.location.hash = ''; } catch { }
+          window.location.reload();
+        }}
+        className="w-full px-4 py-4 mb-24 mt-4 bg-red-50 text-red-600 border-2 border-red-100 rounded-xl font-bold hover:bg-red-100 transition-colors flex items-center justify-center gap-2"
+      >
+        <ArrowRightOnRectangleIcon className="w-6 h-6" />
+        {t('signOut')}
+      </button>
     </div>
   );
 };
