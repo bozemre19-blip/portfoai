@@ -130,7 +130,7 @@ const Layout: React.FC<LayoutProps> = ({ children, navigate, currentPage = '' })
       navItem: dark ? 'text-gray-300 hover:bg-[#1e2a47] hover:text-white' : 'text-gray-700 hover:bg-gray-100 hover:text-gray-900',
       signOut: dark ? 'text-gray-300 hover:bg-[#1e2a47] hover:text-white' : 'text-gray-700 hover:bg-gray-100 hover:text-gray-900',
       footerBorder: dark ? 'border-[#2a3f5f]' : 'border-gray-200',
-      appBg: dark ? 'bg-transparent' : 'bg-transparent',
+      appBg: dark ? 'bg-[#0c0f1d]' : 'bg-gray-50',
     };
   }, [theme]);
 
