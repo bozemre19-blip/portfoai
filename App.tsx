@@ -19,8 +19,7 @@ import AttendanceScreen from './components/AttendanceScreen';
 import { syncOfflineData } from './services/api';
 import { startAutoSync, stopAutoSync } from './services/syncService';
 import { t } from './constants.clean';
-// Vercel Analytics DISABLED - crashes on native Capacitor
-// import { Analytics } from "@vercel/analytics/react";
+import { Analytics } from "@vercel/analytics/react";
 // Sentry geçici olarak devre dışı (beyaz ekran sorunu için)
 // import { initSentry, setSentryUser, clearSentryUser } from './sentry.config';
 
@@ -177,7 +176,7 @@ const App: React.FC = () => {
       case 'attendance':
         return <AttendanceScreen navigate={navigate} />;
       case 'settings':
-        return <SettingsScreen navigate={navigate} />;
+        return <SettingsScreen />;
       default:
         return <Dashboard navigate={navigate} />;
     }
@@ -189,13 +188,13 @@ const App: React.FC = () => {
         {!session ? (
           <Auth />
         ) : (
-          <Layout navigate={navigate} currentPage={view.page}>
+          <Layout navigate={navigate}>
 
             {renderContent()}
           </Layout>
         )}
       </div>
-      {/* Analytics removed for native compatibility */}
+      <Analytics />
     </AuthContext.Provider>
   );
 };

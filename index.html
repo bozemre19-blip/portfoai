@@ -5,27 +5,26 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <title>Lukid AI</title>
-
-  <!-- Tailwind loaded locally via PostCSS during build, not CDN -->
-  <link rel="stylesheet" href="./index.css">
-
+  <script src="https://cdn.tailwindcss.com"></script>
   <script>
-    // GLOBAL ERROR HANDLER - Shows any crash on screen
-    window.onerror = function (msg, url, line) {
-      document.body.innerHTML = '<div style="padding:40px;font-family:monospace;background:red;color:white;position:fixed;inset:0;z-index:99999;overflow:auto;">' +
-        '<h1>ERROR</h1><p>' + msg + '</p><p>Line: ' + line + '</p><p>URL: ' + url + '</p></div>';
-      return false;
-    };
-    window.onunhandledrejection = function (e) {
-      document.body.innerHTML = '<div style="padding:40px;font-family:monospace;background:orange;color:black;position:fixed;inset:0;z-index:99999;overflow:auto;">' +
-        '<h1>PROMISE ERROR</h1><p>' + (e.reason?.message || e.reason || 'Unknown') + '</p></div>';
-    };
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: '#4f46e5',
+            secondary: '#10b981',
+          }
+        }
+      }
+    }
   </script>
+
+  <link rel="stylesheet" href="/index.css">
 </head>
 
 <body class="bg-gray-50">
   <div id="root"></div>
-  <script type="module" src="./index.tsx"></script>
+  <script type="module" src="/index.tsx"></script>
 </body>
 
 </html>
