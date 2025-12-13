@@ -195,14 +195,14 @@ const ChildrenScreen: React.FC<ChildrenScreenProps> = ({ navigate }) => {
 
       {isDeleteModalOpen && childToDelete && (
         <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-lg shadow-xl p-6 max-w-sm w-full">
-            <h3 className="text-lg font-bold">{t('confirmDeleteChildTitle')}</h3>
-            <p className="mt-2 text-sm text-gray-600" dangerouslySetInnerHTML={{ __html: t('confirmDeleteChildMessage').replace('{childName}', `<strong>${childToDelete.first_name} ${childToDelete.last_name}</strong>`) }} />
+          <div className="bg-white dark:bg-[#1a1a2e] rounded-lg shadow-xl p-6 max-w-sm w-full transition-colors border border-transparent dark:border-gray-700">
+            <h3 className="text-lg font-bold text-gray-900 dark:text-white">{t('confirmDeleteChildTitle')}</h3>
+            <p className="mt-2 text-sm text-gray-600 dark:text-gray-300" dangerouslySetInnerHTML={{ __html: t('confirmDeleteChildMessage').replace('{childName}', `<strong class="text-gray-900 dark:text-white">${childToDelete.first_name} ${childToDelete.last_name}</strong>`) }} />
             <div className="mt-6 flex justify-end space-x-3">
-              <button onClick={() => setIsDeleteModalOpen(false)} disabled={isSaving} className="px-4 py-2 bg-gray-200 rounded-md">
+              <button onClick={() => setIsDeleteModalOpen(false)} disabled={isSaving} className="px-4 py-2 bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 dark:text-gray-200 rounded-md transition-colors">
                 {t('cancel')}
               </button>
-              <button onClick={handleConfirmDelete} disabled={isSaving} className="px-4 py-2 bg-red-600 text-white rounded-md">
+              <button onClick={handleConfirmDelete} disabled={isSaving} className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-md transition-colors shadow-sm">
                 {isSaving ? t('deleting') : t('delete')}
               </button>
             </div>

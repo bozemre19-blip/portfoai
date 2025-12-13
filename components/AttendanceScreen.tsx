@@ -248,7 +248,7 @@ const AttendanceScreen: React.FC<AttendanceScreenProps> = ({ navigate }) => {
       </div>
 
       {/* Controls */}
-      <div className="bg-white dark:bg-[#1a1a2e] rounded-xl shadow-md p-6 space-y-4 transition-colors">
+      <div className="bg-white dark:bg-[#1a1a2e] rounded-xl shadow-md p-6 space-y-4 transition-colors border border-transparent dark:border-gray-700">
         <div className="flex flex-wrap gap-4 items-end">
           <div className="flex-1 min-w-[200px]">
             <label className="block text-sm font-semibold text-gray-700 dark:text-gray-200 mb-2">{t('selectDate')}</label>
@@ -283,13 +283,13 @@ const AttendanceScreen: React.FC<AttendanceScreenProps> = ({ navigate }) => {
           <span className="text-sm font-semibold text-gray-700 dark:text-gray-300 mr-2">{t('quickAction')}:</span>
           <button
             onClick={() => handleQuickMarkAll('present')}
-            className="px-3 py-1 bg-green-100 text-green-700 rounded-lg hover:bg-green-200 transition-all text-sm font-medium"
+            className="px-3 py-1 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 rounded-lg hover:bg-green-200 dark:hover:bg-green-900/50 transition-all text-sm font-medium border border-transparent dark:border-green-800"
           >
             ✅ {t('markAllPresent')}
           </button>
           <button
             onClick={() => handleQuickMarkAll('absent')}
-            className="px-3 py-1 bg-red-100 text-red-700 rounded-lg hover:bg-red-200 transition-all text-sm font-medium"
+            className="px-3 py-1 bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300 rounded-lg hover:bg-red-200 dark:hover:bg-red-900/50 transition-all text-sm font-medium border border-transparent dark:border-red-800"
           >
             ❌ {t('markAllAbsent')}
           </button>
