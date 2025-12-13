@@ -10,18 +10,7 @@ const DOMAINS: DevelopmentDomain[] = [
   'turkish', 'math', 'science', 'social', 'motor_health', 'art', 'music'
 ];
 
-// Türkçe etiketler (UTF-8) - artık getDomains() kullanılıyor
-const RISK_TR: Record<RiskLevel, string> = {
-  low: 'Düşük',
-  medium: 'Orta',
-  high: 'Yüksek',
-};
-const RISK_EN: Record<RiskLevel, string> = {
-  low: 'Low',
-  medium: 'Medium',
-  high: 'High',
-};
-const getRiskLabels = () => getLanguage() === 'en' ? RISK_EN : RISK_TR;
+
 
 const ClassTrends: React.FC<Props> = ({ classroom }) => {
   const { user } = useAuth();
@@ -29,7 +18,6 @@ const ClassTrends: React.FC<Props> = ({ classroom }) => {
   const [domainTrend, setDomainTrend] = useState<Record<DevelopmentDomain, number[]>>({
     turkish: [], math: [], science: [], social: [], motor_health: [], art: [], music: []
   });
-  const [riskHeat, setRiskHeat] = useState<{ low: number[]; medium: number[]; high: number[] }>({ low: [], medium: [], high: [] });
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -44,12 +32,12 @@ const ClassTrends: React.FC<Props> = ({ classroom }) => {
           .eq('classroom', classroom);
         if (kidsErr) throw kidsErr;
         const ids = (kids || []).map((k: any) => k.id);
-        if (ids.length === 0) { setWeekLabels([]); setDomainTrend({ turkish: [], math: [], science: [], social: [], motor_health: [], art: [], music: [] }); setRiskHeat({ low: [], medium: [], high: [] }); return; }
+        if (ids.length === 0) { setWeekLabels([]); setDomainTrend({ turkish: [], math: [], science: [], social: [], motor_health: [], art: [], music: [] }); return; }
 
         const since8w = new Date(); since8w.setDate(since8w.getDate() - 56);
         const { data: obs8w } = await supabase
           .from('observations')
-          .select('id, created_at, domains, assessments(risk)')
+          .select('id, created_at, domains')
           .eq('user_id', user.id)
           .in('child_id', ids as any)
           .gte('created_at', since8w.toISOString());
@@ -64,7 +52,6 @@ const ClassTrends: React.FC<Props> = ({ classroom }) => {
         const domMap: Record<DevelopmentDomain, number[]> = {
           turkish: initArr(), math: initArr(), science: initArr(), social: initArr(), motor_health: initArr(), art: initArr(), music: initArr()
         };
-        const heat = { low: initArr(), medium: initArr(), high: initArr() } as { low: number[]; medium: number[]; high: number[] };
 
         for (const row of (obs8w || []) as any[]) {
           const t = new Date(row.created_at);
@@ -73,12 +60,10 @@ const ClassTrends: React.FC<Props> = ({ classroom }) => {
           const idx = 7 - bucket;
           const doms: DevelopmentDomain[] = Array.isArray(row.domains) ? row.domains : [];
           for (const d of doms) { if (domMap[d]) domMap[d][idx]++; }
-          const r = Array.isArray(row.assessments) && row.assessments[0]?.risk ? row.assessments[0].risk as RiskLevel : null;
-          if (r && (heat as any)[r]) (heat as any)[r][idx]++;
+
         }
         setWeekLabels(labels);
         setDomainTrend(domMap);
-        setRiskHeat(heat);
       } catch (e: any) {
         setError(e?.message || 'Hata');
       }
@@ -89,22 +74,22 @@ const ClassTrends: React.FC<Props> = ({ classroom }) => {
 
   return (
     <>
-      <div className="mt-4 bg-white rounded-lg shadow p-4">
-        <h2 className="text-lg font-medium text-gray-900 mb-2">{t('developmentTrend')}</h2>
+      <div className="mt-4 bg-white dark:bg-[#1a1a2e] rounded-lg shadow p-4 transition-colors">
+        <h2 className="text-lg font-medium text-gray-900 dark:text-white mb-2">{t('developmentTrend')}</h2>
         {error && <p className="text-red-600 text-sm">{error}</p>}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {DOMAINS.map((k) => {
             const arr = domainTrend[k] || [];
             const max = Math.max(1, ...arr);
             return (
-              <div key={k} className="border rounded p-2">
-                <div className="text-sm text-gray-700 mb-1">{getDomains()[k] || k}</div>
+              <div key={k} className="border dark:border-gray-700 rounded p-2">
+                <div className="text-sm text-gray-700 dark:text-gray-300 mb-1">{getDomains()[k] || k}</div>
                 <div className="flex items-end gap-1 h-16">
                   {arr.map((v, i) => (
-                    <div key={i} style={{ height: `${Math.max(6, Math.round((v / max) * 100))}%` }} className="w-3 bg-blue-400 rounded"></div>
+                    <div key={i} style={{ height: `${Math.max(6, Math.round((v / max) * 100))}%` }} className="w-3 bg-blue-400 dark:bg-blue-600 rounded"></div>
                   ))}
                 </div>
-                <div className="mt-1 flex justify-between text-[10px] text-gray-500">
+                <div className="mt-1 flex justify-between text-[10px] text-gray-500 dark:text-gray-400">
                   {weekLabels.map((l, i) => (<span key={i}>{l}</span>))}
                 </div>
               </div>
@@ -113,26 +98,7 @@ const ClassTrends: React.FC<Props> = ({ classroom }) => {
         </div>
       </div>
 
-      <div className="mt-4 bg-white rounded-lg shadow p-4">
-        <h2 className="text-lg font-medium text-gray-900 mb-2">Risk Isı Haritası (8 Hafta)</h2>
-        <div className="grid grid-cols-9 gap-2 text-xs">
-          <div className="text-gray-600"></div>
-          {weekLabels.map((l, i) => (<div key={i} className="text-gray-500 text-center">{l}</div>))}
-          {(['low', 'medium', 'high'] as RiskLevel[]).map((r) => {
-            const arr = (riskHeat as any)[r] as number[];
-            const max = Math.max(1, ...arr);
-            const bg = r === 'high' ? '#ef4444' : r === 'medium' ? '#f59e0b' : '#10b981';
-            return (
-              <React.Fragment key={r}>
-                <div className="text-gray-700">{getRiskLabels()[r]}</div>
-                {arr.map((v, i) => (
-                  <div key={i} className="w-6 h-6 rounded-sm" style={{ opacity: Math.max(0.15, v / max), backgroundColor: bg }} title={`${getRiskLabels()[r]}: ${v}`}></div>
-                ))}
-              </React.Fragment>
-            );
-          })}
-        </div>
-      </div>
+
     </>
   );
 };

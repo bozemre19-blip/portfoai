@@ -156,9 +156,9 @@ const TeacherChat: React.FC<{ navigate: (page: string, params?: any) => void; ch
       <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-12 gap-4">
         {/* Sidebar */}
         <aside className="md:col-span-4 lg:col-span-3">
-          <div className="bg-white rounded-lg shadow p-3 h-[70vh] flex flex-col">
+          <div className="bg-white dark:bg-[#1a1a2e] rounded-lg shadow p-3 h-[70vh] flex flex-col transition-colors">
             <div className="flex items-center justify-between mb-2">
-              <h2 className="font-semibold">{t('chats')}</h2>
+              <h2 className="font-semibold text-gray-900 dark:text-gray-100">{t('chats')}</h2>
               <button className="text-primary text-sm hover:underline" onClick={newChat}>{t('newChat')}</button>
             </div>
             <div className="overflow-y-auto divide-y flex-1">
@@ -167,7 +167,7 @@ const TeacherChat: React.FC<{ navigate: (page: string, params?: any) => void; ch
                   <div className="text-sm text-gray-500 p-2">{t('noChatYet')}</div>
                 ) : (
                   threads.map(thr => (
-                    <div key={thr.id} className={`relative group ${activeThread?.id === thr.id ? 'bg-gray-100' : ''}`}>
+                    <div key={thr.id} className={`relative group ${activeThread?.id === thr.id ? 'bg-gray-100 dark:bg-gray-800' : 'dark:hover:bg-gray-800/50'}`}>
                       {editingThreadId === thr.id ? (
                         <div className="p-2 flex items-center gap-1" onClick={(e) => e.stopPropagation()}>
                           <input
@@ -186,11 +186,11 @@ const TeacherChat: React.FC<{ navigate: (page: string, params?: any) => void; ch
                         </div>
                       ) : (
                         <button
-                          className="w-full text-left p-2 hover:bg-gray-50"
+                          className="w-full text-left p-2 hover:bg-gray-50 dark:hover:bg-gray-800/50"
                           onClick={() => loadThreadMessages(thr)}
                         >
-                          <div className="text-sm font-medium truncate pr-12">{thr.title}</div>
-                          <div className="text-[11px] text-gray-500">{new Date(thr.updated_at).toLocaleString(getDateLocale())}</div>
+                          <div className="text-sm font-medium truncate pr-12 text-gray-900 dark:text-gray-200">{thr.title}</div>
+                          <div className="text-[11px] text-gray-500 dark:text-gray-400">{new Date(thr.updated_at).toLocaleString(getDateLocale())}</div>
                         </button>
                       )}
                       {/* Action buttons - visible on hover */}
@@ -223,34 +223,34 @@ const TeacherChat: React.FC<{ navigate: (page: string, params?: any) => void; ch
         {/* Chat area */}
         <div className="md:col-span-8 lg:col-span-9">
           <div className="flex items-center justify-between mb-4">
-            <h1 className="text-2xl font-bold text-gray-900">{t('aiAssistant')}</h1>
+            <h1 className="text-2xl font-bold text-gray-900 dark:text-white">{t('aiAssistant')}</h1>
             <button className="text-primary hover:underline" onClick={() => navigate('dashboard')}>{t('dashboard')}</button>
           </div>
 
-          <div className="bg-white rounded-lg shadow p-4 mb-4">
+          <div className="bg-white dark:bg-[#1a1a2e] rounded-lg shadow p-4 mb-4 transition-colors">
             <div className="flex flex-wrap items-end gap-3">
               <div className="flex items-center gap-2">
-                <label className="inline-flex items-center gap-1 text-sm"><input type="radio" checked={mode === 'general'} onChange={() => setMode('general')} /> {t('general')}</label>
-                <label className="inline-flex items-center gap-1 text-sm"><input type="radio" checked={mode === 'class'} onChange={() => setMode('class')} /> {t('classroom')}</label>
-                <label className="inline-flex items-center gap-1 text-sm"><input type="radio" checked={mode === 'child'} onChange={() => setMode('child')} /> {t('child')}</label>
+                <label className="inline-flex items-center gap-1 text-sm text-gray-700 dark:text-gray-200"><input type="radio" checked={mode === 'general'} onChange={() => setMode('general')} /> {t('general')}</label>
+                <label className="inline-flex items-center gap-1 text-sm text-gray-700 dark:text-gray-200"><input type="radio" checked={mode === 'class'} onChange={() => setMode('class')} /> {t('classroom')}</label>
+                <label className="inline-flex items-center gap-1 text-sm text-gray-700 dark:text-gray-200"><input type="radio" checked={mode === 'child'} onChange={() => setMode('child')} /> {t('child')}</label>
               </div>
               {mode === 'class' && (
-                <select value={selClass || ''} onChange={(e) => setSelClass(e.target.value)} className="border rounded px-2 py-1 text-sm">
+                <select value={selClass || ''} onChange={(e) => setSelClass(e.target.value)} className="border rounded px-2 py-1 text-sm dark:bg-gray-700 dark:border-gray-600 dark:text-white">
                   <option value="">{t('selectClass')}</option>
                   {classrooms.map((c) => <option key={c} value={c}>{c}</option>)}
                 </select>
               )}
               {mode === 'child' && (
-                <select value={selChild || ''} onChange={(e) => setSelChild(e.target.value)} className="border rounded px-2 py-1 text-sm min-w-[200px]">
+                <select value={selChild || ''} onChange={(e) => setSelChild(e.target.value)} className="border rounded px-2 py-1 text-sm min-w-[200px] dark:bg-gray-700 dark:border-gray-600 dark:text-white">
                   <option value="">{t('selectChild')}</option>
                   {children.map((c) => <option key={c.id} value={c.id}>{c.first_name} {c.last_name}</option>)}
                 </select>
               )}
-              <div className="text-xs text-gray-500 ml-auto">{t('noteDisclaimer')}</div>
+              <div className="text-xs text-gray-500 dark:text-gray-400 ml-auto">{t('noteDisclaimer')}</div>
             </div>
           </div>
 
-          <div className="bg-white rounded-lg shadow p-4 h-[60vh] overflow-y-auto">
+          <div className="bg-white dark:bg-[#1a1a2e] rounded-lg shadow p-4 h-[60vh] overflow-y-auto transition-colors">
             {loadingMsgs ? (
               <div className="text-gray-500">{t('loading')}</div>
             ) : history.length === 0 ? (
@@ -258,7 +258,7 @@ const TeacherChat: React.FC<{ navigate: (page: string, params?: any) => void; ch
               <ul className="space-y-3">
                 {history.map((m, idx) => (
                   <li key={idx} className={`max-w-[85%] ${m.role === 'user' ? 'ml-auto' : ''}`}>
-                    <div className={`px-3 py-2 rounded-lg ${m.role === 'user' ? 'bg-primary text-white' : 'bg-gray-100 text-gray-800'}`}>
+                    <div className={`px-3 py-2 rounded-lg ${m.role === 'user' ? 'bg-primary text-white' : 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200'}`}>
                       <div className="whitespace-pre-wrap">{m.content}</div>
                     </div>
                     <div className="text-[11px] text-gray-400 mt-1">{new Date(m.at).toLocaleTimeString('tr-TR')}</div>
@@ -270,7 +270,7 @@ const TeacherChat: React.FC<{ navigate: (page: string, params?: any) => void; ch
           </div>
 
           <div className="mt-3 flex gap-2">
-            <textarea value={text} onChange={(e) => setText(e.target.value)} rows={2} className="flex-1 border rounded px-3 py-2" placeholder="Mesajınızı yazın…" />
+            <textarea value={text} onChange={(e) => setText(e.target.value)} rows={2} className="flex-1 border rounded px-3 py-2 dark:bg-gray-700 dark:border-gray-600 dark:text-white" placeholder="Mesajınızı yazın…" />
             <button onClick={send} disabled={sending || !text.trim()} className="px-4 py-2 rounded bg-primary text-white disabled:opacity-50">Gönder</button>
           </div>
         </div>

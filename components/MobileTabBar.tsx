@@ -67,14 +67,16 @@ const MobileTabBar: React.FC<MobileTabBarProps> = ({ currentPath, navigate }) =>
                         <button
                             key={tab.name}
                             onClick={() => navigate(tab.path)}
-                            className="flex-1 flex flex-col items-center justify-center pb-1 pt-1 active:scale-95 transition-transform max-w-[60px]"
+                            className={`flex-1 flex flex-col items-center justify-center pb-1 pt-1 transition-all ${isActive ? 'flex-[1.5]' : 'flex-1'} active:scale-95`}
                         >
-                            <div className={`p-1 rounded-lg transition-colors ${isActive ? 'bg-indigo-50 text-indigo-600' : 'text-gray-400'}`}>
-                                <Icon className="w-5 h-5" />
+                            <div className={`p-1.5 rounded-xl transition-all duration-300 ${isActive ? 'bg-indigo-50 text-indigo-600 shadow-sm relative -top-1' : 'text-gray-400'}`}>
+                                <Icon className="w-6 h-6" />
                             </div>
-                            <span className={`text-[9px] font-medium mt-0.5 ${isActive ? 'text-indigo-600' : 'text-gray-400'}`}>
-                                {tab.name}
-                            </span>
+                            {isActive && (
+                                <span className="text-[10px] font-bold text-indigo-600 mt-0.5 animate-fade-in whitespace-nowrap">
+                                    {tab.name}
+                                </span>
+                            )}
                         </button>
                     );
                 })}

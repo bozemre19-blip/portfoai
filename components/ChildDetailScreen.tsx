@@ -121,17 +121,17 @@ const StatCard: React.FC<{ label: string; value: string | number; onClick?: () =
     tabIndex={onClick ? 0 : undefined}
     onClick={onClick}
     onKeyDown={(e) => { if (onClick && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); onClick(); } }}
-    className={`flex-1 rounded-lg bg-gray-50 px-4 py-3 text-center ${onClick ? 'cursor-pointer hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-primary/60 ring-1 ring-transparent transition' : ''}`}
+    className={`flex-1 rounded-lg bg-gray-50 dark:bg-gray-700/50 px-4 py-3 text-center ${onClick ? 'cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-primary/60 ring-1 ring-transparent transition' : ''}`}
   >
-    <p className="text-sm font-medium text-gray-500">{label}</p>
-    <p className="mt-1 text-2xl font-semibold text-gray-900">{value}</p>
+    <p className="text-sm font-medium text-gray-500 dark:text-gray-400">{label}</p>
+    <p className="mt-1 text-2xl font-semibold text-gray-900 dark:text-white">{value}</p>
   </div>
 );
 
 const Section: React.FC<{ title: string; children: React.ReactNode; className?: string; onEdit?: () => void; }> = ({ title, children, className, onEdit }) => (
-  <div className={`bg-white rounded-lg shadow p-6 group ${className}`}>
-    <div className="flex justify-between items-center border-b pb-3 mb-4">
-      <h3 className="text-lg font-bold text-gray-900">{title}</h3>
+  <div className={`bg-white dark:bg-[#1a1a2e] rounded-lg shadow p-6 group transition-colors ${className}`}>
+    <div className="flex justify-between items-center border-b border-gray-100 dark:border-gray-700 pb-3 mb-4">
+      <h3 className="text-lg font-bold text-gray-900 dark:text-white">{title}</h3>
       {onEdit && (
         <button onClick={onEdit} aria-label={`${title} bölümünü {t('edit')}`} className="text-gray-400 hover:text-primary p-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity">
           <PencilIcon className="w-5 h-5" />
@@ -143,9 +143,9 @@ const Section: React.FC<{ title: string; children: React.ReactNode; className?: 
 );
 
 const InfoRow: React.FC<{ label: string; value?: string | React.ReactNode }> = ({ label, value }) => (
-  <div className="flex justify-between py-2 border-b border-gray-100">
-    <dt className="text-sm font-medium text-gray-500">{label}</dt>
-    <dd className="text-sm text-gray-900 text-right">{value || '—'}</dd>
+  <div className="flex justify-between py-2 border-b border-gray-100 dark:border-gray-700">
+    <dt className="text-sm font-medium text-gray-500 dark:text-gray-400">{label}</dt>
+    <dd className="text-sm text-gray-900 dark:text-gray-200 text-right">{value || '—'}</dd>
   </div>
 );
 
@@ -161,8 +161,8 @@ const TagList: React.FC<{ tags?: string[] }> = ({ tags }) => {
 };
 
 const GuardianCard: React.FC<{ guardian: Guardian }> = ({ guardian }) => (
-  <div className="rounded-md border p-3">
-    <p className="font-semibold text-gray-800">{guardian.name} <span className="text-sm font-normal text-gray-500">({guardian.relation})</span></p>
+  <div className="rounded-md border border-gray-200 dark:border-gray-700 p-3">
+    <p className="font-semibold text-gray-800 dark:text-gray-200">{guardian.name} <span className="text-sm font-normal text-gray-500 dark:text-gray-400">({guardian.relation})</span></p>
     {guardian.phone && <a href={`tel:${guardian.phone}`} className="text-sm text-primary hover:underline block mt-1">{guardian.phone}</a>}
     {guardian.email && <a href={`mailto:${guardian.email}`} className="text-sm text-primary hover:underline block">{guardian.email}</a>}
   </div>
@@ -183,7 +183,7 @@ const ChildProfileCard: React.FC<ChildProfileCardProps> = ({ data, onAddObservat
   return (
     <div className="max-w-7xl mx-auto space-y-6">
       {/* Hero */}
-      <div className="bg-white rounded-lg shadow p-6">
+      <div className="bg-white dark:bg-[#1a1a2e] rounded-lg shadow p-6 transition-colors">
         <div className="flex flex-col sm:flex-row items-center gap-6">
           <div className="relative">
             <Avatar photoUrl={data.photoUrl} firstName={data.firstName} lastName={data.lastName} />
@@ -193,7 +193,7 @@ const ChildProfileCard: React.FC<ChildProfileCardProps> = ({ data, onAddObservat
             </label>
           </div>
           <div className="flex-grow text-center sm:text-left">
-            <h1 className="text-3xl md:text-4xl font-bold text-gray-900">{data.firstName} {data.lastName}</h1>
+            <h1 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white">{data.firstName} {data.lastName}</h1>
             <div className="mt-3 flex flex-wrap justify-center sm:justify-start gap-2">
               <Badge className="bg-gray-100 text-gray-700 ring-gray-600/20">{calculateAge(data.dob)}</Badge>
               {data.classroom && <Badge className="bg-gray-100 text-gray-700 ring-gray-600/20">{t('classroom')}: {data.classroom}</Badge>}
@@ -211,13 +211,13 @@ const ChildProfileCard: React.FC<ChildProfileCardProps> = ({ data, onAddObservat
               </button>
             </div>
             <div className="flex gap-2 w-full sm:w-auto">
-              <button onClick={() => onExportPdf(data.id)} title="PDF indir" aria-label="Raporu PDF olarak dışa aktar" className="flex-1 sm:flex-auto px-3 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 transition-colors">
+              <button onClick={() => onExportPdf(data.id)} title="PDF indir" aria-label="Raporu PDF olarak dışa aktar" className="flex-1 sm:flex-auto px-3 py-2 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-200 rounded-md hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors">
                 <DocumentArrowDownIcon className="w-5 h-5 mx-auto" />
               </button>
-              <button onClick={onEdit} aria-label="Çocuk profilini {t('edit')}" className="flex-1 sm:flex-auto px-3 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 transition-colors">
+              <button onClick={onEdit} aria-label="Çocuk profilini {t('edit')}" className="flex-1 sm:flex-auto px-3 py-2 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-200 rounded-md hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors">
                 {t('edit')}
               </button>
-              <button onClick={onRefreshInsights} aria-label="Yapay Zeka analizini yenile" className="flex-1 sm:flex-auto px-3 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 transition-colors">
+              <button onClick={onRefreshInsights} aria-label="Yapay Zeka analizini yenile" className="flex-1 sm:flex-auto px-3 py-2 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-200 rounded-md hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors">
                 {t('refresh')}
               </button>
             </div>
@@ -494,22 +494,22 @@ const ChildDetailScreen: React.FC<ChildDetailScreenProps> = ({ childId, navigate
           </Section>
           <Section title={t('healthInfo')}>
             <div>
-              <h4 className="font-semibold text-gray-700">{t('allergies')}</h4>
+              <h4 className="font-semibold text-gray-700 dark:text-gray-300">{t('allergies')}</h4>
               <TagList tags={(profileData.health?.allergies as any) || []} />
             </div>
             <div>
-              <h4 className="font-semibold text-gray-700">{t('importantNotes')}</h4>
-              <p className="text-sm text-gray-600 mt-1">{profileData.health?.notes || '—'}</p>
+              <h4 className="font-semibold text-gray-700 dark:text-gray-300">{t('importantNotes')}</h4>
+              <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">{profileData.health?.notes || '—'}</p>
             </div>
           </Section>
           <Section title={t('aiInsights')}>
             {profileData.aiSummary && (
-              <div className="mb-4 p-3 bg-indigo-50 border border-indigo-100 rounded-md shadow-sm ai-summary-container">
-                <p className="text-sm text-indigo-900 leading-relaxed font-medium">{profileData.aiSummary}</p>
+              <div className="mb-4 p-3 bg-indigo-50 dark:bg-indigo-900/20 border border-indigo-100 dark:border-indigo-800 rounded-md shadow-sm ai-summary-container">
+                <p className="text-sm text-indigo-900 dark:text-indigo-200 leading-relaxed font-medium">{profileData.aiSummary}</p>
               </div>
             )}
             {profileData.aiInsights && profileData.aiInsights.length > 0 ? (
-              <ul className="list-disc list-inside space-y-2 text-sm text-gray-700">{profileData.aiInsights.map((s, i) => <li key={i}>{s}</li>)}</ul>
+              <ul className="list-disc list-inside space-y-2 text-sm text-gray-700 dark:text-gray-300">{profileData.aiInsights.map((s, i) => <li key={i}>{s}</li>)}</ul>
             ) : (
               <p className="text-sm text-gray-500 italic">Analiz edilecek yeterli gözlem yok.</p>
             )}

@@ -72,9 +72,9 @@ const ClassesScreen: React.FC<ClassesScreenProps> = ({ navigate }) => {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-6">
         <h1 className="text-2xl font-bold text-gradient-purple">🏫 {t('classes')}</h1>
         <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto">
-          <input className="border border-gray-300 rounded-lg px-3 py-2 flex-1 min-w-0 w-full sm:w-64 focus:ring-2 focus:ring-primary focus:border-transparent" placeholder={t('className')} value={newClass} onChange={(e) => setNewClass(e.target.value)} />
+          <input className="border border-gray-300 rounded-lg px-3 py-2 flex-1 min-w-0 w-full sm:w-64 focus:ring-2 focus:ring-primary focus:border-transparent dark:bg-gray-700 dark:border-gray-600 dark:text-white" placeholder={t('className')} value={newClass} onChange={(e) => setNewClass(e.target.value)} />
           <button className="px-4 py-2 rounded-lg disabled:bg-gray-400 whitespace-nowrap btn-gradient-success" onClick={onCreate} disabled={creating || !newClass.trim()}>{t('createClass')}</button>
-          <button className="px-4 py-2 bg-gray-200 hover:bg-gray-300 rounded-lg whitespace-nowrap transition" onClick={() => navigate('children')}>{t('allChildren')}</button>
+          <button className="px-4 py-2 bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 dark:text-gray-200 rounded-lg whitespace-nowrap transition" onClick={() => navigate('children')}>{t('allChildren')}</button>
         </div>
       </div>
       {loading && <p className="text-gray-600 font-medium">{t('loading')}</p>}
@@ -88,16 +88,16 @@ const ClassesScreen: React.FC<ClassesScreenProps> = ({ navigate }) => {
             <button
               key={name}
               onClick={() => navigate('class-detail', { classroom: name === '—' ? '' : name })}
-              className={`bg-white rounded-lg shadow p-5 text-left hover:shadow-xl transition-all card-colorful ${cardColors[idx % cardColors.length]}`}
+              className={`bg-white dark:bg-[#1a1a2e] rounded-lg shadow p-5 text-left hover:shadow-xl transition-all card-colorful ${cardColors[idx % cardColors.length]}`}
             >
               <div className="flex items-center justify-between">
                 <div className="text-xs font-semibold text-gray-500 uppercase tracking-wide">{t('classroom')}</div>
                 <div className={`text-2xl ${iconColors[idx % iconColors.length]}`}>📚</div>
               </div>
-              <div className="text-2xl font-bold text-gray-900 mt-2 truncate" title={name}>{name}</div>
+              <div className="text-2xl font-bold text-gray-900 dark:text-white mt-2 truncate" title={name}>{name}</div>
               <div className="mt-2 flex items-center gap-1">
-                <span className="text-lg font-semibold text-gray-700">{count}</span>
-                <span className="text-sm text-gray-500">{t('children').toLowerCase()}</span>
+                <span className="text-lg font-semibold text-gray-700 dark:text-gray-300">{count}</span>
+                <span className="text-sm text-gray-500 dark:text-gray-400">{t('children').toLowerCase()}</span>
               </div>
             </button>
           );

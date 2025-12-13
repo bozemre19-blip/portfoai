@@ -188,8 +188,7 @@ const App: React.FC = () => {
         {!session ? (
           <Auth />
         ) : (
-          <Layout navigate={navigate}>
-
+          <Layout navigate={navigate} currentPage={view.page}>
             {renderContent()}
           </Layout>
         )}

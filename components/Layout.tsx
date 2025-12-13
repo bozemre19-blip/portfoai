@@ -47,7 +47,13 @@ const Layout: React.FC<LayoutProps> = ({ children, navigate, currentPage = '' })
 
   useEffect(() => {
     localStorage.setItem('theme', theme);
-    document.documentElement.setAttribute('data-theme', theme);
+    if (theme === 'dark') {
+      document.documentElement.classList.add('dark');
+      document.documentElement.setAttribute('data-theme', 'dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+      document.documentElement.setAttribute('data-theme', 'light');
+    }
   }, [theme]);
 
   // Inject dark theme overrides for better text readability
@@ -305,7 +311,7 @@ const Layout: React.FC<LayoutProps> = ({ children, navigate, currentPage = '' })
           </div>
 
           <div className="py-6 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto pb-32">
-            <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-2xl p-6 min-h-[calc(100vh-6rem)]">
+            <div className="bg-white/80 dark:bg-[#1e2a47]/90 backdrop-blur-sm rounded-2xl shadow-2xl p-6 min-h-[calc(100vh-6rem)] transition-colors duration-300">
               {children}
             </div>
           </div>

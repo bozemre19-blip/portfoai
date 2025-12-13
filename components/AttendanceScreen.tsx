@@ -248,26 +248,26 @@ const AttendanceScreen: React.FC<AttendanceScreenProps> = ({ navigate }) => {
       </div>
 
       {/* Controls */}
-      <div className="bg-white rounded-xl shadow-md p-6 space-y-4">
+      <div className="bg-white dark:bg-[#1a1a2e] rounded-xl shadow-md p-6 space-y-4 transition-colors">
         <div className="flex flex-wrap gap-4 items-end">
           <div className="flex-1 min-w-[200px]">
-            <label className="block text-sm font-semibold text-gray-700 mb-2">{t('selectDate')}</label>
+            <label className="block text-sm font-semibold text-gray-700 dark:text-gray-200 mb-2">{t('selectDate')}</label>
             <input
               type="date"
               value={selectedDate}
               onChange={(e) => setSelectedDate(e.target.value)}
               max={new Date().toISOString().split('T')[0]}
-              className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+              className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
             />
           </div>
 
           {classrooms.length > 0 && (
             <div className="flex-1 min-w-[200px]">
-              <label className="block text-sm font-semibold text-gray-700 mb-2">{t('filterClass')}</label>
+              <label className="block text-sm font-semibold text-gray-700 dark:text-gray-200 mb-2">{t('filterClass')}</label>
               <select
                 value={classroomFilter}
                 onChange={(e) => setClassroomFilter(e.target.value)}
-                className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500"
+                className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
               >
                 <option value="">{t('allClasses')}</option>
                 {classrooms.map(cls => (
@@ -279,8 +279,8 @@ const AttendanceScreen: React.FC<AttendanceScreenProps> = ({ navigate }) => {
         </div>
 
         {/* Quick Actions */}
-        <div className="flex flex-wrap gap-2 pt-4 border-t">
-          <span className="text-sm font-semibold text-gray-700 mr-2">{t('quickAction')}:</span>
+        <div className="flex flex-wrap gap-2 pt-4 border-t dark:border-gray-700">
+          <span className="text-sm font-semibold text-gray-700 dark:text-gray-300 mr-2">{t('quickAction')}:</span>
           <button
             onClick={() => handleQuickMarkAll('present')}
             className="px-3 py-1 bg-green-100 text-green-700 rounded-lg hover:bg-green-200 transition-all text-sm font-medium"
@@ -298,7 +298,7 @@ const AttendanceScreen: React.FC<AttendanceScreenProps> = ({ navigate }) => {
 
       {/* Active Filter Banner */}
       {statusFilter && (
-        <div className="bg-gradient-to-r from-indigo-50 to-purple-50 border-2 border-indigo-200 rounded-xl p-4 flex items-center justify-between shadow-md">
+        <div className="bg-gradient-to-r from-indigo-50 to-purple-50 dark:from-indigo-900/40 dark:to-purple-900/40 border-2 border-indigo-200 dark:border-indigo-700 rounded-xl p-4 flex items-center justify-between shadow-md">
           <div className="flex items-center gap-3">
             <span className="text-2xl">
               {statusFilter === 'present' && '✅'}
@@ -307,17 +307,17 @@ const AttendanceScreen: React.FC<AttendanceScreenProps> = ({ navigate }) => {
               {statusFilter === 'excused' && '📝'}
             </span>
             <div>
-              <div className="font-bold text-gray-900">
+              <div className="font-bold text-gray-900 dark:text-white">
                 Filtre: {getStatusText(statusFilter)}
               </div>
-              <div className="text-sm text-gray-600">
+              <div className="text-sm text-gray-600 dark:text-gray-300">
                 {filteredChildren.length} {t('studentsShown')}
               </div>
             </div>
           </div>
           <button
             onClick={() => setStatusFilter(null)}
-            className="px-4 py-2 bg-white hover:bg-gray-50 text-gray-700 rounded-lg border-2 border-gray-300 font-medium transition-all hover:shadow-md"
+            className="px-4 py-2 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-200 rounded-lg border-2 border-gray-300 dark:border-gray-600 font-medium transition-all hover:shadow-md"
           >
             🔄 {t('clearFilter')}
           </button>
@@ -326,11 +326,11 @@ const AttendanceScreen: React.FC<AttendanceScreenProps> = ({ navigate }) => {
 
       {/* Children List */}
       {filteredChildren.length === 0 ? (
-        <div className="text-center py-12 bg-gray-50 rounded-xl border-2 border-dashed border-gray-300">
+        <div className="text-center py-12 bg-gray-50 dark:bg-gray-800/50 rounded-xl border-2 border-dashed border-gray-300 dark:border-gray-700">
           <span className="text-6xl mb-4 block">
             {statusFilter ? '🔍' : '👦'}
           </span>
-          <p className="text-gray-600 font-medium">
+          <p className="text-gray-600 dark:text-gray-400 font-medium">
             {statusFilter
               ? `"${getStatusText(statusFilter)}" durumunda öğrenci bulunamadı.`
               : 'Hiç çocuk bulunamadı.'}
@@ -345,14 +345,14 @@ const AttendanceScreen: React.FC<AttendanceScreenProps> = ({ navigate }) => {
           )}
         </div>
       ) : (
-        <div className="bg-white rounded-xl shadow-md overflow-hidden">
+        <div className="bg-white dark:bg-[#1a1a2e] rounded-xl shadow-md overflow-hidden transition-colors">
           {/* Table Header Info */}
-          <div className="bg-gradient-to-r from-gray-50 to-gray-100 px-6 py-3 border-b-2 border-gray-200 flex items-center justify-between">
+          <div className="bg-gradient-to-r from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-900 px-6 py-3 border-b-2 border-gray-200 dark:border-gray-700 flex items-center justify-between">
             <div className="flex items-center gap-3">
               <span className="text-lg">👥</span>
               <div>
-                <div className="font-bold text-gray-900">{t('studentList')}</div>
-                <div className="text-sm text-gray-600">
+                <div className="font-bold text-gray-900 dark:text-white">{t('studentList')}</div>
+                <div className="text-sm text-gray-600 dark:text-gray-400">
                   {filteredChildren.length} {t('studentsShown')}
                   {statusFilter && ` (${getStatusText(statusFilter)})`}
                 </div>
@@ -361,7 +361,7 @@ const AttendanceScreen: React.FC<AttendanceScreenProps> = ({ navigate }) => {
             {statusFilter && (
               <button
                 onClick={() => setStatusFilter(null)}
-                className="text-sm px-3 py-1 bg-white hover:bg-gray-50 text-gray-700 rounded-lg border border-gray-300 transition-all"
+                className="text-sm px-3 py-1 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200 rounded-lg border border-gray-300 dark:border-gray-600 transition-all"
               >
                 {t('showAllList')}
               </button>
@@ -370,20 +370,20 @@ const AttendanceScreen: React.FC<AttendanceScreenProps> = ({ navigate }) => {
 
           <div className="overflow-x-auto">
             <table className="w-full">
-              <thead className="bg-gradient-to-r from-gray-50 to-gray-100">
+              <thead className="bg-gradient-to-r from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-900">
                 <tr>
-                  <th className="px-6 py-4 text-left text-sm font-bold text-gray-900">{t('photo')}</th>
-                  <th className="px-6 py-4 text-left text-sm font-bold text-gray-900">{t('nameSurname')}</th>
-                  <th className="px-6 py-4 text-left text-sm font-bold text-gray-900">{t('classroom')}</th>
-                  <th className="px-6 py-4 text-center text-sm font-bold text-gray-900">{t('status')}</th>
-                  <th className="px-6 py-4 text-center text-sm font-bold text-gray-900">{t('action')}</th>
+                  <th className="px-6 py-4 text-left text-sm font-bold text-gray-900 dark:text-gray-200">{t('photo')}</th>
+                  <th className="px-6 py-4 text-left text-sm font-bold text-gray-900 dark:text-gray-200">{t('nameSurname')}</th>
+                  <th className="px-6 py-4 text-left text-sm font-bold text-gray-900 dark:text-gray-200">{t('classroom')}</th>
+                  <th className="px-6 py-4 text-center text-sm font-bold text-gray-900 dark:text-gray-200">{t('status')}</th>
+                  <th className="px-6 py-4 text-center text-sm font-bold text-gray-900 dark:text-gray-200">{t('action')}</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-200">
+              <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
                 {filteredChildren.map((child, idx) => {
                   const status = attendanceRecords.get(child.id);
                   return (
-                    <tr key={child.id} className={`hover:bg-gray-50 transition-colors ${idx % 2 === 0 ? 'bg-white' : 'bg-gray-50/50'}`}>
+                    <tr key={child.id} className={`hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors ${idx % 2 === 0 ? 'bg-white dark:bg-[#1a1a2e]' : 'bg-gray-50/50 dark:bg-gray-800/20'}`}>
                       <td className="px-6 py-4">
                         <div className="w-12 h-12 rounded-full bg-gradient-to-r from-indigo-400 to-purple-400 flex items-center justify-center text-white font-bold text-lg shadow-md overflow-hidden">
                           {child.photo_url ? (
@@ -396,13 +396,13 @@ const AttendanceScreen: React.FC<AttendanceScreenProps> = ({ navigate }) => {
                       <td className="px-6 py-4">
                         <button
                           onClick={() => navigate('child-detail', { childId: child.id })}
-                          className="font-semibold text-gray-900 hover:text-indigo-600 transition-colors"
+                          className="font-semibold text-gray-900 dark:text-white hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors"
                         >
                           {child.first_name} {child.last_name}
                         </button>
                       </td>
                       <td className="px-6 py-4">
-                        <span className="text-sm text-gray-600">{child.classroom || '—'}</span>
+                        <span className="text-sm text-gray-600 dark:text-gray-400">{child.classroom || '—'}</span>
                       </td>
                       <td className="px-6 py-4 text-center">
                         <span className={`inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-semibold border-2 ${getStatusColor(status)}`}>
