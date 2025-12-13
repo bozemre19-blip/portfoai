@@ -311,7 +311,7 @@ const Layout: React.FC<LayoutProps> = ({ children, navigate, currentPage = '' })
           </div>
 
           <div className="py-6 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto pb-32">
-            <div className="bg-white/80 dark:bg-[#1e2a47]/90 backdrop-blur-sm rounded-2xl shadow-2xl p-6 min-h-[calc(100vh-6rem)] transition-colors duration-300">
+            <div className="bg-white/80 dark:bg-[#1a1a2e] backdrop-blur-sm rounded-2xl shadow-2xl p-6 min-h-[calc(100vh-6rem)] transition-colors duration-300 border border-transparent dark:border-gray-800">
               {children}
             </div>
           </div>
