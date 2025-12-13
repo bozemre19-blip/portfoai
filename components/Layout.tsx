@@ -65,7 +65,8 @@ const Layout: React.FC<LayoutProps> = ({ children, navigate, currentPage = '' })
     style.textContent = `
       /* Dark mode text colors */
       html[data-theme='dark'] body { 
-        color: #e5e7eb; 
+        color: #e5e7eb;
+        background-color: #0c0f1d;
       }
       
       html[data-theme='dark'] .text-gray-900,
