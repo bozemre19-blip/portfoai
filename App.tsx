@@ -19,7 +19,7 @@ import AttendanceScreen from './components/AttendanceScreen';
 import { syncOfflineData } from './services/api';
 import { startAutoSync, stopAutoSync } from './services/syncService';
 import { t } from './constants.clean';
-import { Analytics } from "@vercel/analytics/react";
+// import { Analytics } from "@vercel/analytics/react";
 // Sentry geçici olarak devre dışı (beyaz ekran sorunu için)
 // import { initSentry, setSentryUser, clearSentryUser } from './sentry.config';
 
@@ -194,14 +194,12 @@ const App: React.FC = () => {
           </Layout>
         )}
       </div>
-      <Analytics />
-    </AuthContext.Provider>
+      {/* <Analytics /> */}
+    </AuthContext.Provider >
   );
 };
 
 export default App;
-
-
 
 
 

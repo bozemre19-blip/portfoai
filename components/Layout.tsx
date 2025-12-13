@@ -17,13 +17,15 @@ import {
   Bars3Icon, // Was MenuIcon
   XMarkIcon  // Was XIcon
 } from '@heroicons/react/24/outline';
+import MobileTabBar from './MobileTabBar';
 
 interface LayoutProps {
   children: React.ReactNode;
   navigate: (page: string, params?: any) => void;
+  currentPage?: string;
 }
 
-const Layout: React.FC<LayoutProps> = ({ children, navigate }) => {
+const Layout: React.FC<LayoutProps> = ({ children, navigate, currentPage = '' }) => {
   const { user } = useAuth();
   const sanitize = (s: string) =>
     (s || '')
@@ -271,13 +273,13 @@ const Layout: React.FC<LayoutProps> = ({ children, navigate }) => {
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-4">
-                  {/* Mobile Menu Button */}
-                  <button
+                  {/* Mobile Menu Button - HIDDEN because we use Bottom Tab Bar now */}
+                  {/* <button
                     onClick={() => setSidebarOpen(true)}
                     className="md:hidden p-2 -ml-2 rounded-lg focus:outline-none transition-colors text-white/80 hover:bg-white/10"
                   >
                     <Bars3Icon className="h-7 w-7" />
-                  </button>
+                  </button> */}
 
                   <div className="backdrop-blur-sm rounded-xl p-3 shadow-sm hidden sm:block bg-indigo-500/20 border border-indigo-500/30">
                     <DocumentTextIcon className="w-8 h-8 text-indigo-100" />
@@ -302,13 +304,15 @@ const Layout: React.FC<LayoutProps> = ({ children, navigate }) => {
             </div>
           </div>
 
-          <div className="py-6 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
+          <div className="py-6 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto pb-32">
             <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-2xl p-6 min-h-[calc(100vh-6rem)]">
               {children}
             </div>
           </div>
         </main>
       </div>
+      {/* Mobile Bottom Tab Bar */}
+      <MobileTabBar currentPath={currentPage} navigate={navigate} />
     </div>
   );
 };
