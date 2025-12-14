@@ -142,7 +142,7 @@ export const ChildForm: React.FC<ChildFormProps> = ({ onSave, onCancel, isSaving
             health,
             interests: interests.split(',').map(s => s.trim()).filter(Boolean),
             strengths: strengths.split(',').map(s => s.trim()).filter(Boolean),
-            photo_url: profilePhoto || undefined,
+            photo_url: profilePhoto || null,
         });
     };
 

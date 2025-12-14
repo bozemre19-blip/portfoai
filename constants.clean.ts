@@ -476,6 +476,14 @@ const translations: Record<Language, Record<string, string>> = {
     attendanceSaved: 'Yoklama başarıyla kaydedildi!',
     attendanceSaveFailed: 'Yoklama kaydedilemedi',
     dataLoadFailed: 'Veri yüklenemedi',
+    appearanceAndMenu: 'Görünüm ve Menü',
+    refresh: 'Yenile',
+    // Mobile Nav (Short)
+    navHome: 'Ana',
+    navChildren: 'Çocuk',
+    navClasses: 'Sınıf',
+    navAttendance: 'Devam',
+    navSettings: 'Ayar',
   },
   en: {
     appName: 'PortfoAI',
@@ -875,6 +883,14 @@ const translations: Record<Language, Record<string, string>> = {
     attendanceSaved: 'Attendance saved successfully!',
     attendanceSaveFailed: 'Could not save attendance',
     dataLoadFailed: 'Could not load data',
+    appearanceAndMenu: 'Appearance and Menu',
+    refresh: 'Refresh',
+    // Mobile Nav (Short)
+    navHome: 'Home',
+    navChildren: 'Child',
+    navClasses: 'Class',
+    navAttendance: 'Attend',
+    navSettings: 'Settings',
   }
 };
 

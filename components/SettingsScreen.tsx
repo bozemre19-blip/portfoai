@@ -97,7 +97,7 @@ const SettingsScreen: React.FC<SettingsProps> = ({ navigate }) => {
       <div className="space-y-8 pb-32">
         {/* Appearance & Menu */}
         <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow transition-colors">
-          <h2 className="text-xl font-semibold text-gray-800 dark:text-white mb-4">{(t as any)('appearanceAndMenu') || 'Görünüm ve Menü'}</h2>
+          <h2 className="text-xl font-semibold text-gray-800 dark:text-white mb-4">{t('appearanceAndMenu')}</h2>
 
           <div className="flex flex-col gap-4">
             {/* Theme Toggle */}

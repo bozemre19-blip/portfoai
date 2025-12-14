@@ -25,7 +25,7 @@ export interface Child {
   first_name: string;
   last_name: string;
   dob: string; // YYYY-MM-DD
-  photo_url?: string;
+  photo_url?: string | null;
   classroom?: string;
   consent_obtained: boolean;
   created_at: string;

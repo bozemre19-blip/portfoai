@@ -1,4 +1,5 @@
 import React from 'react';
+import { t } from '../constants.clean';
 import {
     HomeIcon,
     UsersIcon,
@@ -24,13 +25,13 @@ interface MobileTabBarProps {
 
 const MobileTabBar: React.FC<MobileTabBarProps> = ({ currentPath, navigate }) => {
     const tabs = [
-        { name: 'Ana', path: '', icon: HomeIcon, activeIcon: HomeIconSolid },
-        { name: 'Çocuk', path: 'children', icon: UsersIcon, activeIcon: UsersIconSolid },
-        { name: 'Sınıf', path: 'classes', icon: AcademicCapIcon, activeIcon: AcademicCapIconSolid },
+        { name: t('navHome'), path: '', icon: HomeIcon, activeIcon: HomeIconSolid },
+        { name: t('navChildren'), path: 'children', icon: UsersIcon, activeIcon: UsersIconSolid },
+        { name: t('navClasses'), path: 'classes', icon: AcademicCapIcon, activeIcon: AcademicCapIconSolid },
         { name: '', path: 'add-observation', icon: PlusIcon, isFab: true },
-        { name: 'Devam', path: 'attendance', icon: CalendarDaysIcon, activeIcon: CalendarDaysIconSolid },
+        { name: t('navAttendance'), path: 'attendance', icon: CalendarDaysIcon, activeIcon: CalendarDaysIconSolid },
         { name: 'AI', path: 'teacher-chat', icon: ChatBubbleBottomCenterTextIcon, activeIcon: ChatBubbleBottomCenterTextIconSolid },
-        { name: 'Ayar', path: 'settings', icon: Cog6ToothIcon, activeIcon: Cog6ToothIconSolid },
+        { name: t('navSettings'), path: 'settings', icon: Cog6ToothIcon, activeIcon: Cog6ToothIconSolid },
     ];
 
     const getIsActive = (path: string) => {
