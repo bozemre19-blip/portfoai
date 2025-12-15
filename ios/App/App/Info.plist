@@ -49,5 +49,11 @@
 	<true/>
 	<key>ITSAppUsesNonExemptEncryption</key>
 	<false/>
+	<key>NSCameraUsageDescription</key>
+	<string>To take photos for child observations and profiles.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>To select photos for child observations and profiles.</string>
+	<key>NSPhotoLibraryAddUsageDescription</key>
+	<string>To save photos.</string>
 </dict>
 </plist>
