@@ -24,6 +24,7 @@ import PrivacyPage from './components/PrivacyPage';
 import FeaturesPage from './components/FeaturesPage';
 import PricingPage from './components/PricingPage';
 import FAQPage from './components/FAQPage';
+import ResetPasswordPage from './components/ResetPasswordPage';
 import { syncOfflineData } from './services/api';
 import { startAutoSync, stopAutoSync } from './services/syncService';
 import { t } from './constants.clean';
@@ -220,6 +221,16 @@ const App: React.FC = () => {
           onEmailConfirmedDismiss={() => setEmailConfirmed(false)}
         />
       </div>
+    );
+  }
+
+  // Şifre sıfırlama sayfası (email linki ile gelindi)
+  if (view.page === 'reset-password') {
+    return (
+      <ResetPasswordPage
+        onSuccess={() => navigate('dashboard')}
+        onBack={() => navigate('login')}
+      />
     );
   }
 
