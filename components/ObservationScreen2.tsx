@@ -23,6 +23,7 @@ const ObservationScreen: React.FC<Props> = ({ childId: propChildId, navigate, ob
   const [domains, setDomains] = useState<DevelopmentDomain[]>([]);
   const [context, setContext] = useState<ObservationContext>('classroom');
   const [tags, setTags] = useState('');
+  const [shareWithFamily, setShareWithFamily] = useState(false);
   const [loading, setLoading] = useState(false);
   const [attachFile, setAttachFile] = useState<File | null>(null);
 
@@ -35,6 +36,7 @@ const ObservationScreen: React.FC<Props> = ({ childId: propChildId, navigate, ob
       setDomains(observationToEdit.domains);
       setContext(observationToEdit.context || 'classroom');
       setTags((observationToEdit.tags || []).join(', '));
+      setShareWithFamily((observationToEdit as any).shared_with_family || false);
       // Ensure selectedChildId is set from edit object if prop is missing
       if (!selectedChildId) setSelectedChildId(observationToEdit.child_id);
     }
@@ -74,6 +76,7 @@ const ObservationScreen: React.FC<Props> = ({ childId: propChildId, navigate, ob
       domains,
       context,
       tags: tags.split(',').map((x) => x.trim()).filter(Boolean),
+      shared_with_family: shareWithFamily,
     };
 
     try {
@@ -218,6 +221,23 @@ const ObservationScreen: React.FC<Props> = ({ childId: propChildId, navigate, ob
             className="mt-1 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-white"
             placeholder={t('tagsPlaceholder')}
           />
+        </div>
+
+        {/* Share with Family Checkbox */}
+        <div className="flex items-center gap-3 p-4 bg-orange-50 dark:bg-orange-900/20 rounded-lg border border-orange-200 dark:border-orange-800">
+          <input
+            type="checkbox"
+            id="shareWithFamily"
+            checked={shareWithFamily}
+            onChange={(e) => setShareWithFamily(e.target.checked)}
+            className="w-5 h-5 text-orange-500 bg-white border-gray-300 rounded focus:ring-orange-400 dark:bg-gray-700 dark:border-gray-600"
+          />
+          <div>
+            <label htmlFor="shareWithFamily" className="font-medium text-gray-800 dark:text-white cursor-pointer">
+              👨‍👩‍👧 {t('shareWithFamily')}
+            </label>
+            <p className="text-xs text-gray-500 dark:text-gray-400">{t('shareWithFamilyDesc')}</p>
+          </div>
         </div>
 
         <div className="flex justify-end gap-4">

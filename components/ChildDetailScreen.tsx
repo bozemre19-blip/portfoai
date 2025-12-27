@@ -8,6 +8,7 @@ import { t, getDomains, getLanguage, getDateLocale } from '../constants.clean';
 import { useAuth } from '../App';
 import { ChildForm } from './ChildForm';
 import GoalsSection from './GoalsSection';
+import FamilyInviteSection from './FamilyInviteSection';
 
 type Risk = 'low' | 'medium' | 'high';
 type ChildProfileData = {
@@ -520,6 +521,14 @@ const ChildDetailScreen: React.FC<ChildDetailScreenProps> = ({ childId, navigate
       {/* Hedefler Bölümü */}
       <div className="mt-8">
         <GoalsSection childId={childId} userId={user?.id || ''} />
+      </div>
+
+      {/* Aile Bağlantıları Bölümü */}
+      <div className="mt-8">
+        <FamilyInviteSection
+          childId={childId}
+          childName={`${profileData.firstName} ${profileData.lastName}`}
+        />
       </div>
 
       {isEditModalOpen && (

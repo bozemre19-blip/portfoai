@@ -1,5 +1,5 @@
 ﻿import React, { useEffect, useMemo, useState } from 'react';
-import { getObservationsForChild, deleteObservation, getMediaForChild, getSignedUrlForMedia } from '../services/api';
+import { getObservationsForChild, deleteObservation, updateObservation, getMediaForChild, getSignedUrlForMedia } from '../services/api';
 import type { Observation, Assessment, DevelopmentDomain, Media } from '../types';
 import { getDomains, t } from '../constants.clean';
 
@@ -121,6 +121,17 @@ const ChildObservationsScreen: React.FC<Props> = ({ childId, navigate }) => {
       alert('✅ Gözlem başarıyla silindi');
     } catch (e: any) {
       alert('❌ Gözlem silinirken hata oluştu: ' + (e?.message || 'Bilinmeyen hata'));
+    }
+  };
+
+  const handleToggleShare = async (observationId: string, currentStatus: boolean) => {
+    try {
+      await updateObservation(observationId, { shared_with_family: !currentStatus } as any);
+      setItems(prev => prev.map(it =>
+        it.id === observationId ? { ...it, shared_with_family: !currentStatus } as any : it
+      ));
+    } catch (e: any) {
+      alert('❌ Paylaşım durumu güncellenirken hata: ' + (e?.message || 'Bilinmeyen hata'));
     }
   };
 
@@ -271,12 +282,22 @@ const ChildObservationsScreen: React.FC<Props> = ({ childId, navigate }) => {
                         </div>
                       )}
 
-                      <div className="mt-3 flex gap-2">
+                      <div className="mt-3 flex gap-2 flex-wrap">
                         <button
                           className="px-3 py-1.5 bg-blue-50 hover:bg-blue-100 text-blue-700 border border-blue-200 rounded transition-colors"
                           onClick={() => navigate('edit-observation', { observation: it, childId })}
                         >
                           ✏️ {t('edit')}
+                        </button>
+                        <button
+                          className={`px-3 py-1.5 rounded transition-colors border ${(it as any).shared_with_family
+                              ? 'bg-orange-50 hover:bg-orange-100 text-orange-700 border-orange-200'
+                              : 'bg-gray-50 hover:bg-gray-100 text-gray-600 border-gray-200'
+                            }`}
+                          onClick={() => handleToggleShare(it.id, (it as any).shared_with_family || false)}
+                          title={(it as any).shared_with_family ? t('sharing') : t('notSharing')}
+                        >
+                          {(it as any).shared_with_family ? `👨‍👩‍👧 ${t('sharing')}` : `🔒 ${t('notSharing')}`}
                         </button>
                         <button
                           className="px-3 py-1.5 bg-red-50 hover:bg-red-100 text-red-700 border border-red-200 rounded transition-colors"

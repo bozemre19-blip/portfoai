@@ -231,6 +231,8 @@ const Auth: React.FC<AuthProps> = ({ initialMode = 'login', emailConfirmed = fal
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   const [schoolName, setSchoolName] = useState('');
+  // Role selection: 'teacher' or 'family'
+  const [userRole, setUserRole] = useState<'teacher' | 'family'>('teacher');
   // Mouse tracking for kids animation
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
 
@@ -268,8 +270,14 @@ const Auth: React.FC<AuthProps> = ({ initialMode = 'login', emailConfirmed = fal
     let authError = null;
 
     if (isSignUp) {
-      // Require teacher name/surname/school on sign up
-      if (!firstName.trim() || !lastName.trim() || !schoolName.trim()) {
+      // Require name/surname on sign up
+      if (!firstName.trim() || !lastName.trim()) {
+        setError(t('missingTeacherFields'));
+        setLoading(false);
+        return;
+      }
+      // Teacher requires school name
+      if (userRole === 'teacher' && !schoolName.trim()) {
         setError(t('missingTeacherFields'));
         setLoading(false);
         return;
@@ -280,9 +288,10 @@ const Auth: React.FC<AuthProps> = ({ initialMode = 'login', emailConfirmed = fal
         password,
         options: {
           data: {
+            role: userRole,
             first_name: firstName.trim(),
             last_name: lastName.trim(),
-            school_name: schoolName.trim(),
+            school_name: userRole === 'teacher' ? schoolName.trim() : null,
           },
         },
       });
@@ -619,6 +628,39 @@ const Auth: React.FC<AuthProps> = ({ initialMode = 'login', emailConfirmed = fal
               <form onSubmit={handleSubmit} className="space-y-6">
                 {isSignUp && (
                   <>
+                    {/* Role Selector */}
+                    <div className="mb-6">
+                      <label className="block text-sm font-semibold text-gray-700 mb-3 flex items-center gap-2">
+                        <span className="text-orange-500">👥</span> Hesap Türü
+                      </label>
+                      <div className="grid grid-cols-2 gap-3">
+                        <button
+                          type="button"
+                          onClick={() => setUserRole('teacher')}
+                          className={`p-4 rounded-xl border-2 transition-all flex flex-col items-center gap-2 ${userRole === 'teacher'
+                              ? 'border-orange-500 bg-orange-50 ring-2 ring-orange-200'
+                              : 'border-gray-200 hover:border-orange-300 hover:bg-orange-50/50'
+                            }`}
+                        >
+                          <span className="text-3xl">👩‍🏫</span>
+                          <span className={`font-semibold ${userRole === 'teacher' ? 'text-orange-700' : 'text-gray-700'}`}>Öğretmen</span>
+                          <span className="text-xs text-gray-500">Sınıf ve çocuk yönetimi</span>
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setUserRole('family')}
+                          className={`p-4 rounded-xl border-2 transition-all flex flex-col items-center gap-2 ${userRole === 'family'
+                              ? 'border-teal-500 bg-teal-50 ring-2 ring-teal-200'
+                              : 'border-gray-200 hover:border-teal-300 hover:bg-teal-50/50'
+                            }`}
+                        >
+                          <span className="text-3xl">👨‍👩‍👧</span>
+                          <span className={`font-semibold ${userRole === 'family' ? 'text-teal-700' : 'text-gray-700'}`}>Veli / Aile</span>
+                          <span className="text-xs text-gray-500">Çocuğunuzun gelişimini takip edin</span>
+                        </button>
+                      </div>
+                    </div>
+
                     <div className="grid grid-cols-2 gap-4">
                       <div className="relative group">
                         <label htmlFor="teacher-first-name" className="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
@@ -654,22 +696,25 @@ const Auth: React.FC<AuthProps> = ({ initialMode = 'login', emailConfirmed = fal
                       </div>
                     </div>
 
-                    <div className="relative group">
-                      <label htmlFor="school-name" className="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
-                        <span className="text-indigo-600">🏫</span> {t('schoolName')}
-                      </label>
-                      <input
-                        id="school-name"
-                        name="school-name"
-                        type="text"
-                        autoComplete="organization"
-                        required={isSignUp}
-                        className="w-full px-4 py-3.5 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all text-gray-900 placeholder-gray-400 hover:border-indigo-300 hover:shadow-md"
-                        placeholder={t('schoolName')}
-                        value={schoolName}
-                        onChange={(e) => setSchoolName(e.target.value)}
-                      />
-                    </div>
+                    {/* School field only for teachers */}
+                    {userRole === 'teacher' && (
+                      <div className="relative group">
+                        <label htmlFor="school-name" className="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
+                          <span className="text-indigo-600">🏫</span> {t('schoolName')}
+                        </label>
+                        <input
+                          id="school-name"
+                          name="school-name"
+                          type="text"
+                          autoComplete="organization"
+                          required={userRole === 'teacher'}
+                          className="w-full px-4 py-3.5 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all text-gray-900 placeholder-gray-400 hover:border-indigo-300 hover:shadow-md"
+                          placeholder={t('schoolName')}
+                          value={schoolName}
+                          onChange={(e) => setSchoolName(e.target.value)}
+                        />
+                      </div>
+                    )}
                   </>
                 )}
 

@@ -25,6 +25,9 @@ import FeaturesPage from './components/FeaturesPage';
 import PricingPage from './components/PricingPage';
 import FAQPage from './components/FAQPage';
 import ResetPasswordPage from './components/ResetPasswordPage';
+import FamilyDashboard from './components/FamilyDashboard';
+import TeacherAnnouncementsScreen from './components/TeacherAnnouncementsScreen';
+import TeacherInbox from './components/TeacherInbox';
 import { syncOfflineData } from './services/api';
 import { startAutoSync, stopAutoSync } from './services/syncService';
 import { t } from './constants.clean';
@@ -38,14 +41,16 @@ import { t } from './constants.clean';
 type AuthContextType = {
   session: Session | null;
   user: User | null;
+  userRole: 'teacher' | 'family' | null;
 };
 
-const AuthContext = createContext<AuthContextType>({ session: null, user: null });
+const AuthContext = createContext<AuthContextType>({ session: null, user: null, userRole: null });
 
 export const useAuth = () => useContext(AuthContext);
 
 const App: React.FC = () => {
   const [session, setSession] = useState<Session | null>(null);
+  const [userRole, setUserRole] = useState<'teacher' | 'family' | null>(null);
   const [view, setView] = useState<{ page: string; params?: any }>({ page: '', params: {} });
   const [isOnline, setIsOnline] = useState(navigator.onLine);
   const [emailConfirmed, setEmailConfirmed] = useState(false); // Email doğrulama başarılı mı
@@ -86,10 +91,11 @@ const App: React.FC = () => {
 
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
-      // Kullanıcı giriş yaptıysa Sentry'e bildir
-      // if (session?.user) {
-      //   setSentryUser(session.user.id, session.user.email);
-      // }
+      // Fetch user role from metadata
+      if (session?.user) {
+        const role = session.user.user_metadata?.role;
+        setUserRole(role === 'family' ? 'family' : 'teacher');
+      }
     });
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
@@ -113,6 +119,14 @@ const App: React.FC = () => {
           setEmailConfirmed(true);
           window.history.replaceState(null, '', window.location.pathname + '#/login');
         }
+      }
+
+      // Update role when session changes
+      if (session?.user) {
+        const role = session.user.user_metadata?.role;
+        setUserRole(role === 'family' ? 'family' : 'teacher');
+      } else {
+        setUserRole(null);
       }
     });
 
@@ -210,6 +224,10 @@ const App: React.FC = () => {
         return <TeacherChat navigate={navigate} childId={view.params.forChatChildId} classroom={view.params.classroom} />;
       case 'attendance':
         return <AttendanceScreen navigate={navigate} />;
+      case 'announcements':
+        return <TeacherAnnouncementsScreen navigate={navigate} />;
+      case 'inbox':
+        return <TeacherInbox navigate={navigate} />;
       case 'settings':
         return <SettingsScreen />;
       default:
@@ -236,8 +254,18 @@ const App: React.FC = () => {
 
   // 1. Durum: Kullanıcı giriş yapmış
   if (session) {
+    // Aile kullanıcısı için farklı arayüz
+    if (userRole === 'family') {
+      return (
+        <AuthContext.Provider value={{ session, user: session?.user ?? null, userRole }}>
+          <FamilyDashboard />
+        </AuthContext.Provider>
+      );
+    }
+
+    // Öğretmen için mevcut arayüz
     return (
-      <AuthContext.Provider value={{ session, user: session?.user ?? null }}>
+      <AuthContext.Provider value={{ session, user: session?.user ?? null, userRole }}>
         <div className="min-h-screen bg-gray-100 dark:bg-gray-900">
           <Layout navigate={navigate} currentPage={view.page || 'dashboard'}>
             {renderContent()}

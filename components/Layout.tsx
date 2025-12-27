@@ -15,9 +15,20 @@ import {
   MoonIcon,
   ArrowRightOnRectangleIcon,
   Bars3Icon, // Was MenuIcon
-  XMarkIcon  // Was XIcon
+  XMarkIcon,  // Was XIcon
+  MegaphoneIcon
 } from '@heroicons/react/24/outline';
 import MobileTabBar from './MobileTabBar';
+
+const MagicArrowIcon = (props: React.ComponentProps<'svg'>) => (
+  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" {...props}>
+    <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 18.75l6-6 2.25 2.25 7.5-7.5" />
+    <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 7.5l-1.12-2.63L15.75 3.75l2.63-1.12L19.5 0l1.13 2.63 2.62 1.12-2.62 1.13L19.5 7.5z" transform="translate(1 3) scale(0.8)" />
+    <path strokeLinecap="round" strokeLinejoin="round" d="M22.5 7.5l-1.5-1.5-1.5 1.5 1.5 1.5 1.5-1.5z" className="hidden" /> {/* Fallback/Alternative */}
+    {/* Star Shape - manual path for 4-point sparkle similar to logo */}
+    <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 3.75l1.12 2.62 2.63 1.13-2.63 1.12-1.12 2.63-1.13-2.63-2.62-1.12 2.62-1.13 1.13-2.62z" />
+  </svg>
+);
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -38,12 +49,29 @@ const Layout: React.FC<LayoutProps> = ({ children, navigate, currentPage = '' })
       : (user?.email?.split('@')[0] || '')
   );
   const [isSidebarOpen, setSidebarOpen] = useState(false);
+  const [hasUnreadMessages, setHasUnreadMessages] = useState(false);
   const [theme, setTheme] = useState<string>(() => {
     const savedTheme = localStorage.getItem('theme');
     // Kids teması kaldırıldı, varsa light'a çevir
     if (savedTheme === 'kids') return 'light';
     return savedTheme || 'light';
   });
+
+  // Check for unread messages
+  useEffect(() => {
+    const checkUnread = async () => {
+      if (!user) return;
+      const { count } = await supabase
+        .from('messages')
+        .select('*', { count: 'exact', head: true })
+        .eq('receiver_id', user.id)
+        .eq('read', false);
+      setHasUnreadMessages((count || 0) > 0);
+    };
+    checkUnread();
+    const interval = setInterval(checkUnread, 10000); // Check every 10 seconds
+    return () => clearInterval(interval);
+  }, [user]);
 
   useEffect(() => {
     localStorage.setItem('theme', theme);
@@ -116,7 +144,9 @@ const Layout: React.FC<LayoutProps> = ({ children, navigate, currentPage = '' })
     { name: t('children'), icon: UsersIcon, page: 'children', color: 'green' },
     { name: t('classes'), icon: BuildingLibraryIcon, page: 'classes', color: 'purple' },
     { name: t('attendance'), icon: ClipboardDocumentCheckIcon, page: 'attendance', color: 'red' },
-    { name: t('aiAssistant'), icon: ChatBubbleLeftRightIcon, page: 'teacher-chat', color: 'pink' },
+    { name: t('announcements'), icon: MegaphoneIcon, page: 'announcements', color: 'yellow' },
+    { name: t('messages'), icon: ChatBubbleLeftRightIcon, page: 'inbox', color: 'teal', hasIndicator: hasUnreadMessages },
+    { name: t('aiAssistant'), icon: MagicArrowIcon, page: 'teacher-chat', color: 'pink' },
     { name: t('settings'), icon: Cog6ToothIcon, page: 'settings', color: 'orange' },
   ];
 
@@ -186,6 +216,8 @@ const Layout: React.FC<LayoutProps> = ({ children, navigate, currentPage = '' })
               pink: 'hover:from-pink-50 hover:to-pink-100 group-hover:border-pink-500',
               orange: 'hover:from-orange-50 hover:to-orange-100 group-hover:border-orange-500',
               red: 'hover:from-red-50 hover:to-red-100 group-hover:border-red-500',
+              yellow: 'hover:from-yellow-50 hover:to-yellow-100 group-hover:border-yellow-500',
+              teal: 'hover:from-teal-50 hover:to-teal-100 group-hover:border-teal-500',
             }[item.color] || 'hover:from-gray-50 hover:to-gray-100 group-hover:border-gray-500');
 
           const iconColor = {
@@ -195,6 +227,8 @@ const Layout: React.FC<LayoutProps> = ({ children, navigate, currentPage = '' })
             pink: 'text-pink-600',
             orange: 'text-orange-600',
             red: 'text-red-600',
+            yellow: 'text-yellow-600',
+            teal: 'text-teal-600',
           }[item.color] || 'text-gray-600';
 
           return (
@@ -211,6 +245,9 @@ const Layout: React.FC<LayoutProps> = ({ children, navigate, currentPage = '' })
               <div className={`absolute left-0 top-0 bottom-0 w-1 transform -translate-x-full group-hover:translate-x-0 transition-transform duration-200 ${iconColor.replace('text-', 'bg-')}`}></div>
               <item.icon className={`w-6 h-6 mr-3 group-hover:scale-110 transition-transform duration-200 ${theme !== 'dark' ? iconColor : ''}`} />
               <span className="font-medium group-hover:translate-x-1 transition-transform duration-200">{item.name}</span>
+              {(item as any).hasIndicator && (
+                <span className="ml-2 w-2 h-2 bg-red-500 rounded-full animate-pulse"></span>
+              )}
             </a>
           );
         })}
