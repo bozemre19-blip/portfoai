@@ -7,7 +7,9 @@ import {
     PlusIcon,
     CalendarDaysIcon,
     ChatBubbleBottomCenterTextIcon,
-    Cog6ToothIcon
+    Cog6ToothIcon,
+    MegaphoneIcon,
+    ChatBubbleLeftRightIcon
 } from '@heroicons/react/24/outline';
 import {
     HomeIcon as HomeIconSolid,
@@ -15,8 +17,19 @@ import {
     AcademicCapIcon as AcademicCapIconSolid,
     CalendarDaysIcon as CalendarDaysIconSolid,
     ChatBubbleBottomCenterTextIcon as ChatBubbleBottomCenterTextIconSolid,
-    Cog6ToothIcon as Cog6ToothIconSolid
+    Cog6ToothIcon as Cog6ToothIconSolid,
+    MegaphoneIcon as MegaphoneIconSolid,
+    ChatBubbleLeftRightIcon as ChatBubbleLeftRightIconSolid
 } from '@heroicons/react/24/solid';
+
+const MagicArrowIcon = (props: React.ComponentProps<'svg'>) => (
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" {...props}>
+        <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 18.75l6-6 2.25 2.25 7.5-7.5" />
+        <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 7.5l-1.12-2.63L15.75 3.75l2.63-1.12L19.5 0l1.13 2.63 2.62 1.12-2.62 1.13L19.5 7.5z" transform="translate(1 3) scale(0.8)" />
+        <path strokeLinecap="round" strokeLinejoin="round" d="M22.5 7.5l-1.5-1.5-1.5 1.5 1.5 1.5 1.5-1.5z" className="hidden" />
+        <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 3.75l1.12 2.62 2.63 1.13-2.63 1.12-1.12 2.63-1.13-2.63-2.62-1.12 2.62-1.13 1.13-2.62z" />
+    </svg>
+);
 
 interface MobileTabBarProps {
     currentPath: string;
@@ -27,10 +40,12 @@ const MobileTabBar: React.FC<MobileTabBarProps> = ({ currentPath, navigate }) =>
     const tabs = [
         { name: t('navHome'), path: '', icon: HomeIcon, activeIcon: HomeIconSolid },
         { name: t('navChildren'), path: 'children', icon: UsersIcon, activeIcon: UsersIconSolid },
-        { name: t('navClasses'), path: 'classes', icon: AcademicCapIcon, activeIcon: AcademicCapIconSolid },
+        { name: t('classes'), path: 'classes', icon: AcademicCapIcon, activeIcon: AcademicCapIconSolid },
+        { name: t('announcements'), path: 'announcements', icon: MegaphoneIcon, activeIcon: MegaphoneIconSolid },
         { name: '', path: 'add-observation', icon: PlusIcon, isFab: true },
+        { name: t('messages'), path: 'inbox', icon: ChatBubbleLeftRightIcon, activeIcon: ChatBubbleLeftRightIconSolid },
         { name: t('navAttendance'), path: 'attendance', icon: CalendarDaysIcon, activeIcon: CalendarDaysIconSolid },
-        { name: 'AI', path: 'teacher-chat', icon: ChatBubbleBottomCenterTextIcon, activeIcon: ChatBubbleBottomCenterTextIconSolid },
+        { name: 'AI', path: 'teacher-chat', icon: MagicArrowIcon },
         { name: t('navSettings'), path: 'settings', icon: Cog6ToothIcon, activeIcon: Cog6ToothIconSolid },
     ];
 
@@ -45,7 +60,7 @@ const MobileTabBar: React.FC<MobileTabBarProps> = ({ currentPath, navigate }) =>
             <div className="absolute inset-0 bg-white/90 backdrop-blur-xl border-t border-gray-200"></div>
 
             {/* Content */}
-            <div className="relative flex justify-around items-end pb-safe pt-1 px-1 h-[72px] w-full">
+            <div className="relative flex justify-between items-end pb-safe pt-1 px-1 h-[72px] w-full overflow-x-auto no-scrollbar gap-1">
                 {tabs.map((tab) => {
                     const isActive = !tab.isFab && getIsActive(tab.path);
                     const Icon = isActive ? (tab.activeIcon || tab.icon) : tab.icon;
