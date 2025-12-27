@@ -168,6 +168,8 @@ const App: React.FC = () => {
       window.location.hash = hash; // creates browser history entry
     }
     setView({ page, params });
+    // Sayfa değiştiğinde en üste scroll yap
+    window.scrollTo(0, 0);
   }, []);
 
   const renderContent = () => {
