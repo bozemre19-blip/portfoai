@@ -219,6 +219,8 @@ interface AuthProps {
 const Auth: React.FC<AuthProps> = ({ initialMode = 'login', emailConfirmed = false, onEmailConfirmedDismiss }) => {
   const [lang, setLang] = useState<Language>(getLanguage());
   const [isSignUp, setIsSignUp] = useState(initialMode === 'signup');
+  const [isForgotPassword, setIsForgotPassword] = useState(false); // Şifre sıfırlama modu
+  const [resetEmailSent, setResetEmailSent] = useState(false); // Şifre sıfırlama maili gönderildi mi
   const [loading, setLoading] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -309,6 +311,33 @@ const Auth: React.FC<AuthProps> = ({ initialMode = 'login', emailConfirmed = fal
       } else {
         setError(authError.message);
       }
+    }
+
+    setLoading(false);
+  };
+
+  // Şifre sıfırlama handler
+  const handleResetPassword = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setLoading(true);
+    setMessage('');
+    setError('');
+
+    if (!email.trim()) {
+      setError('Lütfen e-posta adresinizi girin.');
+      setLoading(false);
+      return;
+    }
+
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: `${window.location.origin}/#/reset-password`,
+    });
+
+    if (error) {
+      setError('Şifre sıfırlama maili gönderilemedi. Lütfen tekrar deneyin.');
+    } else {
+      setResetEmailSent(true);
+      setMessage('Şifre sıfırlama linki e-posta adresinize gönderildi.');
     }
 
     setLoading(false);
@@ -457,14 +486,111 @@ const Auth: React.FC<AuthProps> = ({ initialMode = 'login', emailConfirmed = fal
 
             <div className="mb-10">
               <h2 className="text-3xl font-bold text-slate-800 mb-2">
-                {emailSent ? '📧 E-posta Gönderildi!' : (isSignUp ? t('createAccountTitle') : t('welcomeTitle'))}
+                {resetEmailSent ? '📧 Şifre Sıfırlama Linki Gönderildi!' :
+                  isForgotPassword ? '🔑 Şifremi Unuttum' :
+                    emailSent ? '📧 E-posta Gönderildi!' :
+                      (isSignUp ? t('createAccountTitle') : t('welcomeTitle'))}
               </h2>
               <p className="text-gray-600 text-lg">
-                {emailSent ? 'Hesabınızı aktifleştirmek için e-postanızı kontrol edin.' : (isSignUp ? t('createAccountDesc') : t('signInDesc'))}
+                {resetEmailSent ? 'Şifrenizi sıfırlamak için e-postanızı kontrol edin.' :
+                  isForgotPassword ? 'E-posta adresinizi girin, şifre sıfırlama linki göndereceğiz.' :
+                    emailSent ? 'Hesabınızı aktifleştirmek için e-postanızı kontrol edin.' :
+                      (isSignUp ? t('createAccountDesc') : t('signInDesc'))}
               </p>
             </div>
 
-            {emailSent ? (
+
+            {/* Şifre Sıfırlama Maili Gönderildi UI */}
+            {resetEmailSent ? (
+              <div className="text-center py-8">
+                <div className="w-20 h-20 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                  <svg className="w-10 h-10 text-orange-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                  </svg>
+                </div>
+                <p className="text-gray-700 mb-4">
+                  <strong>{email}</strong> adresine şifre sıfırlama linki gönderdik.
+                </p>
+                <p className="text-gray-500 text-sm mb-6">
+                  E-postanızı kontrol edin ve "Şifremi Sıfırla" linkine tıklayın. Spam klasörünü de kontrol etmeyi unutmayın.
+                </p>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setResetEmailSent(false);
+                    setIsForgotPassword(false);
+                    setMessage('');
+                  }}
+                  className="text-indigo-600 hover:text-indigo-700 font-medium"
+                >
+                  ← Giriş Yap sayfasına dön
+                </button>
+              </div>
+            ) : isForgotPassword ? (
+              /* Şifre Sıfırlama Formu */
+              <form onSubmit={handleResetPassword} className="space-y-6">
+                <div className="relative group">
+                  <label htmlFor="reset-email" className="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
+                    <span className="text-orange-600">📧</span> E-posta Adresiniz
+                  </label>
+                  <input
+                    id="reset-email"
+                    name="reset-email"
+                    type="email"
+                    autoComplete="email"
+                    required
+                    className="w-full px-4 py-3.5 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-orange-400 focus:border-orange-400 transition-all text-gray-900 placeholder-gray-400 hover:border-orange-200 hover:shadow-md"
+                    placeholder="ornek@email.com"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                  />
+                </div>
+
+                {error && (
+                  <div className="p-4 bg-gradient-to-r from-red-50 to-pink-50 border-2 border-red-300 text-red-700 rounded-xl text-sm font-semibold flex items-center gap-3 animate-shake shadow-lg">
+                    <span className="text-2xl">✕</span>
+                    <span>{error}</span>
+                  </div>
+                )}
+
+                <button
+                  type="submit"
+                  disabled={loading}
+                  className="group relative w-full py-4 px-4 bg-gradient-to-r from-orange-600 via-orange-500 to-orange-600 hover:from-orange-700 hover:via-orange-600 hover:to-orange-700 text-white font-bold rounded-xl shadow-xl hover:shadow-2xl transform hover:-translate-y-0.5 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  <span className="flex items-center justify-center gap-2 text-lg">
+                    {loading ? (
+                      <>
+                        <svg className="animate-spin h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                        Gönderiliyor...
+                      </>
+                    ) : (
+                      <>
+                        <span>Şifre Sıfırlama Linki Gönder</span>
+                        <span className="text-xl">→</span>
+                      </>
+                    )}
+                  </span>
+                </button>
+
+                <div className="text-center">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setIsForgotPassword(false);
+                      setError('');
+                      setMessage('');
+                    }}
+                    className="text-indigo-600 hover:text-indigo-700 font-medium"
+                  >
+                    ← Giriş Yap sayfasına dön
+                  </button>
+                </div>
+              </form>
+            ) : emailSent ? (
               <div className="text-center py-8">
                 <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
                   <svg className="w-10 h-10 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -580,6 +706,23 @@ const Auth: React.FC<AuthProps> = ({ initialMode = 'login', emailConfirmed = fal
                     onChange={(e) => setPassword(e.target.value)}
                   />
                 </div>
+
+                {/* Şifremi Unuttum linki - sadece giriş modunda */}
+                {!isSignUp && (
+                  <div className="text-right">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setIsForgotPassword(true);
+                        setError('');
+                        setMessage('');
+                      }}
+                      className="text-sm text-indigo-600 hover:text-indigo-700 font-medium transition-colors"
+                    >
+                      Şifremi Unuttum
+                    </button>
+                  </div>
+                )}
 
                 {message && (
                   <div className="p-4 bg-gradient-to-r from-emerald-50 to-green-50 border-2 border-emerald-300 text-emerald-700 rounded-xl text-sm font-semibold flex items-center gap-3 animate-bounce-once shadow-lg">
