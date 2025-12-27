@@ -79,7 +79,7 @@ export const getDateLocale = (): string => currentLanguage === 'tr' ? 'tr-TR' : 
 // Translations
 const translations: Record<Language, Record<string, string>> = {
   tr: {
-    appName: 'PortfoAI',
+    appName: 'Lukid AI',
     // Auth
     signInTitle: 'Giriş Yapın',
     signUpTitle: 'Hesap Oluşturun',
@@ -103,7 +103,7 @@ const translations: Record<Language, Record<string, string>> = {
     signOut: 'Çıkış Yap',
     welcome: 'Hoş Geldiniz',
     // Landing / Auth
-    landingHero: 'Yapay zeka destekli gözlem, analiz ve portfolyo yönetimi ile çocukların gelişimini profesyonelce takip edin.',
+    landingHero: 'Erken çocukluk eğitiminde yapay zeka destekli dijital portfolyo uygulaması. Türkiye Yüzyılı Maarif Modeli Okul Öncesi Eğitim Programı ile uyumlu olarak okul öncesi öğretmenleri için tasarlandı.',
     smartAnalysisTitle: 'Akıllı Gözlem Analizi',
     smartAnalysisDesc: 'Yapay zeka ile otomatik değerlendirme ve öneriler',
     digitalPortfolioTitle: 'Dijital Portfolyo',
@@ -120,7 +120,7 @@ const translations: Record<Language, Record<string, string>> = {
     secureSSL: 'SSL Şifreli',
     secureBadge: 'Güvenli',
     fastBadge: 'Hızlı',
-    footerRights: '© 2025 PortfoAI - Tüm hakları saklıdır',
+    footerRights: '© 2025 Lukid AI - Tüm hakları saklıdır',
     haveAccountBtn: 'Zaten hesabınız var mı? Giriş yapın',
     noAccountBtn: 'Hesabınız yok mu? Kayıt olun',
     missingTeacherFields: 'Lütfen ad, soyad ve okul alanlarını doldurun.',
@@ -514,7 +514,7 @@ const translations: Record<Language, Record<string, string>> = {
     signOut: 'Sign Out',
     welcome: 'Welcome',
     // Landing / Auth
-    landingHero: 'Professionally track child development with AI-powered observation, analysis, and portfolio management.',
+    landingHero: 'AI-powered digital portfolio application in early childhood education. Designed for preschool teachers in compliance with the Türkiye Yüzyılı Education Model Preschool Education Program.',
     smartAnalysisTitle: 'Smart Analysis',
     smartAnalysisDesc: 'Automated evaluation and suggestions with AI',
     digitalPortfolioTitle: 'Digital Portfolio',
@@ -531,7 +531,7 @@ const translations: Record<Language, Record<string, string>> = {
     secureSSL: 'SSL Encrypted',
     secureBadge: 'Secure',
     fastBadge: 'Fast',
-    footerRights: '© 2025 PortfoAI - All rights reserved',
+    footerRights: '© 2025 Lukid AI - All rights reserved',
     haveAccountBtn: 'Already have an account? Sign in',
     noAccountBtn: 'Don\'t have an account? Sign up',
     missingTeacherFields: 'Please fill in name, surname, and school fields.',

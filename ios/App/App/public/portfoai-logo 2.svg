@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="1200" height="360" viewBox="0 0 1200 360" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
+  <title id="title">PortfoAI Logo</title>
+  <desc id="desc">Portfo AI logosu; mavi Portfo yazısı, yeşil AI rozeti ve 'Gözlem · Portfolyo · Yapay Zekâ' etiketi.</desc>
+  <defs>
+    <style type="text/css"><![CDATA[
+      .brand { font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Noto Sans", sans-serif; font-weight: 800; letter-spacing: -0.5px; }
+      .tagline { font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Noto Sans", sans-serif; font-weight: 600; }
+    ]]></style>
+  </defs>
+  <!-- Portfo -->
+  <text x="40" y="180" class="brand" font-size="180" fill="#2563EB">Portfo</text>
+  <!-- AI pill -->
+  <g transform="translate(210, 205)">
+    <rect x="0" y="0" width="310" height="110" rx="55" fill="#10B981"/>
+    <text x="98" y="75" class="brand" font-size="72" fill="#FFFFFF">AI</text>
+  </g>
+  <!-- Tagline -->
+  <text x="560" y="282" class="tagline" font-size="44" fill="#64748B">Gözlem · Portfolyo · Yapay Zekâ</text>
+</svg>
+

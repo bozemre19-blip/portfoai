@@ -220,8 +220,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onLoginClick, onSignupClick, 
                                 <span className="text-2xl font-bold">Lukid AI</span>
                             </div>
                             <p className="text-gray-400 max-w-sm">
-                                Çocuk gelişimi ve eğitim takibinde yapay zeka devrimi.
-                                Öğretmenler ve ebeveynler için tasarlandı.
+                                Erken çocukluk eğitiminde yapay zeka destekli dijital portfolyo uygulaması. Türkiye Yüzyılı Maarif Modeli Okul Öncesi Eğitim Programı ile uyumlu olarak okul öncesi öğretmenleri için tasarlandı.
                             </p>
                         </div>
                         <div>
