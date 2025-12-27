@@ -49,6 +49,7 @@ const App: React.FC = () => {
   const [view, setView] = useState<{ page: string; params?: any }>({ page: '', params: {} });
   const [isOnline, setIsOnline] = useState(navigator.onLine);
   const [emailConfirmed, setEmailConfirmed] = useState(false); // Email doğrulama başarılı mı
+  const [isPasswordRecovery, setIsPasswordRecovery] = useState(false); // Şifre sıfırlama modu
 
   // --- Lightweight hash router
   const makeHash = (page: string, params: any = {}) => {
@@ -85,6 +86,16 @@ const App: React.FC = () => {
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       setSession(session);
+
+      // Şifre sıfırlama event'i - PASSWORD_RECOVERY
+      if (event === 'PASSWORD_RECOVERY') {
+        setIsPasswordRecovery(true);
+        // Şifre sıfırlama sayfasına yönlendir
+        window.history.replaceState(null, '', window.location.pathname + '#/reset-password');
+        setView({ page: 'reset-password', params: {} });
+        return;
+      }
+
       // Email doğrulama başarılı olduğunda
       if (event === 'SIGNED_IN' && window.location.hash.includes('type=signup') ||
         event === 'USER_UPDATED' ||
@@ -224,12 +235,18 @@ const App: React.FC = () => {
     );
   }
 
-  // Şifre sıfırlama sayfası (email linki ile gelindi)
-  if (view.page === 'reset-password') {
+  // Şifre sıfırlama sayfası (email linki ile gelindi veya isPasswordRecovery true)
+  if (view.page === 'reset-password' || isPasswordRecovery) {
     return (
       <ResetPasswordPage
-        onSuccess={() => navigate('dashboard')}
-        onBack={() => navigate('login')}
+        onSuccess={() => {
+          setIsPasswordRecovery(false);
+          navigate('dashboard');
+        }}
+        onBack={() => {
+          setIsPasswordRecovery(false);
+          navigate('login');
+        }}
       />
     );
   }
