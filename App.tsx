@@ -1,5 +1,6 @@
 ﻿
 import React, { useState, useEffect, createContext, useContext, useCallback } from 'react';
+import { Capacitor } from '@capacitor/core';
 import { supabase } from './services/supabase';
 import type { Session, User } from '@supabase/supabase-js';
 import Auth from './components/Auth';
@@ -16,6 +17,13 @@ import MediaScreen from './components/MediaScreen';
 import ChildObservationsScreen from './components/ChildObservationsScreen';
 import TeacherChat from './components/TeacherChat';
 import AttendanceScreen from './components/AttendanceScreen';
+import LandingPage from './components/LandingPage';
+import AboutPage from './components/AboutPage';
+import ContactPage from './components/ContactPage';
+import PrivacyPage from './components/PrivacyPage';
+import FeaturesPage from './components/FeaturesPage';
+import PricingPage from './components/PricingPage';
+import FAQPage from './components/FAQPage';
 import { syncOfflineData } from './services/api';
 import { startAutoSync, stopAutoSync } from './services/syncService';
 import { t } from './constants.clean';
@@ -37,7 +45,7 @@ export const useAuth = () => useContext(AuthContext);
 
 const App: React.FC = () => {
   const [session, setSession] = useState<Session | null>(null);
-  const [view, setView] = useState<{ page: string; params?: any }>({ page: 'dashboard', params: {} });
+  const [view, setView] = useState<{ page: string; params?: any }>({ page: '', params: {} });
   const [isOnline, setIsOnline] = useState(navigator.onLine);
 
   // --- Lightweight hash router
@@ -54,14 +62,14 @@ const App: React.FC = () => {
 
   const parseHash = (): { page: string; params: any } => {
     const h = window.location.hash || '';
-    if (!h.startsWith('#/')) return { page: 'dashboard', params: {} };
+    if (!h.startsWith('#/')) return { page: '', params: {} }; // Default to Landing Logic
     const [path, query] = h.substring(2).split('?');
     const params: any = {};
     if (query) {
       const sp = new URLSearchParams(query);
       sp.forEach((v, k) => (params[k] = v));
     }
-    return { page: path || 'dashboard', params };
+    return { page: path || '', params };
   };
 
   useEffect(() => {
@@ -178,24 +186,75 @@ const App: React.FC = () => {
       case 'settings':
         return <SettingsScreen />;
       default:
+        // Varsayılan olarak Dashboard'a git (giriş yapmışsa)
         return <Dashboard navigate={navigate} />;
     }
   };
 
-  return (
-    <AuthContext.Provider value={{ session, user: session?.user ?? null }}>
-      <div className="min-h-screen bg-gray-100">
-        {!session ? (
-          <Auth />
-        ) : (
-          <Layout navigate={navigate} currentPage={view.page}>
+  // 1. Durum: Kullanıcı giriş yapmış
+  if (session) {
+    return (
+      <AuthContext.Provider value={{ session, user: session?.user ?? null }}>
+        <div className="min-h-screen bg-gray-100 dark:bg-gray-900">
+          <Layout navigate={navigate} currentPage={view.page || 'dashboard'}>
             {renderContent()}
           </Layout>
-        )}
+        </div>
+        {/* <Analytics /> */}
+      </AuthContext.Provider>
+    );
+  }
+
+  // 2. Durum: Kullanıcı giriş yapmış ve 'login' sayfasında
+  if (view.page === 'login') {
+    return (
+      <div className="min-h-screen bg-gray-100 dark:bg-gray-900">
+        <Auth initialMode={view.params?.mode === 'signup' ? 'signup' : 'login'} />
       </div>
-      {/* <Analytics /> */}
-    </AuthContext.Provider >
-  );
+    );
+  }
+
+  // 3. Durum: Kullanıcı giriş yapmamış
+
+  if (view.page === 'about') {
+    return <AboutPage onBack={() => navigate('landing')} />;
+  }
+
+  if (view.page === 'contact') {
+    return <ContactPage onBack={() => navigate('landing')} />;
+  }
+
+  if (view.page === 'privacy') {
+    return <PrivacyPage onBack={() => navigate('landing')} />;
+  }
+
+  if (view.page === 'features') {
+    return <FeaturesPage onBack={() => navigate('landing')} onSignup={() => navigate('login', { mode: 'signup' })} />;
+  }
+
+  if (view.page === 'pricing') {
+    return <PricingPage onBack={() => navigate('landing')} onSignup={() => navigate('login', { mode: 'signup' })} />;
+  }
+
+  if (view.page === 'faq') {
+    return <FAQPage onBack={() => navigate('landing')} />;
+  }
+
+  // Varsayılan: Landing Page (sadece web için) veya Login (mobil için)
+  // Mobil uygulamada landing page gösterme, direkt login aç
+  if (Capacitor.isNativePlatform()) {
+    return (
+      <div className="min-h-screen bg-gray-100 dark:bg-gray-900">
+        <Auth initialMode="login" />
+      </div>
+    );
+  }
+
+  return <LandingPage
+    navigate={navigate}
+    onLoginClick={() => navigate('login')}
+    onSignupClick={() => navigate('login', { mode: 'signup' })}
+  />;
 };
 
 export default App;

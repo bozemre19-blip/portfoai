@@ -210,9 +210,13 @@ const KidsCharacters: React.FC<{ mouseX: number; mouseY: number }> = ({ mouseX, 
   );
 };
 
-const Auth: React.FC = () => {
+interface AuthProps {
+  initialMode?: 'login' | 'signup';
+}
+
+const Auth: React.FC<AuthProps> = ({ initialMode = 'login' }) => {
   const [lang, setLang] = useState<Language>(getLanguage());
-  const [isSignUp, setIsSignUp] = useState(false);
+  const [isSignUp, setIsSignUp] = useState(initialMode === 'signup');
   const [loading, setLoading] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');

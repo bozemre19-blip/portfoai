@@ -1,8 +1,8 @@
+```json
 {
-  "name": "lukid-ai",
-  "private": true,
-  "version": "0.0.0",
-  "type": "module",
+  "name": "lukid",
+  "version": "1.0.0",
+  "description": "Lukid AI",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
@@ -16,10 +16,13 @@
     "@heroicons/react": "^2.1.1",
     "@supabase/supabase-js": "^2.78.0",
     "@vercel/analytics": "^1.6.1",
+    "framer-motion": "^12.23.26",
     "html2canvas": "^1.4.1",
+    "i18next": "^25.7.3",
     "jspdf": "^3.0.3",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
+    "react-i18next": "^16.5.0",
     "uuid": "^13.0.0"
   },
   "devDependencies": {
