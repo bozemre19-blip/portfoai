@@ -60,7 +60,7 @@ const MobileTabBar: React.FC<MobileTabBarProps> = ({ currentPath, navigate }) =>
             <div className="absolute inset-0 bg-white/90 backdrop-blur-xl border-t border-gray-200"></div>
 
             {/* Content */}
-            <div className="relative flex justify-between items-end pb-safe pt-1 px-1 h-[72px] w-full overflow-x-auto no-scrollbar gap-1">
+            <div className="relative flex justify-between items-end pb-safe pt-1 px-1 h-[80px] w-full overflow-x-auto no-scrollbar gap-1 pb-2">
                 {tabs.map((tab) => {
                     const isActive = !tab.isFab && getIsActive(tab.path);
                     const Icon = isActive ? (tab.activeIcon || tab.icon) : tab.icon;
