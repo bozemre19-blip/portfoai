@@ -216,6 +216,22 @@ const App: React.FC = () => {
     }
   };
 
+  // 0. ÖNCELİKLİ: Şifre sıfırlama modu aktifse, session olsa bile bu sayfayı göster
+  if (isPasswordRecovery) {
+    return (
+      <ResetPasswordPage
+        onSuccess={() => {
+          setIsPasswordRecovery(false);
+          navigate('dashboard');
+        }}
+        onBack={() => {
+          setIsPasswordRecovery(false);
+          navigate('login');
+        }}
+      />
+    );
+  }
+
   // 1. Durum: Kullanıcı giriş yapmış
   if (session) {
     return (
