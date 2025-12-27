@@ -145,8 +145,8 @@ const FamilyDashboard: React.FC = () => {
             <header
                 className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-lg border-b border-orange-200 dark:border-gray-700 sticky top-0 z-10"
             >
-                {/* Safe Area Spacer for Mobile */}
-                <div className="h-14 w-full md:hidden"></div>
+                {/* Safe Area Spacer for Mobile - Height increased to 64px */}
+                <div className="h-16 w-full md:hidden"></div>
                 <div className="max-w-4xl mx-auto px-3 py-3 md:px-4 md:py-4 flex items-center justify-between">
                     <div className="flex items-center gap-2 md:gap-3">
                         <img src="/lukid-logo.png" alt="Lukid AI" className="w-8 h-8 md:w-10 md:h-10 object-contain" />
