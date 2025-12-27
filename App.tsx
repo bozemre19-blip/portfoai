@@ -76,6 +76,14 @@ const App: React.FC = () => {
   };
 
   useEffect(() => {
+    // URL'de şifre sıfırlama token'ı var mı kontrol et (Supabase recovery redirect)
+    const hash = window.location.hash;
+    if (hash.includes('type=recovery') || hash.includes('type=password_recovery')) {
+      console.log('Password recovery detected in URL');
+      setIsPasswordRecovery(true);
+      // URL'i temizle ama token'ları koru (Supabase session için gerekli)
+    }
+
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
       // Kullanıcı giriş yaptıysa Sentry'e bildir
