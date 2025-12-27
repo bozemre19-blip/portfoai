@@ -126,7 +126,7 @@ const ChildrenScreen: React.FC<ChildrenScreenProps> = ({ navigate }) => {
     <div>
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-3xl font-bold text-gradient-purple">{t('childList')}</h1>
-        <button onClick={() => setShowForm(!showForm)} className="px-4 py-2 rounded-lg shadow btn-gradient-primary">
+        <button onClick={() => setShowForm(!showForm)} className="px-4 py-2 rounded-lg shadow bg-gradient-to-r from-orange-500 to-orange-600 text-white hover:from-orange-600 hover:to-orange-700 transition-all">
           {showForm ? t('cancel') : t('addChild')}
         </button>
       </div>

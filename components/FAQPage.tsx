@@ -30,7 +30,7 @@ const FAQPage: React.FC<FAQPageProps> = ({ onBack }) => {
         {
             category: 'general',
             question: 'Lukid AI nedir?',
-            answer: 'Lukid AI, okul öncesi öğretmenleri için geliştirilmiş yapay zeka destekli bir çocuk gelişim takip platformudur. Gözlem notları almanızı, gelişim raporları oluşturmanızı ve sınıf yönetiminizi kolaylaştırır.'
+            answer: 'Lukid AI, okul öncesi öğretmenleri için geliştirilmiş yapay zeka destekli bir dijital portfolyo aracıdır. Gözlem notları almanızı, gelişim raporları oluşturmanızı ve sınıf yönetiminizi kolaylaştırır.'
         },
         {
             category: 'general',
@@ -192,8 +192,8 @@ const FAQPage: React.FC<FAQPageProps> = ({ onBack }) => {
                             key={category.id}
                             onClick={() => setActiveCategory(category.id)}
                             className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${activeCategory === category.id
-                                    ? 'bg-orange-600 text-white'
-                                    : 'bg-white text-gray-600 hover:bg-gray-100 border border-gray-200'
+                                ? 'bg-orange-600 text-white'
+                                : 'bg-white text-gray-600 hover:bg-gray-100 border border-gray-200'
                                 }`}
                         >
                             {category.label}

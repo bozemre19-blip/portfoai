@@ -77,7 +77,7 @@ const AboutPage: React.FC<AboutPageProps> = ({ onBack }) => {
                         </h1>
                         <p className="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
                             Lukid AI, <strong>Türkiye Yüzyılı Maarif Modeli Okul Öncesi Eğitim Programı</strong>'na uygun çalışan,
-                            Türkiye'nin ilk yapay zeka destekli çocuk gelişim takip platformudur.
+                            Türkiye'nin ilk yapay zeka destekli dijital portfolyo aracıdır.
                         </p>
                     </motion.div>
                 </div>

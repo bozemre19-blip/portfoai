@@ -717,7 +717,7 @@ const Auth: React.FC<AuthProps> = ({ initialMode = 'login', emailConfirmed = fal
                         setError('');
                         setMessage('');
                       }}
-                      className="text-sm text-indigo-600 hover:text-indigo-700 font-medium transition-colors"
+                      className="text-sm text-orange-600 hover:text-orange-700 font-medium transition-colors"
                     >
                       Şifremi Unuttum
                     </button>
@@ -741,7 +741,7 @@ const Auth: React.FC<AuthProps> = ({ initialMode = 'login', emailConfirmed = fal
                 <button
                   type="submit"
                   disabled={loading}
-                  className="group relative w-full py-4 px-4 bg-gradient-to-r from-indigo-600 via-blue-600 to-indigo-600 hover:from-indigo-700 hover:via-blue-700 hover:to-indigo-700 text-white font-bold rounded-xl shadow-xl hover:shadow-2xl transform hover:-translate-y-0.5 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none overflow-hidden"
+                  className="group relative w-full py-4 px-4 bg-gradient-to-r from-orange-600 via-orange-500 to-orange-600 hover:from-orange-700 hover:via-orange-600 hover:to-orange-700 text-white font-bold rounded-xl shadow-xl hover:shadow-2xl transform hover:-translate-y-0.5 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none overflow-hidden"
                 >
                   <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/20 to-white/0 transform -skew-x-12 -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>
                   <span className="relative flex items-center justify-center gap-2 text-lg">
@@ -767,7 +767,7 @@ const Auth: React.FC<AuthProps> = ({ initialMode = 'login', emailConfirmed = fal
             <div className="mt-8 text-center">
               <button
                 onClick={() => { setIsSignUp(!isSignUp); setMessage(''); setError(''); }}
-                className="text-indigo-600 hover:text-indigo-700 font-semibold text-base transition-all hover:underline decoration-2 underline-offset-4"
+                className="text-orange-600 hover:text-orange-700 font-semibold text-base transition-all hover:underline decoration-2 underline-offset-4"
               >
                 {isSignUp ? t('haveAccountBtn') : t('noAccountBtn')}
               </button>

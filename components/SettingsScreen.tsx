@@ -106,7 +106,7 @@ const SettingsScreen: React.FC<SettingsProps> = ({ navigate }) => {
               <div className="flex gap-2">
                 <button
                   onClick={() => toggleTheme('light')}
-                  className={`p-2 rounded-md transition-colors ${theme === 'light' ? 'bg-white shadow text-yellow-500' : 'text-gray-400 dark:text-gray-500'}`}
+                  className={`p-2 rounded-md transition-colors ${theme === 'light' ? 'bg-orange-500 text-white shadow' : 'text-gray-400 dark:text-gray-500'}`}
                 >
                   <SunIcon className="w-6 h-6" />
                 </button>

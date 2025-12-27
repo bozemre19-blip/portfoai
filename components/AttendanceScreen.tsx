@@ -182,7 +182,7 @@ const AttendanceScreen: React.FC<AttendanceScreenProps> = ({ navigate }) => {
   return (
     <div className="max-w-7xl mx-auto space-y-6">
       {/* Header with Stats */}
-      <div className="bg-gradient-to-r from-indigo-600 via-purple-600 to-blue-600 rounded-2xl p-6 text-white shadow-xl">
+      <div className="bg-gradient-to-r from-orange-500 via-orange-600 to-amber-600 rounded-2xl p-6 text-white shadow-xl">
         <div className="flex items-center justify-between mb-4">
           <div>
             <h1 className="text-3xl font-bold flex items-center gap-3">
@@ -257,7 +257,7 @@ const AttendanceScreen: React.FC<AttendanceScreenProps> = ({ navigate }) => {
               value={selectedDate}
               onChange={(e) => setSelectedDate(e.target.value)}
               max={new Date().toISOString().split('T')[0]}
-              className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+              className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
             />
           </div>
 
@@ -267,7 +267,7 @@ const AttendanceScreen: React.FC<AttendanceScreenProps> = ({ navigate }) => {
               <select
                 value={classroomFilter}
                 onChange={(e) => setClassroomFilter(e.target.value)}
-                className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
               >
                 <option value="">{t('allClasses')}</option>
                 {classrooms.map(cls => (
@@ -298,7 +298,7 @@ const AttendanceScreen: React.FC<AttendanceScreenProps> = ({ navigate }) => {
 
       {/* Active Filter Banner */}
       {statusFilter && (
-        <div className="bg-gradient-to-r from-indigo-50 to-purple-50 dark:from-indigo-900/40 dark:to-purple-900/40 border-2 border-indigo-200 dark:border-indigo-700 rounded-xl p-4 flex items-center justify-between shadow-md">
+        <div className="bg-gradient-to-r from-orange-50 to-amber-50 dark:from-orange-900/40 dark:to-amber-900/40 border-2 border-orange-200 dark:border-orange-700 rounded-xl p-4 flex items-center justify-between shadow-md">
           <div className="flex items-center gap-3">
             <span className="text-2xl">
               {statusFilter === 'present' && '✅'}
@@ -338,7 +338,7 @@ const AttendanceScreen: React.FC<AttendanceScreenProps> = ({ navigate }) => {
           {statusFilter && (
             <button
               onClick={() => setStatusFilter(null)}
-              className="mt-4 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-all"
+              className="mt-4 px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-all"
             >
               {t('showAll')}
             </button>
@@ -385,7 +385,7 @@ const AttendanceScreen: React.FC<AttendanceScreenProps> = ({ navigate }) => {
                   return (
                     <tr key={child.id} className={`hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors ${idx % 2 === 0 ? 'bg-white dark:bg-[#1a1a2e]' : 'bg-gray-50/50 dark:bg-gray-800/20'}`}>
                       <td className="px-6 py-4">
-                        <div className="w-12 h-12 rounded-full bg-gradient-to-r from-indigo-400 to-purple-400 flex items-center justify-center text-white font-bold text-lg shadow-md overflow-hidden">
+                        <div className="w-12 h-12 rounded-full bg-gradient-to-r from-orange-400 to-amber-400 flex items-center justify-center text-white font-bold text-lg shadow-md overflow-hidden">
                           {child.photo_url ? (
                             <img src={child.photo_url} alt={child.first_name} className="w-full h-full object-cover" />
                           ) : (
@@ -396,7 +396,7 @@ const AttendanceScreen: React.FC<AttendanceScreenProps> = ({ navigate }) => {
                       <td className="px-6 py-4">
                         <button
                           onClick={() => navigate('child-detail', { childId: child.id })}
-                          className="font-semibold text-gray-900 dark:text-white hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors"
+                          className="font-semibold text-gray-900 dark:text-white hover:text-orange-600 dark:hover:text-orange-400 transition-colors"
                         >
                           {child.first_name} {child.last_name}
                         </button>
@@ -457,7 +457,7 @@ const AttendanceScreen: React.FC<AttendanceScreenProps> = ({ navigate }) => {
           <button
             onClick={handleSaveAttendance}
             disabled={saving || attendanceRecords.size === 0}
-            className="px-8 py-4 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-xl shadow-2xl hover:shadow-3xl hover:scale-105 transition-all font-bold text-lg disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
+            className="px-8 py-4 bg-gradient-to-r from-orange-600 to-amber-600 text-white rounded-xl shadow-2xl hover:shadow-3xl hover:scale-105 transition-all font-bold text-lg disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
           >
             {saving ? '💾 ' + t('savingAttendance') : '💾 ' + t('saveAttendance')}
           </button>

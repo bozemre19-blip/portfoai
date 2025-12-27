@@ -129,7 +129,7 @@ const translations: Record<Language, Record<string, string>> = {
     addChild: 'Çocuk Ekle',
     addObservation: 'Gözlem Ekle',
     editObservation: 'Gözlemi Düzenle',
-    childList: 'Çocuk Listesi',
+    childList: 'Kayıtlı Çocuklar',
     searchChild: 'Çocuk ara...',
     noChildrenFound: 'Henüz hiç çocuk eklenmedi.',
     childProfile: 'Çocuk Profili',
