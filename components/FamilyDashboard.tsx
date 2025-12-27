@@ -152,30 +152,28 @@ const FamilyDashboard: React.FC = () => {
                         <img src="/lukid-logo.png" alt="Lukid AI" className="w-8 h-8 md:w-10 md:h-10 object-contain" />
                         <h1 className="text-base md:text-xl font-bold text-slate-800 dark:text-orange-200 leading-tight">{t('familyPortal')}</h1>
                     </div>
-                    <div className="flex items-center gap-2">
+                    <div className="hidden md:flex items-center gap-2">
                         <button
                             onClick={() => {
                                 const newLang = currentLang === 'tr' ? 'en' : 'tr';
                                 setLanguage(newLang);
                                 setCurrentLang(newLang);
                             }}
-                            className="px-2 py-1 md:px-3 md:py-2 bg-white/50 dark:bg-gray-700/50 hover:bg-white dark:hover:bg-gray-700 rounded-lg transition-colors border border-orange-100 dark:border-gray-600 font-medium text-xs md:text-sm whitespace-nowrap"
+                            className="px-3 py-2 bg-white/50 dark:bg-gray-700/50 hover:bg-white dark:hover:bg-gray-700 rounded-lg transition-colors border border-orange-100 dark:border-gray-600 font-medium text-sm"
                         >
                             {currentLang === 'tr' ? '🇺🇸 EN' : '🇹🇷 TR'}
                         </button>
                         <button
                             onClick={handleSignOut}
-                            className="p-2 md:px-4 md:py-2 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
-                            title={t('logout') || 'Çıkış Yap'}
+                            className="px-4 py-2 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
                         >
-                            <span className="hidden md:inline">{t('logout') || 'Çıkış Yap'}</span>
-                            <ArrowRightOnRectangleIcon className="w-5 h-5 md:hidden" />
+                            {t('logout') || 'Çıkış Yap'}
                         </button>
                     </div>
                 </div>
             </header>
 
-            <main className="max-w-4xl mx-auto px-4 py-8">
+            <main className="max-w-4xl mx-auto px-4 py-8 pb-32">
                 {/* Children Section */}
                 <section className="mb-8">
                     <div className="flex items-center justify-between mb-4">
@@ -336,8 +334,45 @@ const FamilyDashboard: React.FC = () => {
                     onClose={() => setChatChild(null)}
                 />
             )}
+
+            {/* Mobile Bottom Bar */}
+            <div className="fixed bottom-0 left-0 right-0 z-50 md:hidden">
+                <div className="absolute inset-0 bg-white/95 dark:bg-gray-800/95 backdrop-blur-xl border-t border-orange-200 dark:border-gray-700 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)]"></div>
+                <div className="relative flex justify-around items-center h-[84px] pb-[env(safe-area-inset-bottom)] px-6">
+                    <button
+                        onClick={() => {
+                            const newLang = currentLang === 'tr' ? 'en' : 'tr';
+                            setLanguage(newLang);
+                            setCurrentLang(newLang);
+                        }}
+                        className="flex flex-col items-center gap-1 active:scale-95 transition-transform"
+                    >
+                        <div className="w-12 h-8 rounded-lg bg-orange-100 dark:bg-gray-700 flex items-center justify-center text-xl shadow-sm border border-orange-200 dark:border-gray-600">
+                            {currentLang === 'tr' ? '🇺🇸' : '🇹🇷'}
+                        </div>
+                        <span className="text-[10px] font-medium text-gray-600 dark:text-gray-400">
+                            {currentLang === 'tr' ? 'English' : 'Türkçe'}
+                        </span>
+                    </button>
+
+                    <div className="w-px h-8 bg-gray-200 dark:bg-gray-700"></div>
+
+                    <button
+                        onClick={handleSignOut}
+                        className="flex flex-col items-center gap-1 active:scale-95 transition-transform group"
+                    >
+                        <div className="w-12 h-8 rounded-lg bg-red-50 dark:bg-red-900/20 flex items-center justify-center text-red-500 shadow-sm border border-red-100 dark:border-red-900/30 group-hover:bg-red-100 dark:group-hover:bg-red-900/30 transition-colors">
+                            <ArrowRightOnRectangleIcon className="w-5 h-5" />
+                        </div>
+                        <span className="text-[10px] font-medium text-red-500">
+                            {t('logout')}
+                        </span>
+                    </button>
+                </div>
+            </div>
         </div>
     );
 };
 
 export default FamilyDashboard;
+```
