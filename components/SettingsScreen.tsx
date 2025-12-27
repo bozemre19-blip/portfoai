@@ -2,7 +2,7 @@
 import { useAuth } from '../App';
 import { supabase } from '../services/supabase';
 import { t, getLanguage, setLanguage, Language } from '../constants.clean';
-import { seedDemoData, removeDemoData, recomputeAssessmentsForUser, getChildren } from '../services/api';
+import { seedDemoData, removeDemoData, recomputeAssessmentsForUser, getChildren, deleteUserAccount } from '../services/api';
 import { manualSync } from '../services/syncService';
 import { getOfflineQueue } from '../services/api/common';
 import { SunIcon, MoonIcon, DocumentTextIcon, ArrowRightOnRectangleIcon } from '@heroicons/react/24/outline';
@@ -31,6 +31,8 @@ const SettingsScreen: React.FC<SettingsProps> = ({ navigate }) => {
   const [classCount, setClassCount] = useState(2);
   const [classNames, setClassNames] = useState<string[]>(['Class A', 'Class B', 'Class C', 'Class D', 'Class E']);
   const [removing, setRemoving] = useState(false);
+  const [deletingAccount, setDeletingAccount] = useState(false);
+  const [deleteAccountMsg, setDeleteAccountMsg] = useState('');
   const [removeMsg, setRemoveMsg] = useState('');
   const [recomputing, setRecomputing] = useState(false);
   const [recomputeMsg, setRecomputeMsg] = useState('');
@@ -234,24 +236,51 @@ const SettingsScreen: React.FC<SettingsProps> = ({ navigate }) => {
             ⚙️ {t('advancedOps')} {showAdvanced ? '▲' : '▼'}
           </button>
           {showAdvanced && (
-            <div className="mt-4">
-              <button
-                onClick={async () => {
-                  if (!user) return;
-                  setExportingJSON(true); setExportMsg('Hazırlanıyor...');
-                  try {
-                    // Simple implementation wrapper
-                    setExportMsg('İndirme başladı...');
-                    // (Assuming export logic is same as before, simplified here for reliability)
-                    // ... export logic ...
-                    setExportMsg('Tamamlandı.');
-                  } catch (e: any) { setExportMsg('Hata: ' + e.message); } finally { setExportingJSON(false); }
-                }}
-                className="px-3 py-1.5 bg-green-600 text-white rounded text-xs"
-              >
-                📊 {t('exportBtn')} (CSV)
-              </button>
-              <p className="text-xs mt-2">{exportMsg}</p>
+            <div className="grid gap-4">
+              <div className="flex flex-col gap-2">
+                <button
+                  onClick={async () => {
+                    if (!user) return;
+                    setExportingJSON(true); setExportMsg('Hazırlanıyor...');
+                    try {
+                      // Simple implementation wrapper
+                      setExportMsg('İndirme başladı...');
+                      // (Assuming export logic is same as before, simplified here for reliability)
+                      // ... export logic ...
+                      setExportMsg('Tamamlandı.');
+                    } catch (e: any) { setExportMsg('Hata: ' + e.message); } finally { setExportingJSON(false); }
+                  }}
+                  className="px-3 py-1.5 bg-green-600 text-white rounded text-xs w-full text-left flex items-center"
+                >
+                  📊 {t('exportBtn')} (CSV)
+                </button>
+                <p className="text-xs">{exportMsg}</p>
+              </div>
+
+              <div className="border-t border-gray-200 dark:border-gray-700 pt-4">
+                <button
+                  onClick={async () => {
+                    if (!user) return;
+                    if (!confirm(t('deleteAccountConfirm'))) return;
+
+                    setDeletingAccount(true);
+                    setDeleteAccountMsg(t('deleteAccountWarning') || 'Siliniyor...');
+                    try {
+                      await deleteUserAccount(user.id, (msg) => setDeleteAccountMsg(msg));
+                      alert(t('accountDeleted'));
+                      window.location.reload();
+                    } catch (e: any) {
+                      setDeleteAccountMsg('Hata: ' + e.message);
+                      setDeletingAccount(false);
+                    }
+                  }}
+                  disabled={deletingAccount}
+                  className="w-full flex items-center justify-center px-4 py-3 bg-red-100 dark:bg-red-900/20 text-red-600 dark:text-red-400 rounded-lg hover:bg-red-200 dark:hover:bg-red-900/40 transition-colors text-sm font-bold border border-red-200 dark:border-red-800"
+                >
+                  ⚠️ {deletingAccount ? deleteAccountMsg : t('deleteAccount')}
+                </button>
+                {deletingAccount && <p className="text-xs text-red-500 mt-2 text-center animate-pulse">{deleteAccountMsg}</p>}
+              </div>
             </div>
           )}
         </div>
