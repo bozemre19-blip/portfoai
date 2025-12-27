@@ -212,9 +212,11 @@ const KidsCharacters: React.FC<{ mouseX: number; mouseY: number }> = ({ mouseX, 
 
 interface AuthProps {
   initialMode?: 'login' | 'signup';
+  emailConfirmed?: boolean;
+  onEmailConfirmedDismiss?: () => void;
 }
 
-const Auth: React.FC<AuthProps> = ({ initialMode = 'login' }) => {
+const Auth: React.FC<AuthProps> = ({ initialMode = 'login', emailConfirmed = false, onEmailConfirmedDismiss }) => {
   const [lang, setLang] = useState<Language>(getLanguage());
   const [isSignUp, setIsSignUp] = useState(initialMode === 'signup');
   const [loading, setLoading] = useState(false);
@@ -426,6 +428,32 @@ const Auth: React.FC<AuthProps> = ({ initialMode = 'login' }) => {
                 EN
               </button>
             </div>
+
+            {/* Email Doğrulama Başarılı Banner */}
+            {emailConfirmed && (
+              <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-xl">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
+                    <svg className="w-6 h-6 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                    </svg>
+                  </div>
+                  <div className="flex-1">
+                    <p className="font-semibold text-green-800">E-posta Doğrulandı!</p>
+                    <p className="text-green-700 text-sm">Hesabınız aktif edildi. Şimdi giriş yapabilirsiniz.</p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={onEmailConfirmedDismiss}
+                    className="text-green-600 hover:text-green-800"
+                  >
+                    <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </button>
+                </div>
+              </div>
+            )}
 
             <div className="mb-10">
               <h2 className="text-3xl font-bold text-slate-800 mb-2">

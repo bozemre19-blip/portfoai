@@ -47,6 +47,7 @@ const App: React.FC = () => {
   const [session, setSession] = useState<Session | null>(null);
   const [view, setView] = useState<{ page: string; params?: any }>({ page: '', params: {} });
   const [isOnline, setIsOnline] = useState(navigator.onLine);
+  const [emailConfirmed, setEmailConfirmed] = useState(false); // Email doğrulama başarılı mı
 
   // --- Lightweight hash router
   const makeHash = (page: string, params: any = {}) => {
@@ -81,14 +82,18 @@ const App: React.FC = () => {
       // }
     });
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       setSession(session);
-      // Auth state değiştiğinde Sentry'i güncelle
-      // if (session?.user) {
-      //   setSentryUser(session.user.id, session.user.email);
-      // } else {
-      //   clearSentryUser();
-      // }
+      // Email doğrulama başarılı olduğunda
+      if (event === 'SIGNED_IN' && window.location.hash.includes('type=signup') ||
+        event === 'USER_UPDATED' ||
+        window.location.hash.includes('type=email_confirm')) {
+        // URL'den token parametrelerini temizle
+        if (window.location.hash.includes('access_token') || window.location.hash.includes('type=')) {
+          setEmailConfirmed(true);
+          window.history.replaceState(null, '', window.location.pathname + '#/login');
+        }
+      }
     });
 
     const handleOnline = () => setIsOnline(true);
@@ -209,7 +214,11 @@ const App: React.FC = () => {
   if (view.page === 'login') {
     return (
       <div className="min-h-screen bg-gray-100 dark:bg-gray-900">
-        <Auth initialMode={view.params?.mode === 'signup' ? 'signup' : 'login'} />
+        <Auth
+          initialMode={view.params?.mode === 'signup' ? 'signup' : 'login'}
+          emailConfirmed={emailConfirmed}
+          onEmailConfirmedDismiss={() => setEmailConfirmed(false)}
+        />
       </div>
     );
   }
