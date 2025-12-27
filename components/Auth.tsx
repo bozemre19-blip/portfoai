@@ -300,6 +300,10 @@ const Auth: React.FC<AuthProps> = ({ initialMode = 'login' }) => {
     if (authError) {
       if (authError.message.toLowerCase().includes('invalid api key')) {
         setError(t('apiKeyError'));
+      } else if (authError.message.toLowerCase().includes('email not confirmed')) {
+        setError('E-posta adresiniz henüz doğrulanmadı. Lütfen gelen kutunuzu kontrol edin.');
+      } else if (authError.message.toLowerCase().includes('invalid login credentials')) {
+        setError('E-posta veya şifre hatalı. Lütfen tekrar deneyin.');
       } else {
         setError(authError.message);
       }
