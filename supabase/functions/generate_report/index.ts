@@ -92,8 +92,8 @@ Sen bir okul öncesi eğitim uzmanısın. Aşağıdaki çocuğa ait gözlem ve d
 
 ÇOCUK BİLGİLERİ:
 İsim: ${child.first_name} ${child.last_name}
-Doğum Tarihi: ${child.birth_date}
-Yaş: ${calculateAge(child.birth_date)} yaş
+Doğum Tarihi: ${child.dob}
+Yaş: ${calculateAge(child.dob)} yaş
 Sınıf: ${child.classroom || 'Belirtilmemiş'}
 
 GÖZLEMLER (${observations?.length || 0} adet):
@@ -211,9 +211,9 @@ JSON formatında döndür (sadece JSON, başka açıklama ekleme):
         // Prepare final report data
         const reportData = {
             childName: `${child.first_name} ${child.last_name}`,
-            birthDate: formatDate(child.birth_date),
+            birthDate: formatDate(child.dob),
             teacherName: `${teacher.first_name} ${teacher.last_name}`,
-            schoolStartDate: child.school_start_date ? formatDate(child.school_start_date) : '',
+            schoolStartDate: child.created_at ? formatDate(child.created_at) : '',
             reportDate: formatDate(new Date().toISOString()),
             ...aiContent,
         };
