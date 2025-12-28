@@ -96,9 +96,9 @@ Doğum Tarihi: ${child.dob}
 Yaş: ${calculateAge(child.dob)} yaş
 Sınıf: ${child.classroom || 'Belirtilmemiş'}
 
-GÖZLEMLER (${observations?.length || 0} adet):
-${(observations || []).slice(0, 50).map((o: any, i: number) =>
-            `${i + 1}. ${o.note} ${o.context ? '(Bağlam: ' + o.context + ')' : ''} (Alan: ${o.domains?.join(', ') || 'Belirtilmemiş'})`
+GÖZLEMLER (${observations?.length || 0} adet, son 15 gösteriliyor):
+${(observations || []).slice(0, 15).map((o: any, i: number) =>
+            `${i + 1}. ${o.note} (${o.domains?.join(', ') || 'Yok'})`
         ).join('\n')}
 
 HEDEFLER:
@@ -135,20 +135,20 @@ JSON formatında döndür (sadece JSON, başka açıklama ekleme):
 }
 `;
 
-        // Call Gemini API with multiple version/model combinations (matching ai_evaluate)
-        const attempts: Array<{ version: string; model: string }> = [
-            { version: 'v1beta', model: 'gemini-1.5-flash-002' },
-            { version: 'v1', model: 'gemini-1.5-flash-002' },
-            { version: 'v1beta', model: 'gemini-1.5-flash-latest' },
-            { version: 'v1', model: 'gemini-1.5-flash' },
+        // Call Gemini API with Gemini 2.5 models (matching teacher_chat)
+        const models = [
+            'gemini-2.5-flash',
+            'gemini-2.5-flash-lite',
+            'gemini-2.0-flash-lite-001',
         ];
 
         let aiContent = null;
         let lastError = null;
 
-        for (const { version, model } of attempts) {
+        let lastError = null;
+        for (const model of models) {
             try {
-                const url = `https://generativelanguage.googleapis.com/${version}/models/${model}:generateContent?key=${GEMINI_API_KEY}`;
+                const url = `https://generativelanguage.googleapis.com/v1/models/${model}:generateContent?key=${encodeURIComponent(GEMINI_API_KEY)}`;
                 const response = await fetch(url, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -188,8 +188,8 @@ JSON formatında döndür (sadece JSON, başka açıklama ekleme):
                 break; // Success, exit loop
             } catch (error) {
                 lastError = error;
-                console.error(`Failed with ${version}/${model}:`, error);
-                continue; // Try next combination
+                console.error(`Failed with ${model}:`, error);
+                continue; // Try next model
             }
         }
 
