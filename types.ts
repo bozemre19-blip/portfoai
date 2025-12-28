@@ -60,6 +60,7 @@ export interface Media {
   name: string;
   description?: string;
   domain?: DevelopmentDomain;
+  shared_with_family?: boolean;
 }
 
 export interface Assessment {

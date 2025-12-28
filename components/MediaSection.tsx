@@ -2,8 +2,9 @@
 import { useAuth } from '../App';
 import { getDomains, t } from '../constants.clean';
 import type { DevelopmentDomain, Media } from '../types';
-import { addMediaRecord, deleteMedia, getMediaForChild, getSignedUrlForMedia, uploadMediaViaFunction, updateMediaViaFunction } from '../services/api';
+import { addMediaRecord, deleteMedia, getMediaForChild, getSignedUrlForMedia, uploadMediaViaFunction, updateMediaViaFunction, toggleMediaSharing } from '../services/api';
 import { TrashIcon } from './Icons';
+import { ShareIcon, CheckCircleIcon } from '@heroicons/react/24/outline';
 
 type MediaWithUrl = Media & { url?: string };
 
@@ -21,6 +22,7 @@ const MediaSection: React.FC<MediaSectionProps> = ({ childId }) => {
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [domain, setDomain] = useState<DevelopmentDomain | ''>('');
+  const [shareWithFamily, setShareWithFamily] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [editItem, setEditItem] = useState<MediaWithUrl | null>(null);
   const [editFile, setEditFile] = useState<File | null>(null);
@@ -63,20 +65,24 @@ const MediaSection: React.FC<MediaSectionProps> = ({ childId }) => {
     setName('');
     setDescription('');
     setDomain('');
+    setShareWithFamily(false);
   };
 
   const onSave = async () => {
     if (!user || !file || !name) return;
-    if (!domain) { setError((t as any)('productDomainRequired') || 'LÃ¼tfen Ã¼rÃ¼n iÃ§in bir geliÅŸim alanÄ± seÃ§in.'); return; }
+    if (!domain) { setError((t as any)('productDomainRequired') || 'Lütfen ürün için bir gelişim alanı seçin.'); return; }
     setIsSaving(true);
     setError(null);
     try {
-      // Upload via Edge Function (handles storage + DB insert)
-      const { path } = await uploadMediaViaFunction(childId, file, {
+      const { path, mediaId } = await uploadMediaViaFunction(childId, file, {
         name: name.trim(),
         description: description.trim() || undefined,
         domain: (domain || undefined) as DevelopmentDomain | undefined,
       });
+      // If shareWithFamily is checked and we have mediaId, toggle sharing
+      if (shareWithFamily && mediaId) {
+        await toggleMediaSharing(mediaId, true);
+      }
       setShowModal(false);
       resetForm();
       fetchMedia();
@@ -93,11 +99,12 @@ const MediaSection: React.FC<MediaSectionProps> = ({ childId }) => {
     setName(m.name || '');
     setDescription(m.description || '');
     setDomain((m.domain || '') as any);
+    setShareWithFamily(m.shared_with_family || false);
   };
 
   const onSaveEdit = async () => {
     if (!user || !editItem) return;
-    if (!domain) { setError((t as any)('productDomainRequired') || 'LÃ¼tfen Ã¼rÃ¼n iÃ§in bir geliÅŸim alanÄ± seÃ§in.'); return; }
+    if (!domain) { setError((t as any)('productDomainRequired') || 'Lütfen ürün için bir gelişim alanı seçin.'); return; }
     setIsSaving(true);
     setError(null);
     try {
@@ -107,6 +114,10 @@ const MediaSection: React.FC<MediaSectionProps> = ({ childId }) => {
         domain: (domain || undefined) as any,
         file: editFile || undefined,
       });
+      // Update sharing status if changed
+      if (shareWithFamily !== (editItem.shared_with_family || false)) {
+        await toggleMediaSharing(editItem.id, shareWithFamily);
+      }
       setEditItem(null);
       resetForm();
       fetchMedia();
@@ -120,6 +131,15 @@ const MediaSection: React.FC<MediaSectionProps> = ({ childId }) => {
   const onDelete = async (m: Media) => {
     if (!confirm(t('confirmDeleteMessage'))) return;
     try { await deleteMedia(m); fetchMedia(); } catch (e) { console.error(e); }
+  };
+
+  const onToggleShare = async (m: MediaWithUrl) => {
+    try {
+      await toggleMediaSharing(m.id, !m.shared_with_family);
+      fetchMedia();
+    } catch (e: any) {
+      console.error(e);
+    }
   };
 
   return (
@@ -141,19 +161,40 @@ const MediaSection: React.FC<MediaSectionProps> = ({ childId }) => {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {items.map((m) => (
           <div key={m.id} className="relative group border dark:border-gray-700 rounded-md overflow-hidden bg-gray-50 dark:bg-gray-800/50 hover:shadow-md transition-all">
-            <button
-              onClick={() => onDelete(m)}
-              className="absolute top-2 right-2 p-2 rounded-full bg-white/80 dark:bg-black/60 text-gray-600 dark:text-gray-200 opacity-0 group-hover:opacity-100 hover:bg-red-100 dark:hover:bg-red-900/50 hover:text-red-600 transition-all"
-              aria-label="delete"
-            >
-              <TrashIcon className="w-5 h-5" />
-            </button>
+            {/* Shared Badge */}
+            {m.shared_with_family && (
+              <div className="absolute top-2 left-2 z-10 px-2 py-1 bg-green-500 text-white text-xs rounded-full flex items-center gap-1">
+                <CheckCircleIcon className="w-3 h-3" />
+                {t('sharedWithFamily')}
+              </div>
+            )}
+
+            {/* Action Buttons */}
+            <div className="absolute top-2 right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-all z-10">
+              <button
+                onClick={() => onToggleShare(m)}
+                className={`p-2 rounded-full ${m.shared_with_family ? 'bg-green-100 dark:bg-green-900/50 text-green-600' : 'bg-white/80 dark:bg-black/60 text-gray-600 dark:text-gray-200'} hover:bg-green-200 dark:hover:bg-green-800/50 transition-all`}
+                aria-label="toggle share"
+                title={m.shared_with_family ? t('sharedWithFamily') : t('shareWithFamily')}
+              >
+                <ShareIcon className="w-5 h-5" />
+              </button>
+              <button
+                onClick={() => onDelete(m)}
+                className="p-2 rounded-full bg-white/80 dark:bg-black/60 text-gray-600 dark:text-gray-200 hover:bg-red-100 dark:hover:bg-red-900/50 hover:text-red-600 transition-all"
+                aria-label="delete"
+              >
+                <TrashIcon className="w-5 h-5" />
+              </button>
+            </div>
+
             <button
               onClick={() => onOpenEdit(m)}
-              className="absolute top-2 left-2 px-2 py-1 rounded bg-white/80 dark:bg-black/60 text-gray-700 dark:text-gray-200 opacity-0 group-hover:opacity-100 hover:bg-gray-100 dark:hover:bg-gray-700 text-sm transition-all"
+              className="absolute bottom-14 left-2 px-2 py-1 rounded bg-white/80 dark:bg-black/60 text-gray-700 dark:text-gray-200 opacity-0 group-hover:opacity-100 hover:bg-gray-100 dark:hover:bg-gray-700 text-sm transition-all z-10"
             >
               {t('edit')}
             </button>
+
             {m.url ? (
               <img src={m.url} alt={m.name} className="w-full h-40 object-cover" />
             ) : (
@@ -172,6 +213,7 @@ const MediaSection: React.FC<MediaSectionProps> = ({ childId }) => {
         ))}
       </div>
 
+      {/* Add Modal */}
       {showModal && (
         <div className="fixed inset-0 bg-black/50 z-40 flex items-center justify-center p-4 backdrop-blur-sm" onClick={() => setShowModal(false)}>
           <div className="bg-white dark:bg-[#1a1a2e] rounded-lg shadow-xl p-6 w-full max-w-lg transition-colors border dark:border-gray-700" onClick={(e) => e.stopPropagation()}>
@@ -199,6 +241,20 @@ const MediaSection: React.FC<MediaSectionProps> = ({ childId }) => {
                 <input className="mt-1 w-full text-gray-700 dark:text-gray-300" type="file" accept="image/*" onChange={(e) => setFile(e.target.files?.[0] || null)} />
                 <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">{file ? `${t('fileSelected')} ${file.name}` : t('noFileSelected')}</p>
               </div>
+              {/* Share with Family Toggle */}
+              <div className="flex items-center gap-3 pt-2">
+                <button
+                  type="button"
+                  onClick={() => setShareWithFamily(!shareWithFamily)}
+                  className={`relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${shareWithFamily ? 'bg-green-500' : 'bg-gray-300 dark:bg-gray-600'}`}
+                >
+                  <span className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${shareWithFamily ? 'translate-x-5' : 'translate-x-0'}`} />
+                </button>
+                <label className="text-sm text-gray-700 dark:text-gray-300 flex items-center gap-2">
+                  <ShareIcon className="w-4 h-4" />
+                  {t('shareWithFamily')}
+                </label>
+              </div>
             </div>
             {error && <p className="text-sm text-red-600 mb-3">{error}</p>}
             <div className="mt-6 flex justify-end gap-2">
@@ -209,6 +265,7 @@ const MediaSection: React.FC<MediaSectionProps> = ({ childId }) => {
         </div>
       )}
 
+      {/* Edit Modal */}
       {editItem && (
         <div className="fixed inset-0 bg-black/50 z-40 flex items-center justify-center p-4 backdrop-blur-sm" onClick={() => setEditItem(null)}>
           <div className="bg-white dark:bg-[#1a1a2e] rounded-lg shadow-xl p-6 w-full max-w-lg transition-colors border dark:border-gray-700" onClick={(e) => e.stopPropagation()}>
@@ -236,6 +293,20 @@ const MediaSection: React.FC<MediaSectionProps> = ({ childId }) => {
                 <input className="mt-1 w-full text-gray-700 dark:text-gray-300" type="file" accept="image/*" onChange={(e) => setEditFile(e.target.files?.[0] || null)} />
                 <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">{editFile ? `${t('fileSelected')} ${editFile.name}` : t('noFileSelected')}</p>
               </div>
+              {/* Share with Family Toggle */}
+              <div className="flex items-center gap-3 pt-2">
+                <button
+                  type="button"
+                  onClick={() => setShareWithFamily(!shareWithFamily)}
+                  className={`relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${shareWithFamily ? 'bg-green-500' : 'bg-gray-300 dark:bg-gray-600'}`}
+                >
+                  <span className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${shareWithFamily ? 'translate-x-5' : 'translate-x-0'}`} />
+                </button>
+                <label className="text-sm text-gray-700 dark:text-gray-300 flex items-center gap-2">
+                  <ShareIcon className="w-4 h-4" />
+                  {t('shareWithFamily')}
+                </label>
+              </div>
             </div>
             {error && <p className="text-sm text-red-600 mt-3">{error}</p>}
             <div className="mt-6 flex justify-end gap-2">
@@ -250,4 +321,3 @@ const MediaSection: React.FC<MediaSectionProps> = ({ childId }) => {
 };
 
 export default MediaSection;
-

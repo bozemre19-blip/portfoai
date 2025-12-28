@@ -154,3 +154,28 @@ export const updateMediaViaFunction = async (
   return { path: (data as any)?.path };
 };
 
+// Toggle media sharing with family
+export const toggleMediaSharing = async (mediaId: string, shared: boolean) => {
+  const { error } = await supabase
+    .from('media')
+    .update({ shared_with_family: shared })
+    .eq('id', mediaId);
+  if (error) throw error;
+  dispatchDataChangedEvent();
+};
+
+// Get shared media for family users
+export const getFamilySharedMedia = async () => {
+  const { data, error } = await supabase.rpc('get_family_shared_media');
+  if (error) throw error;
+  return data as Array<{
+    id: string;
+    child_id: string;
+    child_name: string;
+    name: string;
+    description: string;
+    domain: string;
+    storage_path: string;
+    created_at: string;
+  }>;
+};
