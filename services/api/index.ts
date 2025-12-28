@@ -59,4 +59,8 @@ export type { Announcement, CreateAnnouncementInput } from './announcements';
 export * from './messages';
 export type { Message, MessageSettings } from './messages';
 
+// Gelişim Raporları
+export * from './reports';
+
+
 

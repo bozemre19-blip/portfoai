@@ -2,7 +2,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { supabase } from '../services/supabase';
 import type { Child, Assessment, Guardian } from '../types';
-import { getObservationsForChild, getMediaForChild, updateChild, uploadChildPhoto, getAiAnalysis, addAssessmentForObservation, getSignedUrlForMedia } from '../services/api';
+import { getObservationsForChild, getMediaForChild, updateChild, uploadChildPhoto, getAiAnalysis, addAssessmentForObservation, getSignedUrlForMedia, generateDevelopmentReportData } from '../services/api';
 import { generatePdf } from './PdfReport';
 import { t, getDomains, getLanguage, getDateLocale } from '../constants.clean';
 import { useAuth } from '../App';
@@ -178,9 +178,10 @@ interface ChildProfileCardProps {
   onRefreshInsights: () => void;
   onOpenMedia?: () => void;
   onOpenObservations?: () => void;
+  onGenerateReport?: (childId: string) => void;
 }
 
-const ChildProfileCard: React.FC<ChildProfileCardProps> = ({ data, onAddObservation, onExportPdf, onEdit, onChangePhoto, onRefreshInsights, onOpenMedia, onOpenObservations }) => {
+const ChildProfileCard: React.FC<ChildProfileCardProps> = ({ data, onAddObservation, onExportPdf, onEdit, onChangePhoto, onRefreshInsights, onOpenMedia, onOpenObservations, onGenerateReport }) => {
   return (
     <div className="max-w-7xl mx-auto space-y-6">
       {/* Hero */}
@@ -222,6 +223,16 @@ const ChildProfileCard: React.FC<ChildProfileCardProps> = ({ data, onAddObservat
                 {t('refresh')}
               </button>
             </div>
+            <div className="w-full">
+              <button
+                onClick={() => onGenerateReport && onGenerateReport(data.id)}
+                disabled={data.stats.observations === 0}
+                className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-gradient-to-r from-purple-500 to-indigo-600 text-white rounded-md shadow-sm hover:from-purple-600 hover:to-indigo-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <DocumentArrowDownIcon className="w-5 h-5" />
+                {data.stats.observations === 0 ? 'Gelişim Raporu (Gözlem Gerekli)' : 'Gelişim Raporu Oluştur'}
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -251,6 +262,7 @@ const ChildDetailScreen: React.FC<ChildDetailScreenProps> = ({ childId, navigate
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [isRefreshingInsights, setIsRefreshingInsights] = useState(false);
+  const [isGeneratingReport, setIsGeneratingReport] = useState(false);
 
   const getErrorMessage = (error: unknown): string => error instanceof Error ? error.message : 'Bilinmeyen bir hata oluştu.';
 
@@ -449,6 +461,34 @@ const ChildDetailScreen: React.FC<ChildDetailScreenProps> = ({ childId, navigate
     } finally { setIsSaving(false); }
   };
 
+  const handleGenerateReport = async (childId: string) => {
+    if (!child || isGeneratingReport) return;
+
+    try {
+      setIsGeneratingReport(true);
+      setError(null);
+
+      // Import docx generator
+      const { generateReportDocx } = await import('../utils/docxGenerator');
+
+      // Generate AI content and collect data
+      const reportData = await generateDevelopmentReportData(childId);
+
+      // Generate and download DOCX
+      await generateReportDocx(reportData, `${child.first_name} ${child.last_name}`);
+
+      // Success notification
+      alert('Gelişim raporu başarıyla oluşturuldu ve indirildi!');
+
+    } catch (error: any) {
+      console.error('Report generation error:', error);
+      setError(error.message || 'Rapor oluşturulurken bir hata oluştu.');
+      alert('Rapor oluşturulurken bir hata oluştu: ' + (error.message || 'Bilinmeyen hata'));
+    } finally {
+      setIsGeneratingReport(false);
+    }
+  };
+
   if (loading) return <p>{t('loading')}</p>;
   if (error) return <p className="text-red-500 my-4 bg-red-100 p-3 rounded-md">{error}</p>;
   if (!profileData) return <p>{t('childNotFound')}</p>;
@@ -464,6 +504,7 @@ const ChildDetailScreen: React.FC<ChildDetailScreenProps> = ({ childId, navigate
         onRefreshInsights={handleRefreshInsights}
         onOpenMedia={() => navigate('media', { childId })}
         onOpenObservations={() => navigate('child-observations', { childId })}
+        onGenerateReport={handleGenerateReport}
       />
 
       {/* Alt Bilgiler */}
