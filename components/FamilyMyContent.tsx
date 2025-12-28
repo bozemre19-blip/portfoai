@@ -5,7 +5,7 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../services/supabase';
 import { getSignedUrlForMedia } from '../services/api';
-import { getDomains } from '../constants.clean';
+import { getDomains, t } from '../constants.clean';
 import { TrashIcon, PencilIcon } from '@heroicons/react/24/outline';
 
 interface FamilyMyContentProps {
@@ -54,7 +54,6 @@ const FamilyMyContent: React.FC<FamilyMyContentProps> = ({ childId, childName, o
             const { data: { user } } = await supabase.auth.getUser();
             if (!user) return;
 
-            // Get family's own observations
             const { data: obsData } = await supabase
                 .from('observations')
                 .select('id, note, context, domains, created_at')
@@ -65,7 +64,6 @@ const FamilyMyContent: React.FC<FamilyMyContentProps> = ({ childId, childName, o
 
             setObservations(obsData || []);
 
-            // Get family's own media
             const { data: mediaData } = await supabase
                 .from('media')
                 .select('id, name, description, type, storage_path, created_at')
@@ -76,7 +74,6 @@ const FamilyMyContent: React.FC<FamilyMyContentProps> = ({ childId, childName, o
 
             setMedia(mediaData || []);
 
-            // Load signed URLs
             const urls: Record<string, string> = {};
             for (const m of (mediaData || [])) {
                 try {
@@ -93,7 +90,7 @@ const FamilyMyContent: React.FC<FamilyMyContentProps> = ({ childId, childName, o
     };
 
     const handleDeleteObservation = async (id: string) => {
-        if (!confirm('Bu gözlemi silmek istediğinize emin misiniz?')) return;
+        if (!confirm(t('confirmDeleteObservation'))) return;
         setDeleting(id);
         try {
             await supabase.from('observations').delete().eq('id', id);
@@ -101,13 +98,13 @@ const FamilyMyContent: React.FC<FamilyMyContentProps> = ({ childId, childName, o
             onRefresh();
         } catch (error) {
             console.error('Error deleting observation:', error);
-            alert('Silinirken hata oluştu');
+            alert(t('deleteError'));
         }
         setDeleting(null);
     };
 
     const handleDeleteMedia = async (id: string, storagePath: string) => {
-        if (!confirm('Bu fotoğraf/videoyu silmek istediğinize emin misiniz?')) return;
+        if (!confirm(t('confirmDeleteMedia'))) return;
         setDeleting(id);
         try {
             await supabase.storage.from('child-media').remove([storagePath]);
@@ -116,7 +113,7 @@ const FamilyMyContent: React.FC<FamilyMyContentProps> = ({ childId, childName, o
             onRefresh();
         } catch (error) {
             console.error('Error deleting media:', error);
-            alert('Silinirken hata oluştu');
+            alert(t('deleteError'));
         }
         setDeleting(null);
     };
@@ -137,7 +134,7 @@ const FamilyMyContent: React.FC<FamilyMyContentProps> = ({ childId, childName, o
             onRefresh();
         } catch (error) {
             console.error('Error updating observation:', error);
-            alert('Güncellenirken hata oluştu');
+            alert(t('updateError'));
         }
     };
 
@@ -164,7 +161,7 @@ const FamilyMyContent: React.FC<FamilyMyContentProps> = ({ childId, childName, o
                                 <span className="text-xl">📁</span>
                             </div>
                             <div>
-                                <h2 className="text-lg font-bold">Eklediklerim</h2>
+                                <h2 className="text-lg font-bold">{t('myContent')}</h2>
                                 <p className="text-teal-100 text-sm">{childName}</p>
                             </div>
                         </div>
@@ -186,7 +183,7 @@ const FamilyMyContent: React.FC<FamilyMyContentProps> = ({ childId, childName, o
                                 : 'text-gray-500 hover:text-gray-700 dark:text-gray-400'
                             }`}
                     >
-                        📝 Gözlemlerim ({observations.length})
+                        📝 {t('myObservations')} ({observations.length})
                     </button>
                     <button
                         onClick={() => setActiveTab('media')}
@@ -195,7 +192,7 @@ const FamilyMyContent: React.FC<FamilyMyContentProps> = ({ childId, childName, o
                                 : 'text-gray-500 hover:text-gray-700 dark:text-gray-400'
                             }`}
                     >
-                        📷 Fotoğraflarım ({media.length})
+                        📷 {t('myPhotos')} ({media.length})
                     </button>
                 </div>
 
@@ -209,7 +206,7 @@ const FamilyMyContent: React.FC<FamilyMyContentProps> = ({ childId, childName, o
                         observations.length === 0 ? (
                             <div className="text-center py-12">
                                 <div className="text-4xl mb-3">📝</div>
-                                <p className="text-gray-500 dark:text-gray-400">Henüz gözlem eklememişsiniz</p>
+                                <p className="text-gray-500 dark:text-gray-400">{t('noObservationsYet')}</p>
                             </div>
                         ) : (
                             <div className="space-y-3">
@@ -231,13 +228,13 @@ const FamilyMyContent: React.FC<FamilyMyContentProps> = ({ childId, childName, o
                                                         onClick={handleEditObservation}
                                                         className="px-3 py-1.5 bg-teal-500 text-white rounded-lg text-sm"
                                                     >
-                                                        Kaydet
+                                                        {t('save')}
                                                     </button>
                                                     <button
                                                         onClick={() => { setEditingObs(null); setEditNote(''); }}
                                                         className="px-3 py-1.5 bg-gray-300 dark:bg-gray-600 text-gray-700 dark:text-gray-200 rounded-lg text-sm"
                                                     >
-                                                        İptal
+                                                        {t('cancel')}
                                                     </button>
                                                 </div>
                                             </div>
@@ -283,7 +280,7 @@ const FamilyMyContent: React.FC<FamilyMyContentProps> = ({ childId, childName, o
                         media.length === 0 ? (
                             <div className="text-center py-12">
                                 <div className="text-4xl mb-3">📷</div>
-                                <p className="text-gray-500 dark:text-gray-400">Henüz fotoğraf/video eklememişsiniz</p>
+                                <p className="text-gray-500 dark:text-gray-400">{t('noPhotosYet')}</p>
                             </div>
                         ) : (
                             <div className="grid grid-cols-2 gap-3">

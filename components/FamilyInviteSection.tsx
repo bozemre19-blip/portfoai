@@ -9,6 +9,7 @@ import {
     revokeFamilyLink,
     FamilyChildLink
 } from '../services/api';
+import { t, getDateLocale } from '../constants.clean';
 import FamilyAddedContent from './FamilyAddedContent';
 
 interface FamilyInviteSectionProps {
@@ -52,7 +53,7 @@ const FamilyInviteSection: React.FC<FamilyInviteSectionProps> = ({ childId, chil
     };
 
     const handleRevoke = async (linkId: string) => {
-        if (!confirm('Bu aile bağlantısını silmek istediğinize emin misiniz?')) return;
+        if (!confirm(t('confirmRevokeLink'))) return;
         await revokeFamilyLink(linkId);
         await loadLinks();
     };
@@ -68,8 +69,8 @@ const FamilyInviteSection: React.FC<FamilyInviteSectionProps> = ({ childId, chil
                         <span className="text-2xl">👨‍👩‍👧</span>
                     </div>
                     <div>
-                        <h3 className="text-lg font-bold text-gray-800 dark:text-white">Aile Bağlantıları</h3>
-                        <p className="text-sm text-gray-500 dark:text-gray-400">{childName} için veli erişimi</p>
+                        <h3 className="text-lg font-bold text-gray-800 dark:text-white">{t('linkedFamilies')}</h3>
+                        <p className="text-sm text-gray-500 dark:text-gray-400">{childName}</p>
                     </div>
                 </div>
                 <div className="flex items-center gap-2">
@@ -78,7 +79,7 @@ const FamilyInviteSection: React.FC<FamilyInviteSectionProps> = ({ childId, chil
                         className="px-4 py-2 bg-amber-500 text-white rounded-xl hover:bg-amber-600 transition-colors flex items-center gap-2"
                     >
                         <span>📋</span>
-                        Aile Eklentileri
+                        {t('familyContent')}
                     </button>
                     <button
                         onClick={handleCreateInvite}
@@ -90,7 +91,7 @@ const FamilyInviteSection: React.FC<FamilyInviteSectionProps> = ({ childId, chil
                         ) : (
                             <span>➕</span>
                         )}
-                        Davet Kodu Oluştur
+                        {t('createInviteCode')}
                     </button>
                 </div>
             </div>
@@ -98,7 +99,7 @@ const FamilyInviteSection: React.FC<FamilyInviteSectionProps> = ({ childId, chil
             {/* New Code Display */}
             {newCode && (
                 <div className="mb-6 p-4 bg-gradient-to-r from-teal-50 to-cyan-50 dark:from-teal-900/20 dark:to-cyan-900/20 rounded-xl border-2 border-teal-200 dark:border-teal-700">
-                    <p className="text-sm text-teal-700 dark:text-teal-300 mb-2">🎉 Yeni davet kodu oluşturuldu!</p>
+                    <p className="text-sm text-teal-700 dark:text-teal-300 mb-2">{t('inviteCodeCreated')}</p>
                     <div className="flex items-center gap-3">
                         <code className="text-3xl font-mono font-bold tracking-widest text-teal-800 dark:text-teal-200 bg-white dark:bg-gray-800 px-4 py-2 rounded-lg">
                             {newCode}
@@ -107,24 +108,24 @@ const FamilyInviteSection: React.FC<FamilyInviteSectionProps> = ({ childId, chil
                             onClick={() => handleCopyCode(newCode)}
                             className="px-4 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700 transition-colors"
                         >
-                            {copied ? '✅ Kopyalandı' : '📋 Kopyala'}
+                            {copied ? t('copied') : t('copy')}
                         </button>
                     </div>
                     <p className="text-xs text-teal-600 dark:text-teal-400 mt-2">
-                        Bu kodu veliye gönderin. Veli bu kodla kayıt olduğunda çocuğa otomatik bağlanacak.
+                        {t('inviteCodeInstruction')}
                     </p>
                 </div>
             )}
 
             {loading ? (
-                <div className="text-center py-8 text-gray-500">Yükleniyor...</div>
+                <div className="text-center py-8 text-gray-500">{t('loading')}</div>
             ) : (
                 <>
                     {/* Approved Links */}
                     {approvedLinks.length > 0 && (
                         <div className="mb-6">
                             <h4 className="text-sm font-semibold text-gray-600 dark:text-gray-300 mb-3 flex items-center gap-2">
-                                <span className="text-green-500">✅</span> Bağlı Veliler
+                                <span className="text-green-500">✅</span> {t('linkedFamilies')}
                             </h4>
                             <div className="space-y-2">
                                 {approvedLinks.map(link => (
@@ -138,18 +139,18 @@ const FamilyInviteSection: React.FC<FamilyInviteSectionProps> = ({ childId, chil
                                             </div>
                                             <div>
                                                 <p className="font-medium text-gray-800 dark:text-white">
-                                                    {link.relationship === 'parent' ? 'Veli' : link.relationship}
+                                                    {link.relationship === 'parent' ? t('parentRole') : link.relationship}
                                                 </p>
                                                 <p className="text-xs text-gray-500 dark:text-gray-400">
-                                                    Bağlandı: {new Date(link.approved_at || '').toLocaleDateString('tr-TR')}
+                                                    {t('linkedOn')}: {new Date(link.created_at).toLocaleDateString(getDateLocale())}
                                                 </p>
                                             </div>
                                         </div>
                                         <button
                                             onClick={() => handleRevoke(link.id)}
-                                            className="px-3 py-1 text-red-600 hover:bg-red-100 dark:hover:bg-red-900/30 rounded-lg transition-colors text-sm"
+                                            className="text-red-500 hover:text-red-700 text-sm font-medium"
                                         >
-                                            Kaldır
+                                            {t('remove')}
                                         </button>
                                     </div>
                                 ))}
@@ -161,7 +162,7 @@ const FamilyInviteSection: React.FC<FamilyInviteSectionProps> = ({ childId, chil
                     {pendingLinks.length > 0 && (
                         <div>
                             <h4 className="text-sm font-semibold text-gray-600 dark:text-gray-300 mb-3 flex items-center gap-2">
-                                <span className="text-yellow-500">⏳</span> Bekleyen Davetler
+                                <span className="text-yellow-500">⏳</span> {t('pendingInvites')}
                             </h4>
                             <div className="space-y-2">
                                 {pendingLinks.map(link => (
@@ -174,7 +175,7 @@ const FamilyInviteSection: React.FC<FamilyInviteSectionProps> = ({ childId, chil
                                                 {link.invite_code}
                                             </code>
                                             <span className="text-sm text-gray-500 dark:text-gray-400">
-                                                Henüz kullanılmadı
+                                                {t('notUsedYet')}
                                             </span>
                                         </div>
                                         <div className="flex items-center gap-2">
@@ -188,7 +189,7 @@ const FamilyInviteSection: React.FC<FamilyInviteSectionProps> = ({ childId, chil
                                                 onClick={() => handleRevoke(link.id)}
                                                 className="px-3 py-1 text-red-600 hover:bg-red-100 dark:hover:bg-red-900/30 rounded-lg transition-colors text-sm"
                                             >
-                                                İptal
+                                                {t('cancelInvite')}
                                             </button>
                                         </div>
                                     </div>
@@ -201,9 +202,9 @@ const FamilyInviteSection: React.FC<FamilyInviteSectionProps> = ({ childId, chil
                     {links.length === 0 && (
                         <div className="text-center py-8">
                             <div className="text-4xl mb-3">👨‍👩‍👧</div>
-                            <p className="text-gray-500 dark:text-gray-400 mb-2">Henüz bağlı veli yok</p>
+                            <p className="text-gray-500 dark:text-gray-400 mb-2">{t('noFamiliesLinked')}</p>
                             <p className="text-sm text-gray-400 dark:text-gray-500">
-                                Yukarıdaki butona tıklayarak davet kodu oluşturun
+                                {t('createInviteInstruction')}
                             </p>
                         </div>
                     )}

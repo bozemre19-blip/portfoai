@@ -4,7 +4,7 @@
  */
 import React, { useState } from 'react';
 import { addFamilyObservation } from '../services/api';
-import { getDomains } from '../constants.clean';
+import { getDomains, t } from '../constants.clean';
 
 interface FamilyObservationFormProps {
     childId: string;
@@ -37,7 +37,7 @@ const FamilyObservationForm: React.FC<FamilyObservationFormProps> = ({
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         if (!note.trim()) {
-            setError('Lütfen bir gözlem notu yazın.');
+            setError(t('errorOccurred'));
             return;
         }
 
@@ -55,7 +55,7 @@ const FamilyObservationForm: React.FC<FamilyObservationFormProps> = ({
             onClose();
         } catch (err: any) {
             console.error('Error adding observation:', err);
-            setError(err.message || 'Gözlem eklenirken hata oluştu.');
+            setError(err.message || t('errorOccurred'));
         }
         setSaving(false);
     };
@@ -71,7 +71,7 @@ const FamilyObservationForm: React.FC<FamilyObservationFormProps> = ({
                                 <span className="text-xl">📝</span>
                             </div>
                             <div>
-                                <h2 className="text-lg font-bold">Gözlem Ekle</h2>
+                                <h2 className="text-lg font-bold">{t('addObservationFamily')}</h2>
                                 <p className="text-orange-100 text-sm">{childName}</p>
                             </div>
                         </div>
@@ -95,12 +95,12 @@ const FamilyObservationForm: React.FC<FamilyObservationFormProps> = ({
                     {/* Note Input */}
                     <div>
                         <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                            Gözlem Notu *
+                            {t('familyObservationNote')} *
                         </label>
                         <textarea
                             value={note}
                             onChange={(e) => setNote(e.target.value)}
-                            placeholder="Çocuğunuzla ilgili gözlemlerinizi yazın..."
+                            placeholder={t('familyObservationPlaceholder')}
                             className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-700 text-gray-800 dark:text-white focus:ring-2 focus:ring-orange-500 focus:border-transparent resize-none"
                             rows={4}
                         />
@@ -109,7 +109,7 @@ const FamilyObservationForm: React.FC<FamilyObservationFormProps> = ({
                     {/* Domain Selection */}
                     <div>
                         <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                            Gelişim Alanları (Opsiyonel)
+                            {t('developmentAreasOptional')}
                         </label>
                         <div className="flex flex-wrap gap-2">
                             {Object.entries(domains).map(([key, label]) => (
@@ -135,7 +135,7 @@ const FamilyObservationForm: React.FC<FamilyObservationFormProps> = ({
                             onClick={onClose}
                             className="flex-1 py-3 px-4 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-xl font-medium hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
                         >
-                            İptal
+                            {t('cancel')}
                         </button>
                         <button
                             type="submit"
@@ -145,12 +145,12 @@ const FamilyObservationForm: React.FC<FamilyObservationFormProps> = ({
                             {saving ? (
                                 <>
                                     <span className="animate-spin">⏳</span>
-                                    Kaydediliyor...
+                                    {t('saving')}
                                 </>
                             ) : (
                                 <>
                                     <span>✓</span>
-                                    Kaydet
+                                    {t('save')}
                                 </>
                             )}
                         </button>

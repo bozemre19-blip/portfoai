@@ -5,7 +5,7 @@
  */
 import React, { useState, useEffect } from 'react';
 import { getFamilyAddedObservations, getFamilyAddedMedia, getSignedUrlForMedia } from '../services/api';
-import { getDomains } from '../constants.clean';
+import { getDomains, t } from '../constants.clean';
 
 interface FamilyAddedContentProps {
     childId: string;
@@ -61,7 +61,6 @@ const FamilyAddedContent: React.FC<FamilyAddedContentProps> = ({ childId, childN
             setObservations(obsData || []);
             setMedia(mediaData || []);
 
-            // Load signed URLs for media
             const urls: Record<string, string> = {};
             for (const m of (mediaData || [])) {
                 try {
@@ -103,7 +102,7 @@ const FamilyAddedContent: React.FC<FamilyAddedContentProps> = ({ childId, childN
                                 <span className="text-2xl">👨‍👩‍👧</span>
                             </div>
                             <div>
-                                <h2 className="text-xl font-bold">Aile Tarafından Eklenenler</h2>
+                                <h2 className="text-xl font-bold">{t('familyAddedContent')}</h2>
                                 <p className="text-amber-100 text-sm">{childName}</p>
                             </div>
                         </div>
@@ -125,7 +124,7 @@ const FamilyAddedContent: React.FC<FamilyAddedContentProps> = ({ childId, childN
                             : 'text-gray-500 hover:text-gray-700 dark:text-gray-400'
                             }`}
                     >
-                        📝 Gözlemler ({observations.length})
+                        📝 {t('observations')} ({observations.length})
                     </button>
                     <button
                         onClick={() => setActiveTab('media')}
@@ -134,7 +133,7 @@ const FamilyAddedContent: React.FC<FamilyAddedContentProps> = ({ childId, childN
                             : 'text-gray-500 hover:text-gray-700 dark:text-gray-400'
                             }`}
                     >
-                        📷 Fotoğraf/Video ({media.length})
+                        📷 {t('media')} ({media.length})
                     </button>
                 </div>
 
@@ -145,12 +144,11 @@ const FamilyAddedContent: React.FC<FamilyAddedContentProps> = ({ childId, childN
                             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-amber-600"></div>
                         </div>
                     ) : activeTab === 'observations' ? (
-                        // Observations Tab
                         observations.length === 0 ? (
                             <div className="text-center py-12">
                                 <div className="text-5xl mb-4">📝</div>
                                 <p className="text-gray-500 dark:text-gray-400">
-                                    Henüz aile tarafından gözlem eklenmemiş
+                                    {t('noObservationsYet')}
                                 </p>
                             </div>
                         ) : (
@@ -164,7 +162,7 @@ const FamilyAddedContent: React.FC<FamilyAddedContentProps> = ({ childId, childN
                                             <div className="flex items-center gap-2">
                                                 <span className="text-amber-600">👨‍👩‍👧</span>
                                                 <span className="text-xs font-medium text-amber-700 dark:text-amber-400 bg-amber-200 dark:bg-amber-800 px-2 py-0.5 rounded-full">
-                                                    Aile
+                                                    Family
                                                 </span>
                                             </div>
                                             <span className="text-xs text-gray-500 dark:text-gray-400">
@@ -191,12 +189,11 @@ const FamilyAddedContent: React.FC<FamilyAddedContentProps> = ({ childId, childN
                             </div>
                         )
                     ) : (
-                        // Media Tab
                         media.length === 0 ? (
                             <div className="text-center py-12">
                                 <div className="text-5xl mb-4">📷</div>
                                 <p className="text-gray-500 dark:text-gray-400">
-                                    Henüz aile tarafından fotoğraf/video eklenmemiş
+                                    {t('noPhotosYet')}
                                 </p>
                             </div>
                         ) : (

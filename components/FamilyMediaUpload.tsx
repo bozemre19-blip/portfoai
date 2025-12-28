@@ -4,6 +4,7 @@
  */
 import React, { useState, useRef } from 'react';
 import { addFamilyMedia, validateMediaFile, MAX_IMAGE_SIZE, MAX_VIDEO_SIZE } from '../services/api';
+import { t } from '../constants.clean';
 
 interface FamilyMediaUploadProps {
     childId: string;
@@ -31,10 +32,9 @@ const FamilyMediaUpload: React.FC<FamilyMediaUploadProps> = ({
         const selectedFile = e.target.files?.[0];
         if (!selectedFile) return;
 
-        // Validate file
         const validation = validateMediaFile(selectedFile);
         if (!validation.valid) {
-            setError(validation.error || 'Dosya geçersiz.');
+            setError(validation.error || t('invalidFileType'));
             return;
         }
 
@@ -42,7 +42,6 @@ const FamilyMediaUpload: React.FC<FamilyMediaUploadProps> = ({
         setFile(selectedFile);
         setName(selectedFile.name.split('.')[0]);
 
-        // Create preview
         const reader = new FileReader();
         reader.onload = () => setPreview(reader.result as string);
         reader.readAsDataURL(selectedFile);
@@ -51,11 +50,11 @@ const FamilyMediaUpload: React.FC<FamilyMediaUploadProps> = ({
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         if (!file) {
-            setError('Lütfen bir dosya seçin.');
+            setError(t('selectMedia'));
             return;
         }
         if (!name.trim()) {
-            setError('Lütfen bir isim girin.');
+            setError(t('errorOccurred'));
             return;
         }
 
@@ -64,7 +63,6 @@ const FamilyMediaUpload: React.FC<FamilyMediaUploadProps> = ({
         setProgress(10);
 
         try {
-            // Simulate progress
             const progressInterval = setInterval(() => {
                 setProgress(prev => Math.min(prev + 10, 90));
             }, 200);
@@ -83,7 +81,7 @@ const FamilyMediaUpload: React.FC<FamilyMediaUploadProps> = ({
             }, 500);
         } catch (err: any) {
             console.error('Error uploading media:', err);
-            setError(err.message || 'Yükleme sırasında hata oluştu.');
+            setError(err.message || t('errorOccurred'));
             setProgress(0);
         }
         setUploading(false);
@@ -108,7 +106,7 @@ const FamilyMediaUpload: React.FC<FamilyMediaUploadProps> = ({
                                 <span className="text-xl">📷</span>
                             </div>
                             <div>
-                                <h2 className="text-lg font-bold">Fotoğraf/Video Ekle</h2>
+                                <h2 className="text-lg font-bold">{t('addMediaFamily')}</h2>
                                 <p className="text-purple-100 text-sm">{childName}</p>
                             </div>
                         </div>
@@ -148,10 +146,10 @@ const FamilyMediaUpload: React.FC<FamilyMediaUploadProps> = ({
                                 <span className="text-4xl">📷</span>
                                 <div className="text-center">
                                     <p className="font-medium text-gray-700 dark:text-gray-300">
-                                        Dosya Seçin
+                                        {t('selectMedia')}
                                     </p>
                                     <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                                        Fotoğraf (max {MAX_IMAGE_SIZE / (1024 * 1024)}MB) veya Video (max {MAX_VIDEO_SIZE / (1024 * 1024)}MB)
+                                        {t('maxPhotoSize')} | {t('maxVideoSize')}
                                     </p>
                                 </div>
                             </button>
@@ -191,13 +189,13 @@ const FamilyMediaUpload: React.FC<FamilyMediaUploadProps> = ({
                     {/* Name Input */}
                     <div>
                         <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                            İsim *
+                            {t('mediaName')} *
                         </label>
                         <input
                             type="text"
                             value={name}
                             onChange={(e) => setName(e.target.value)}
-                            placeholder="Örn: Park Gezisi"
+                            placeholder="..."
                             className="w-full px-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-700 text-gray-800 dark:text-white focus:ring-2 focus:ring-purple-500 focus:border-transparent"
                         />
                     </div>
@@ -205,12 +203,12 @@ const FamilyMediaUpload: React.FC<FamilyMediaUploadProps> = ({
                     {/* Description Input */}
                     <div>
                         <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                            Açıklama (Opsiyonel)
+                            {t('mediaDescription')}
                         </label>
                         <textarea
                             value={description}
                             onChange={(e) => setDescription(e.target.value)}
-                            placeholder="Bu fotoğraf/video hakkında kısa bir açıklama..."
+                            placeholder="..."
                             className="w-full px-4 py-2.5 border border-gray-300 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-700 text-gray-800 dark:text-white focus:ring-2 focus:ring-purple-500 focus:border-transparent resize-none"
                             rows={2}
                         />
@@ -226,7 +224,7 @@ const FamilyMediaUpload: React.FC<FamilyMediaUploadProps> = ({
                                 />
                             </div>
                             <p className="text-xs text-gray-500 dark:text-gray-400 text-center">
-                                Yükleniyor... {progress}%
+                                {t('uploading')} {progress}%
                             </p>
                         </div>
                     )}
@@ -239,7 +237,7 @@ const FamilyMediaUpload: React.FC<FamilyMediaUploadProps> = ({
                             disabled={uploading}
                             className="flex-1 py-3 px-4 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-xl font-medium hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors disabled:opacity-50"
                         >
-                            İptal
+                            {t('cancel')}
                         </button>
                         <button
                             type="submit"
@@ -249,12 +247,12 @@ const FamilyMediaUpload: React.FC<FamilyMediaUploadProps> = ({
                             {uploading ? (
                                 <>
                                     <span className="animate-spin">⏳</span>
-                                    Yükleniyor...
+                                    {t('uploading')}
                                 </>
                             ) : (
                                 <>
                                     <span>⬆️</span>
-                                    Yükle
+                                    {t('uploadPhoto')}
                                 </>
                             )}
                         </button>
