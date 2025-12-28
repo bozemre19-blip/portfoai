@@ -4,8 +4,15 @@
  */
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../services/supabase';
-import { ChatBubbleLeftRightIcon } from '@heroicons/react/24/outline';
+import { ChatBubbleLeftRightIcon, Cog6ToothIcon, XMarkIcon } from '@heroicons/react/24/outline';
 import { t } from '../constants.clean';
+import {
+    MessagingHours,
+    getMessagingHours,
+    updateMessagingHours,
+    setManualOverride,
+    isTeacherAvailable
+} from '../services/api/profiles';
 
 interface Conversation {
     other_user_id: string;
@@ -38,6 +45,56 @@ const TeacherInbox: React.FC<TeacherInboxProps> = ({ navigate }) => {
     const [newMessage, setNewMessage] = useState('');
     const [sending, setSending] = useState(false);
     const [currentUserId, setCurrentUserId] = useState<string>('');
+
+    // Messaging Hours State
+    const [showSettings, setShowSettings] = useState(false);
+    const [messagingHours, setMessagingHours] = useState<MessagingHours>({
+        enabled: false,
+        manual_override: null,
+        days: [1, 2, 3, 4, 5],
+        start_time: '09:00',
+        end_time: '17:00'
+    });
+    const [savingSettings, setSavingSettings] = useState(false);
+
+    const DAY_NAMES = [
+        { day: 0, label: t('sunday') },
+        { day: 1, label: t('monday') },
+        { day: 2, label: t('tuesday') },
+        { day: 3, label: t('wednesday') },
+        { day: 4, label: t('thursday') },
+        { day: 5, label: t('friday') },
+        { day: 6, label: t('saturday') },
+    ];
+
+    const loadMessagingHoursData = async () => {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (user) {
+            const hours = await getMessagingHours(user.id);
+            setMessagingHours(hours);
+        }
+    };
+
+    const handleSaveSettings = async () => {
+        setSavingSettings(true);
+        await updateMessagingHours(messagingHours);
+        setSavingSettings(false);
+        setShowSettings(false);
+    };
+
+    const handleManualOverride = async (override: boolean | null) => {
+        await setManualOverride(override);
+        setMessagingHours(prev => ({ ...prev, manual_override: override }));
+    };
+
+    const toggleDay = (day: number) => {
+        setMessagingHours(prev => ({
+            ...prev,
+            days: prev.days.includes(day)
+                ? prev.days.filter(d => d !== day)
+                : [...prev.days, day].sort()
+        }));
+    };
 
     const loadConversations = async () => {
         setLoading(true);
@@ -209,6 +266,7 @@ const TeacherInbox: React.FC<TeacherInboxProps> = ({ navigate }) => {
 
     useEffect(() => {
         loadConversations();
+        loadMessagingHoursData();
     }, []);
 
     useEffect(() => {
@@ -344,7 +402,8 @@ const TeacherInbox: React.FC<TeacherInboxProps> = ({ navigate }) => {
     // Inbox View
     return (
         <div className="max-w-3xl mx-auto">
-            <div className="flex items-center gap-3 mb-6">
+            {/* Header with Settings */}
+            <div className="flex items-center justify-between mb-6">
                 <div className="flex items-center gap-3">
                     <ChatBubbleLeftRightIcon className="w-8 h-8 text-teal-600 dark:text-teal-400" />
                     <div>
@@ -352,7 +411,149 @@ const TeacherInbox: React.FC<TeacherInboxProps> = ({ navigate }) => {
                         <p className="text-gray-500 dark:text-gray-400">{t('messagesDesc')}</p>
                     </div>
                 </div>
+
+                {/* Quick Status Toggle + Settings */}
+                <div className="flex items-center gap-2">
+                    {messagingHours.enabled && (
+                        <div className="flex items-center gap-1 mr-2">
+                            {messagingHours.manual_override === true ? (
+                                <button
+                                    onClick={() => handleManualOverride(null)}
+                                    className="flex items-center gap-1.5 px-3 py-1.5 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 rounded-full text-sm font-medium"
+                                >
+                                    🟢 {t('acceptingMessages')}
+                                </button>
+                            ) : messagingHours.manual_override === false ? (
+                                <button
+                                    onClick={() => handleManualOverride(null)}
+                                    className="flex items-center gap-1.5 px-3 py-1.5 bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300 rounded-full text-sm font-medium"
+                                >
+                                    🔴 {t('notAcceptingMessages')}
+                                </button>
+                            ) : (
+                                <div className="flex items-center gap-1">
+                                    <button
+                                        onClick={() => handleManualOverride(true)}
+                                        className={`px-2 py-1 text-xs rounded-l-full ${isTeacherAvailable(messagingHours) ? 'bg-green-500 text-white' : 'bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-300'}`}
+                                    >
+                                        ✓
+                                    </button>
+                                    <button
+                                        onClick={() => handleManualOverride(false)}
+                                        className={`px-2 py-1 text-xs rounded-r-full ${!isTeacherAvailable(messagingHours) ? 'bg-red-500 text-white' : 'bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-300'}`}
+                                    >
+                                        ✕
+                                    </button>
+                                </div>
+                            )}
+                        </div>
+                    )}
+                    <button
+                        onClick={() => setShowSettings(true)}
+                        className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+                        title={t('messagingHours')}
+                    >
+                        <Cog6ToothIcon className="w-6 h-6 text-gray-500 dark:text-gray-400" />
+                    </button>
+                </div>
             </div>
+
+            {/* Settings Modal */}
+            {showSettings && (
+                <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+                    <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl w-full max-w-md">
+                        {/* Modal Header */}
+                        <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
+                            <h2 className="text-lg font-bold text-gray-800 dark:text-white">⏰ {t('messagingHours')}</h2>
+                            <button onClick={() => setShowSettings(false)} className="p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg">
+                                <XMarkIcon className="w-5 h-5 text-gray-500" />
+                            </button>
+                        </div>
+
+                        {/* Modal Body */}
+                        <div className="p-4 space-y-4">
+                            <p className="text-sm text-gray-500">{t('messagingHoursDesc')}</p>
+
+                            {/* Enable Toggle */}
+                            <label className="flex items-center justify-between">
+                                <span className="font-medium text-gray-700 dark:text-gray-200">{t('enableMessagingHours')}</span>
+                                <button
+                                    onClick={() => setMessagingHours(prev => ({ ...prev, enabled: !prev.enabled }))}
+                                    className={`relative w-12 h-6 rounded-full transition-colors ${messagingHours.enabled ? 'bg-teal-500' : 'bg-gray-300 dark:bg-gray-600'}`}
+                                >
+                                    <span className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform ${messagingHours.enabled ? 'translate-x-6' : ''}`} />
+                                </button>
+                            </label>
+
+                            {messagingHours.enabled && (
+                                <>
+                                    {/* Days Selection */}
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">{t('availableDays')}</label>
+                                        <div className="flex flex-wrap gap-2">
+                                            {DAY_NAMES.map(({ day, label }) => (
+                                                <button
+                                                    key={day}
+                                                    onClick={() => toggleDay(day)}
+                                                    className={`px-3 py-1.5 text-sm rounded-lg transition-colors ${messagingHours.days.includes(day)
+                                                            ? 'bg-teal-500 text-white'
+                                                            : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300'
+                                                        }`}
+                                                >
+                                                    {label.slice(0, 3)}
+                                                </button>
+                                            ))}
+                                        </div>
+                                    </div>
+
+                                    {/* Time Range */}
+                                    <div>
+                                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">{t('availableHours')}</label>
+                                        <div className="flex items-center gap-3">
+                                            <div className="flex-1">
+                                                <label className="text-xs text-gray-500">{t('startTime')}</label>
+                                                <input
+                                                    type="time"
+                                                    value={messagingHours.start_time}
+                                                    onChange={e => setMessagingHours(prev => ({ ...prev, start_time: e.target.value }))}
+                                                    className="w-full px-3 py-2 border border-gray-200 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-800 dark:text-white"
+                                                />
+                                            </div>
+                                            <span className="text-gray-400 mt-4">→</span>
+                                            <div className="flex-1">
+                                                <label className="text-xs text-gray-500">{t('endTime')}</label>
+                                                <input
+                                                    type="time"
+                                                    value={messagingHours.end_time}
+                                                    onChange={e => setMessagingHours(prev => ({ ...prev, end_time: e.target.value }))}
+                                                    className="w-full px-3 py-2 border border-gray-200 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-800 dark:text-white"
+                                                />
+                                            </div>
+                                        </div>
+                                    </div>
+                                </>
+                            )}
+                        </div>
+
+                        {/* Modal Footer */}
+                        <div className="flex justify-end gap-2 p-4 border-t border-gray-200 dark:border-gray-700">
+                            <button
+                                onClick={() => setShowSettings(false)}
+                                className="px-4 py-2 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg"
+                            >
+                                {t('cancel')}
+                            </button>
+                            <button
+                                onClick={handleSaveSettings}
+                                disabled={savingSettings}
+                                className="px-4 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700 disabled:opacity-50"
+                            >
+                                {savingSettings ? '...' : t('save')}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
 
             {conversations.length === 0 ? (
                 <div className="bg-white dark:bg-gray-800 rounded-2xl p-8 text-center shadow-lg">

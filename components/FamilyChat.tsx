@@ -5,6 +5,12 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../services/supabase';
 import { t, getLanguage } from '../constants.clean';
+import {
+    MessagingHours,
+    getMessagingHours,
+    isTeacherAvailable,
+    getNextAvailableTime
+} from '../services/api/profiles';
 
 interface Message {
     id: string;
@@ -13,6 +19,8 @@ interface Message {
     content: string;
     created_at: string;
     read: boolean;
+    scheduled_at?: string;
+    delivered?: boolean;
 }
 
 interface FamilyChatProps {
@@ -28,6 +36,30 @@ const FamilyChat: React.FC<FamilyChatProps> = ({ childId, teacherId, childName, 
     const [loading, setLoading] = useState(true);
     const [sending, setSending] = useState(false);
     const [currentUserId, setCurrentUserId] = useState<string>('');
+
+    // Teacher availability state
+    const [teacherHours, setTeacherHours] = useState<MessagingHours | null>(null);
+    const [isAvailable, setIsAvailable] = useState(true);
+    const [nextAvailableTime, setNextAvailableTime] = useState<Date | null>(null);
+
+    const DAY_NAMES_SHORT = getLanguage() === 'tr'
+        ? ['Paz', 'Pzt', 'Sal', 'Çar', 'Per', 'Cum', 'Cmt']
+        : ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+
+    const loadTeacherHours = async () => {
+        console.log('FamilyChat: Loading teacher hours for teacherId:', teacherId);
+        const hours = await getMessagingHours(teacherId);
+        console.log('FamilyChat: Received hours:', hours);
+        setTeacherHours(hours);
+        const available = isTeacherAvailable(hours);
+        console.log('FamilyChat: Is teacher available?', available);
+        setIsAvailable(available);
+        if (!available) {
+            const nextTime = getNextAvailableTime(hours);
+            console.log('FamilyChat: Next available time:', nextTime);
+            setNextAvailableTime(nextTime);
+        }
+    };
 
     const loadMessages = async () => {
         const { data: { user } } = await supabase.auth.getUser();
@@ -66,13 +98,18 @@ const FamilyChat: React.FC<FamilyChatProps> = ({ childId, teacherId, childName, 
         const { data: { user } } = await supabase.auth.getUser();
         if (!user) return;
 
+        // Check if message should be scheduled
+        const shouldSchedule = teacherHours?.enabled && !isAvailable && nextAvailableTime;
+
         const { error } = await supabase
             .from('messages')
             .insert({
                 sender_id: user.id,
                 receiver_id: teacherId,
                 child_id: childId,
-                content: newMessage.trim()
+                content: newMessage.trim(),
+                scheduled_at: shouldSchedule ? nextAvailableTime.toISOString() : null,
+                delivered: shouldSchedule ? false : true
             });
 
         if (!error) {
@@ -84,11 +121,43 @@ const FamilyChat: React.FC<FamilyChatProps> = ({ childId, teacherId, childName, 
 
     useEffect(() => {
         loadMessages();
+        loadTeacherHours();
 
         // Poll for new messages every 5 seconds
         const interval = setInterval(loadMessages, 5000);
         return () => clearInterval(interval);
     }, [childId, teacherId]);
+
+    // Update availability status every minute
+    useEffect(() => {
+        if (!teacherHours?.enabled) return;
+
+        const checkInterval = setInterval(() => {
+            const available = isTeacherAvailable(teacherHours);
+            setIsAvailable(available);
+            if (!available) {
+                setNextAvailableTime(getNextAvailableTime(teacherHours));
+            }
+        }, 60000);
+
+        return () => clearInterval(checkInterval);
+    }, [teacherHours]);
+
+    const formatAvailableHours = () => {
+        if (!teacherHours?.enabled) return null;
+
+        const days = teacherHours.days.map(d => DAY_NAMES_SHORT[d]).join(', ');
+        return `${days} ${teacherHours.start_time} - ${teacherHours.end_time}`;
+    };
+
+    const formatScheduledTime = (date: Date) => {
+        const lang = getLanguage() === 'tr' ? 'tr-TR' : 'en-US';
+        return date.toLocaleString(lang, {
+            weekday: 'short',
+            hour: '2-digit',
+            minute: '2-digit'
+        });
+    };
 
     const formatTime = (dateStr: string) => {
         const date = new Date(dateStr);
@@ -133,6 +202,16 @@ const FamilyChat: React.FC<FamilyChatProps> = ({ childId, teacherId, childName, 
                     </div>
                 </div>
 
+                {/* Teacher Availability Banner */}
+                {teacherHours?.enabled && formatAvailableHours() && (
+                    <div className={`px-4 py-2 text-sm flex items-center gap-2 ${isAvailable ? 'bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-300' : 'bg-amber-50 dark:bg-amber-900/20 text-amber-700 dark:text-amber-300'}`}>
+                        <span>{isAvailable ? '🟢' : '⏰'}</span>
+                        <span>
+                            {t('teacherAvailableHours')}: {formatAvailableHours()}
+                        </span>
+                    </div>
+                )}
+
                 {/* Messages */}
                 <div className="flex-1 overflow-y-auto p-4 bg-gray-50 dark:bg-gray-900 space-y-3">
                     {loading ? (
@@ -157,14 +236,26 @@ const FamilyChat: React.FC<FamilyChatProps> = ({ childId, teacherId, childName, 
                                         }`}
                                 >
                                     <p className="text-sm">{msg.content}</p>
-                                    <p className={`text-xs mt-1 ${msg.sender_id === currentUserId ? 'text-orange-100' : 'text-gray-400'}`}>
-                                        {formatTime(msg.created_at)}
-                                    </p>
+                                    <div className={`flex items-center gap-1 text-xs mt-1 ${msg.sender_id === currentUserId ? 'text-orange-100' : 'text-gray-400'}`}>
+                                        {msg.scheduled_at && !msg.delivered && (
+                                            <span title={t('messageScheduled')}>⏰</span>
+                                        )}
+                                        <span>{formatTime(msg.created_at)}</span>
+                                    </div>
                                 </div>
                             </div>
                         ))
                     )}
                 </div>
+
+                {/* Scheduled Message Warning */}
+                {teacherHours?.enabled && !isAvailable && nextAvailableTime && (
+                    <div className="px-4 py-2 bg-amber-50 dark:bg-amber-900/20 border-t border-amber-200 dark:border-amber-800">
+                        <p className="text-xs text-amber-700 dark:text-amber-300 flex items-center gap-1">
+                            ⏰ {t('scheduledFor')}: {formatScheduledTime(nextAvailableTime)}
+                        </p>
+                    </div>
+                )}
 
                 {/* Input */}
                 <div className="p-4 border-t border-gray-200 dark:border-gray-700">
