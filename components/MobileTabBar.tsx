@@ -57,13 +57,10 @@ const MobileTabBar: React.FC<MobileTabBarProps> = ({ currentPath, navigate }) =>
     return (
         <div className="md:hidden fixed bottom-0 left-0 right-0 z-50">
             {/* Glassmorphism Background */}
-            <div className="absolute inset-0 bg-white/90 backdrop-blur-xl border-t border-gray-200"></div>
+            <div className="absolute inset-0 top-3 bg-white/90 backdrop-blur-xl border-t border-gray-200 rounded-t-2xl"></div>
 
-            {/* Content */}
-            <div
-                className="relative flex justify-between items-end pt-6 px-1 h-[110px] w-full overflow-x-auto no-scrollbar gap-1"
-                style={{ paddingBottom: 'calc(env(safe-area-inset-bottom) + 16px)' }}
-            >
+            {/* Content - overflow-visible allows active icons to pop out */}
+            <div className="relative flex justify-around items-end pb-safe pt-1 px-1 h-[72px] w-full overflow-visible">
                 {tabs.map((tab) => {
                     const isActive = !tab.isFab && getIsActive(tab.path);
                     const Icon = isActive ? (tab.activeIcon || tab.icon) : tab.icon;
@@ -86,13 +83,13 @@ const MobileTabBar: React.FC<MobileTabBarProps> = ({ currentPath, navigate }) =>
                         <button
                             key={tab.name}
                             onClick={() => navigate(tab.path)}
-                            className={`flex-1 flex flex-col items-center justify-center pb-1 pt-1 transition-all ${isActive ? 'flex-[1.5]' : 'flex-1'} active:scale-95`}
+                            className={`flex flex-col items-center justify-end pb-1 pt-1 transition-all min-w-[40px] active:scale-95`}
                         >
-                            <div className={`p-1.5 rounded-xl transition-all duration-300 ${isActive ? 'bg-indigo-50 text-indigo-600 shadow-sm relative -top-1' : 'text-gray-400'}`}>
-                                <Icon className="w-6 h-6" />
+                            <div className={`p-1.5 rounded-xl transition-all duration-300 ${isActive ? 'bg-indigo-50 text-indigo-600 shadow-sm -translate-y-3 scale-110' : 'text-gray-400'}`}>
+                                <Icon className="w-5 h-5" />
                             </div>
                             {isActive && (
-                                <span className="text-[10px] font-bold text-indigo-600 mt-0.5 animate-fade-in whitespace-nowrap">
+                                <span className="text-[9px] font-bold text-indigo-600 mt-0.5 animate-fade-in whitespace-nowrap">
                                     {tab.name}
                                 </span>
                             )}
