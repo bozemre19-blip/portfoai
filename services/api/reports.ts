@@ -69,15 +69,6 @@ export async function collectChildData(childId: string) {
 
     if (obsError) throw obsError;
 
-    // Get assessments
-    const { data: assessments, error: assessError } = await supabase
-        .from('assessments')
-        .select('*')
-        .eq('child_id', childId)
-        .order('created_at', { ascending: false });
-
-    if (assessError) throw assessError;
-
     // Get goals
     const { data: goals, error: goalsError } = await supabase
         .from('goals')
@@ -90,7 +81,7 @@ export async function collectChildData(childId: string) {
         child,
         teacher,
         observations: observations || [],
-        assessments: assessments || [],
+        assessments: [], // Assessments are embedded in observations
         goals: goals || []
     };
 }
