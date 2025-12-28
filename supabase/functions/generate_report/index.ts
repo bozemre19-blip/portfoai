@@ -135,32 +135,30 @@ JSON formatında döndür (sadece JSON, başka açıklama ekleme):
 }
 `;
 
-        // Call Gemini API
-        const models = [
-            'gemini-1.5-flash-8b',
-            'gemini-1.5-flash',
-            'gemini-1.5-pro',
+        // Call Gemini API with multiple version/model combinations
+        const attempts: Array<{ version: string; model: string }> = [
+            { version: 'v1', model: 'gemini-2.0-flash-001' },
+            { version: 'v1', model: 'gemini-2.0-flash' },
+            { version: 'v1', model: 'gemini-2.5-flash' },
         ];
 
         let aiContent = null;
         let lastError = null;
 
-        for (const model of models) {
+        for (const { version, model } of attempts) {
             try {
-                const response = await fetch(
-                    `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${GEMINI_API_KEY}`,
-                    {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({
-                            contents: [{ parts: [{ text: prompt }] }],
-                            generationConfig: {
-                                temperature: 0.7,
-                                maxOutputTokens: 2048,
-                            },
-                        }),
-                    }
-                );
+                const url = `https://generativelanguage.googleapis.com/${version}/models/${model}:generateContent?key=${GEMINI_API_KEY}`;
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        contents: [{ parts: [{ text: prompt }] }],
+                        generationConfig: {
+                            temperature: 0.7,
+                            maxOutputTokens: 2048,
+                        },
+                    }),
+                });
 
                 if (!response.ok) {
                     const errorText = await response.text();
@@ -189,8 +187,8 @@ JSON formatında döndür (sadece JSON, başka açıklama ekleme):
                 break; // Success, exit loop
             } catch (error) {
                 lastError = error;
-                console.error(`Failed with model ${model}:`, error);
-                continue; // Try next model
+                console.error(`Failed with ${version}/${model}:`, error);
+                continue; // Try next combination
             }
         }
 
