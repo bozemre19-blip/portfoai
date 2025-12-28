@@ -145,7 +145,6 @@ JSON formatında döndür (sadece JSON, başka açıklama ekleme):
         let aiContent = null;
         let lastError = null;
 
-        let lastError = null;
         for (const model of models) {
             try {
                 const url = `https://generativelanguage.googleapis.com/v1/models/${model}:generateContent?key=${encodeURIComponent(GEMINI_API_KEY)}`;
