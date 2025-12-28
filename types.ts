@@ -48,6 +48,7 @@ export interface Observation {
   updated_at: string;
   assessment_id?: string;
   dirty?: boolean; // For offline sync
+  added_by?: 'teacher' | 'family'; // Who added this observation
 }
 
 export interface Media {
@@ -61,6 +62,7 @@ export interface Media {
   description?: string;
   domain?: DevelopmentDomain;
   shared_with_family?: boolean;
+  added_by?: 'teacher' | 'family'; // Who added this media
 }
 
 export interface Assessment {

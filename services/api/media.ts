@@ -179,3 +179,115 @@ export const getFamilySharedMedia = async () => {
     created_at: string;
   }>;
 };
+
+// === FAMILY MEDIA FUNCTIONS ===
+
+// File size limits
+export const MAX_IMAGE_SIZE = 5 * 1024 * 1024; // 5MB
+export const MAX_VIDEO_SIZE = 20 * 1024 * 1024; // 20MB (~25-40 seconds 1080p)
+
+// Validate file size based on type
+export const validateMediaFile = (file: File): { valid: boolean; error?: string } => {
+  const isVideo = file.type.startsWith('video/');
+  const maxSize = isVideo ? MAX_VIDEO_SIZE : MAX_IMAGE_SIZE;
+  const maxSizeMB = isVideo ? 20 : 5;
+
+  if (file.size > maxSize) {
+    return {
+      valid: false,
+      error: `Dosya çok büyük. Maksimum ${isVideo ? 'video' : 'fotoğraf'} boyutu: ${maxSizeMB}MB`
+    };
+  }
+
+  // Validate file type
+  const validImageTypes = ['image/jpeg', 'image/png', 'image/webp'];
+  const validVideoTypes = ['video/mp4', 'video/mov', 'video/quicktime', 'video/webm'];
+  const validTypes = [...validImageTypes, ...validVideoTypes];
+
+  if (!validTypes.includes(file.type)) {
+    return {
+      valid: false,
+      error: 'Desteklenmeyen dosya formatı. JPEG, PNG, MP4, MOV, WebM kullanın.'
+    };
+  }
+
+  return { valid: true };
+};
+
+// Family can add media for their linked child
+export const addFamilyMedia = async (
+  childId: string,
+  file: File,
+  fields: { name: string; description?: string }
+): Promise<{ path: string; mediaId?: string }> => {
+  // Validate file
+  const validation = validateMediaFile(file);
+  if (!validation.valid) {
+    throw new Error(validation.error);
+  }
+
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) throw new Error('User not authenticated');
+
+  // Process image if needed
+  let processedFile = file;
+  if (file.type.startsWith('image/')) {
+    const { processImage } = await import('../../utils/helpers');
+    processedFile = await processImage(file);
+  }
+
+  // Upload to storage
+  const extFromType = processedFile.type?.split('/')[1] || '';
+  const extFromName = processedFile.name.includes('.') ? processedFile.name.split('.').pop() : '';
+  const ext = (extFromType || extFromName || 'jpg').toLowerCase();
+  const fileName = `family/${user.id}/${childId}/${uuidv4()}.${ext}`;
+
+  const { data: storageData, error: storageError } = await supabase.storage
+    .from('child-media')
+    .upload(fileName, processedFile, {
+      cacheControl: '3600',
+      upsert: true,
+      contentType: processedFile.type || 'application/octet-stream',
+    });
+
+  if (storageError) throw storageError;
+
+  // Create media record
+  const { data, error } = await supabase
+    .from('media')
+    .insert({
+      child_id: childId,
+      user_id: user.id,
+      type: file.type.startsWith('video/') ? 'video' : 'image',
+      storage_path: storageData.path,
+      name: fields.name,
+      description: fields.description,
+      added_by: 'family'
+    })
+    .select();
+
+  if (error) throw error;
+  dispatchDataChangedEvent();
+  return { path: storageData.path, mediaId: data[0]?.id };
+};
+
+// Teacher can get family-added media for a child
+export const getFamilyAddedMedia = async (childId: string) => {
+  const { data, error } = await supabase.rpc('get_family_media', {
+    p_child_id: childId
+  });
+
+  if (error) throw error;
+  return data as Array<{
+    id: string;
+    child_id: string;
+    user_id: string;
+    name: string;
+    description: string;
+    type: string;
+    storage_path: string;
+    domain: string;
+    created_at: string;
+    added_by: string;
+  }>;
+};

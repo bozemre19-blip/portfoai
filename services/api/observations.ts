@@ -162,3 +162,48 @@ export const syncOfflineData = async () => {
   }
 };
 
+// === FAMILY OBSERVATION FUNCTIONS ===
+
+// Family can add observation for their linked child
+export const addFamilyObservation = async (
+  observation: { child_id: string; note: string; context?: string; domains?: string[] }
+) => {
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) throw new Error('User not authenticated');
+
+  const { data, error } = await supabase
+    .from('observations')
+    .insert({
+      child_id: observation.child_id,
+      user_id: user.id,
+      note: observation.note,
+      context: observation.context || 'home',
+      domains: observation.domains || [],
+      added_by: 'family'
+    })
+    .select();
+
+  if (error) throw error;
+  dispatchDataChangedEvent();
+  return data[0] as Observation;
+};
+
+// Teacher can get family-added observations for a child
+export const getFamilyAddedObservations = async (childId: string) => {
+  const { data, error } = await supabase.rpc('get_family_observations', {
+    p_child_id: childId
+  });
+
+  if (error) throw error;
+  return data as Array<{
+    id: string;
+    child_id: string;
+    user_id: string;
+    note: string;
+    context: string;
+    domains: string[];
+    tags: string[];
+    created_at: string;
+    added_by: string;
+  }>;
+};

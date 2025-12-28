@@ -9,6 +9,7 @@ import {
     revokeFamilyLink,
     FamilyChildLink
 } from '../services/api';
+import FamilyAddedContent from './FamilyAddedContent';
 
 interface FamilyInviteSectionProps {
     childId: string;
@@ -21,6 +22,7 @@ const FamilyInviteSection: React.FC<FamilyInviteSectionProps> = ({ childId, chil
     const [creating, setCreating] = useState(false);
     const [newCode, setNewCode] = useState<string | null>(null);
     const [copied, setCopied] = useState(false);
+    const [showFamilyContent, setShowFamilyContent] = useState(false);
 
     const loadLinks = async () => {
         setLoading(true);
@@ -70,18 +72,27 @@ const FamilyInviteSection: React.FC<FamilyInviteSectionProps> = ({ childId, chil
                         <p className="text-sm text-gray-500 dark:text-gray-400">{childName} için veli erişimi</p>
                     </div>
                 </div>
-                <button
-                    onClick={handleCreateInvite}
-                    disabled={creating}
-                    className="px-4 py-2 bg-teal-600 text-white rounded-xl hover:bg-teal-700 transition-colors disabled:opacity-50 flex items-center gap-2"
-                >
-                    {creating ? (
-                        <span className="animate-spin">⏳</span>
-                    ) : (
-                        <span>➕</span>
-                    )}
-                    Davet Kodu Oluştur
-                </button>
+                <div className="flex items-center gap-2">
+                    <button
+                        onClick={() => setShowFamilyContent(true)}
+                        className="px-4 py-2 bg-amber-500 text-white rounded-xl hover:bg-amber-600 transition-colors flex items-center gap-2"
+                    >
+                        <span>📋</span>
+                        Aile Eklentileri
+                    </button>
+                    <button
+                        onClick={handleCreateInvite}
+                        disabled={creating}
+                        className="px-4 py-2 bg-teal-600 text-white rounded-xl hover:bg-teal-700 transition-colors disabled:opacity-50 flex items-center gap-2"
+                    >
+                        {creating ? (
+                            <span className="animate-spin">⏳</span>
+                        ) : (
+                            <span>➕</span>
+                        )}
+                        Davet Kodu Oluştur
+                    </button>
+                </div>
             </div>
 
             {/* New Code Display */}
@@ -197,6 +208,15 @@ const FamilyInviteSection: React.FC<FamilyInviteSectionProps> = ({ childId, chil
                         </div>
                     )}
                 </>
+            )}
+
+            {/* Family Added Content Modal */}
+            {showFamilyContent && (
+                <FamilyAddedContent
+                    childId={childId}
+                    childName={childName}
+                    onClose={() => setShowFamilyContent(false)}
+                />
             )}
         </div>
     );

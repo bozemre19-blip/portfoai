@@ -15,12 +15,18 @@ import {
     BellAlertIcon,
     SparklesIcon,
     PhotoIcon,
-    XMarkIcon
+    XMarkIcon,
+    PencilSquareIcon,
+    CameraIcon
 } from '@heroicons/react/24/outline';
 import { getLinkedChildren, getFamilySharedMedia, getSignedUrlForMedia } from '../services/api';
 import FamilyLinkCode from './FamilyLinkCode';
 import FamilyChildDetail from './FamilyChildDetail';
 import FamilyChat from './FamilyChat';
+import FamilyObservationForm from './FamilyObservationForm';
+import FamilyMediaUpload from './FamilyMediaUpload';
+import FamilyMyContent from './FamilyMyContent';
+import { FolderOpenIcon } from '@heroicons/react/24/outline';
 
 interface Child {
     id: string;
@@ -58,6 +64,9 @@ const FamilyDashboard: React.FC = () => {
     const [chatChild, setChatChild] = useState<Child | null>(null);
     const [sharedMedia, setSharedMedia] = useState<Array<{ id: string; child_id: string; child_name: string; name: string; description: string; domain: string; storage_path: string; created_at: string; url?: string }>>([]);
     const [selectedMedia, setSelectedMedia] = useState<{ url: string; name: string } | null>(null);
+    const [observationChild, setObservationChild] = useState<Child | null>(null);
+    const [mediaUploadChild, setMediaUploadChild] = useState<Child | null>(null);
+    const [myContentChild, setMyContentChild] = useState<Child | null>(null);
 
     const loadData = async () => {
         setLoading(true);
@@ -300,6 +309,27 @@ const FamilyDashboard: React.FC = () => {
                                         {/* Actions */}
                                         <div className="flex items-center gap-2">
                                             <button
+                                                onClick={() => setObservationChild(child)}
+                                                className="w-10 h-10 rounded-xl bg-orange-500/20 text-orange-400 hover:bg-orange-500/30 transition-colors flex items-center justify-center"
+                                                title="Gözlem Ekle"
+                                            >
+                                                <PencilSquareIcon className="w-5 h-5" />
+                                            </button>
+                                            <button
+                                                onClick={() => setMediaUploadChild(child)}
+                                                className="w-10 h-10 rounded-xl bg-purple-500/20 text-purple-400 hover:bg-purple-500/30 transition-colors flex items-center justify-center"
+                                                title="Fotoğraf/Video Ekle"
+                                            >
+                                                <CameraIcon className="w-5 h-5" />
+                                            </button>
+                                            <button
+                                                onClick={() => setMyContentChild(child)}
+                                                className="w-10 h-10 rounded-xl bg-teal-500/20 text-teal-400 hover:bg-teal-500/30 transition-colors flex items-center justify-center"
+                                                title="Eklediklerim"
+                                            >
+                                                <FolderOpenIcon className="w-5 h-5" />
+                                            </button>
+                                            <button
                                                 onClick={() => setChatChild(child)}
                                                 className="w-10 h-10 rounded-xl bg-[#F97B5C]/20 text-[#F97B5C] hover:bg-[#F97B5C]/30 transition-colors flex items-center justify-center"
                                                 title={t('sendMessageToTeacher')}
@@ -439,6 +469,36 @@ const FamilyDashboard: React.FC = () => {
             )}
 
             {/* Chat Modal */}
+            {/* Observation Form Modal */}
+            {observationChild && (
+                <FamilyObservationForm
+                    childId={observationChild.id}
+                    childName={`${observationChild.first_name} ${observationChild.last_name}`}
+                    onClose={() => setObservationChild(null)}
+                    onSuccess={loadData}
+                />
+            )}
+
+            {/* Media Upload Modal */}
+            {mediaUploadChild && (
+                <FamilyMediaUpload
+                    childId={mediaUploadChild.id}
+                    childName={`${mediaUploadChild.first_name} ${mediaUploadChild.last_name}`}
+                    onClose={() => setMediaUploadChild(null)}
+                    onSuccess={loadData}
+                />
+            )}
+
+            {/* My Content Modal */}
+            {myContentChild && (
+                <FamilyMyContent
+                    childId={myContentChild.id}
+                    childName={`${myContentChild.first_name} ${myContentChild.last_name}`}
+                    onClose={() => setMyContentChild(null)}
+                    onRefresh={loadData}
+                />
+            )}
+
             {chatChild && (
                 <FamilyChat
                     childId={chatChild.id}
