@@ -1,131 +1,177 @@
-<div align="center">
-<img width="1200" height="475" alt="GHBanner" src="https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6" />
-</div>
+# Supabase CLI
 
-# Okul Gözlem Asistanı
+[![Coverage Status](https://coveralls.io/repos/github/supabase/cli/badge.svg?branch=main)](https://coveralls.io/github/supabase/cli?branch=main) [![Bitbucket Pipelines](https://img.shields.io/bitbucket/pipelines/supabase-cli/setup-cli/master?style=flat-square&label=Bitbucket%20Canary)](https://bitbucket.org/supabase-cli/setup-cli/pipelines) [![Gitlab Pipeline Status](https://img.shields.io/gitlab/pipeline-status/sweatybridge%2Fsetup-cli?label=Gitlab%20Canary)
+](https://gitlab.com/sweatybridge/setup-cli/-/pipelines)
 
-Erken çocukluk öğretmenlerinin 0–6 yaş çocukları için profil oluşturup gözlemler ekleyebildiği, ürün/medya yükleyebildiği ve yapay zekâ destekli öneriler alabildiği web uygulaması. Kimlik doğrulama, veri saklama ve depolama için Supabase kullanır.
+[Supabase](https://supabase.io) is an open source Firebase alternative. We're building the features of Firebase using enterprise-grade open source tools.
 
-## Özellikler
-- Çocuk profili: ad-soyad, doğum tarihi, sınıf, veli bilgileri, sağlık, ilgi alanları, güçlü yönler, avatar fotoğrafı
-- Gözlem kaydı: not, bağlam, gelişim alanları, etiketler; çevrimdışı kayıt ve senkronizasyon
-- Yapay zekâ analizi: Supabase Edge Function üzerinden Gemini ile özet ve öneriler
-- Ürün/Medya: Supabase Storage’a yükleme, listeleme, silme (UI kademeli ekleniyor)
-- Dışa aktarma: JSON ve PDF rapor
+This repository contains all the functionality for Supabase CLI.
 
-## Kurulum ve Çalıştırma
+- [x] Running Supabase locally
+- [x] Managing database migrations
+- [x] Creating and deploying Supabase Functions
+- [x] Generating types directly from your database schema
+- [x] Making authenticated HTTP requests to [Management API](https://supabase.com/docs/reference/api/introduction)
 
-### Önkoşullar
-- Node.js 18+ 
-- npm veya yarn
-- Supabase hesabı (ücretsiz)
-- Google Gemini API anahtarı (AI özellikler için)
+## Getting started
 
-### 1️⃣ Projeyi İndirin
+### Install the CLI
+
+Available via [NPM](https://www.npmjs.com) as dev dependency. To install:
+
 ```bash
-git clone <repository-url>
-cd okul-gozlem-asistani
-npm install
+npm i supabase --save-dev
 ```
 
-### 2️⃣ Ortam Değişkenlerini Ayarlayın
+When installing with yarn 4, you need to disable experimental fetch with the following nodejs config.
 
-**Önemli Güvenlik Notu:** Asla API anahtarlarınızı kodun içine yazmayın!
-
-1. `.env.example` dosyasını `.env` olarak kopyalayın:
-   ```bash
-   # Windows PowerShell
-   copy .env.example .env
-   
-   # macOS/Linux
-   cp .env.example .env
-   ```
-
-2. `.env` dosyasını açın ve bilgilerinizi girin:
-   ```env
-   VITE_SUPABASE_URL=https://your-project.supabase.co
-   VITE_SUPABASE_ANON_KEY=your-anon-key-here
-   GEMINI_API_KEY=your-gemini-key-here
-   VITE_SENTRY_DSN=your-sentry-dsn-here  # Opsiyonel
-   ```
-
-**Nerede Bulunur?**
-- **Supabase bilgileri:** [Supabase Dashboard](https://app.supabase.com) > Project Settings > API
-- **Gemini API Key:** [Google AI Studio](https://makersuite.google.com/app/apikey)
-- **Sentry DSN:** [Sentry.io](https://sentry.io) > Project Settings (opsiyonel)
-
-### 3️⃣ Supabase'i Hazırlayın
-
-1. **Veritabanı Şemasını Oluşturun:**
-   - Supabase Dashboard'da SQL Editor'ı açın
-   - `supabase/schema.sql` dosyasını çalıştırın
-   - `supabase/policies.sql` dosyasını çalıştırın
-
-2. **Storage Bucket'ları Oluşturun:**
-   - Storage bölümüne gidin
-   - İki bucket oluşturun:
-     - `avatars` → Public (çocuk profil resimleri)
-     - `child-media` → Private (çocuk ürünleri)
-
-3. **Edge Functions'ı Deploy Edin:**
-   ```bash
-   # Supabase CLI kurulu değilse:
-   npm install -g supabase
-   
-   # Login
-   supabase login
-   
-   # Functions'ları deploy edin
-   supabase functions deploy ai_evaluate
-   supabase functions deploy teacher_chat
-   supabase functions deploy media_upload
-   supabase functions deploy media_update
-   
-   # Environment variables ayarlayın
-   supabase secrets set API_KEY=your-gemini-api-key
-   ```
-
-### 4️⃣ Uygulamayı Başlatın
-```bash
-npm run dev
+```
+NODE_OPTIONS=--no-experimental-fetch yarn add supabase
 ```
 
-Tarayıcıda `http://localhost:3000` adresini açın.
+> **Note**
+For Bun versions below v1.0.17, you must add `supabase` as a [trusted dependency](https://bun.sh/guides/install/trusted) before running `bun add -D supabase`.
 
-### 5️⃣ Production Build (Canlıya Almak İçin)
+<details>
+  <summary><b>macOS</b></summary>
+
+  Available via [Homebrew](https://brew.sh). To install:
+
+  ```sh
+  brew install supabase/tap/supabase
+  ```
+
+  To install the beta release channel:
+  
+  ```sh
+  brew install supabase/tap/supabase-beta
+  brew link --overwrite supabase-beta
+  ```
+  
+  To upgrade:
+
+  ```sh
+  brew upgrade supabase
+  ```
+</details>
+
+<details>
+  <summary><b>Windows</b></summary>
+
+  Available via [Scoop](https://scoop.sh). To install:
+
+  ```powershell
+  scoop bucket add supabase https://github.com/supabase/scoop-bucket.git
+  scoop install supabase
+  ```
+
+  To upgrade:
+
+  ```powershell
+  scoop update supabase
+  ```
+</details>
+
+<details>
+  <summary><b>Linux</b></summary>
+
+  Available via [Homebrew](https://brew.sh) and Linux packages.
+
+  #### via Homebrew
+
+  To install:
+
+  ```sh
+  brew install supabase/tap/supabase
+  ```
+
+  To upgrade:
+
+  ```sh
+  brew upgrade supabase
+  ```
+
+  #### via Linux packages
+
+  Linux packages are provided in [Releases](https://github.com/supabase/cli/releases). To install, download the `.apk`/`.deb`/`.rpm`/`.pkg.tar.zst` file depending on your package manager and run the respective commands.
+
+  ```sh
+  sudo apk add --allow-untrusted <...>.apk
+  ```
+
+  ```sh
+  sudo dpkg -i <...>.deb
+  ```
+
+  ```sh
+  sudo rpm -i <...>.rpm
+  ```
+
+  ```sh
+  sudo pacman -U <...>.pkg.tar.zst
+  ```
+</details>
+
+<details>
+  <summary><b>Other Platforms</b></summary>
+
+  You can also install the CLI via [go modules](https://go.dev/ref/mod#go-install) without the help of package managers.
+
+  ```sh
+  go install github.com/supabase/cli@latest
+  ```
+
+  Add a symlink to the binary in `$PATH` for easier access:
+
+  ```sh
+  ln -s "$(go env GOPATH)/bin/cli" /usr/bin/supabase
+  ```
+
+  This works on other non-standard Linux distros.
+</details>
+
+<details>
+  <summary><b>Community Maintained Packages</b></summary>
+
+  Available via [pkgx](https://pkgx.sh/). Package script [here](https://github.com/pkgxdev/pantry/blob/main/projects/supabase.com/cli/package.yml).
+  To install in your working directory:
+
+  ```bash
+  pkgx install supabase
+  ```
+
+  Available via [Nixpkgs](https://nixos.org/). Package script [here](https://github.com/NixOS/nixpkgs/blob/master/pkgs/development/tools/supabase-cli/default.nix).
+</details>
+
+### Run the CLI
+
 ```bash
-npm run build
-npm run preview  # Build'i test edin
+supabase bootstrap
 ```
 
----
+Or using npx:
 
-## 🔒 Güvenlik Notları
+```bash
+npx supabase bootstrap
+```
 
-- ⚠️ `.env` dosyasını asla Git'e yüklemeyin (`.gitignore` otomatik engeller)
-- ⚠️ Production'da Supabase RLS (Row Level Security) politikalarının aktif olduğundan emin olun
-- ⚠️ API anahtarlarınızı düzenli olarak yenileyin
-- ✅ Tüm hassas veriler Supabase'de şifrelenmiş şekilde saklanır
+The bootstrap command will guide you through the process of setting up a Supabase project using one of the [starter](https://github.com/supabase-community/supabase-samples/blob/main/samples.json) templates.
 
----
+## Docs
 
-## 🐛 Sorun Giderme
+Command & config reference can be found [here](https://supabase.com/docs/reference/cli/about).
 
-### "Supabase yapılandırması eksik" hatası
-➡️ `.env` dosyasını oluşturdunuz mu? Değerler doğru mu?
+## Breaking changes
 
-### Gözlemler kaydedilmiyor
-➡️ Supabase RLS politikaları doğru kurulmuş mu? `policies.sql`'i kontrol edin.
+We follow semantic versioning for changes that directly impact CLI commands, flags, and configurations.
 
-### AI analizi çalışmıyor
-➡️ `GEMINI_API_KEY` değerini `.env` dosyasına eklediniz mi?
+However, due to dependencies on other service images, we cannot guarantee that schema migrations, seed.sql, and generated types will always work for the same CLI major version. If you need such guarantees, we encourage you to pin a specific version of CLI in package.json.
 
-### Fotoğraf yüklenmiyor
-➡️ Storage bucket'ları oluşturdunuz mu? Policy'ler doğru mu?
+## Developing
 
----
+To run from source:
 
-## Notlar
-- PDF rapor oluşturma, çocuk detay ekranından kullanılabilir.
-- Demo data seeder ile hızlıca test verisi oluşturabilirsiniz (Ayarlar > Demo Verisi)
-- Çevrimdışı mod: İnternet bağlantısı olmadan da gözlem kaydedebilirsiniz, otomatik senkronize olur.
+```sh
+# Go >= 1.22
+go run . help
+```
