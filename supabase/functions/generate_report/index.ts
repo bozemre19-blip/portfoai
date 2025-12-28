@@ -137,9 +137,9 @@ JSON formatında döndür (sadece JSON, başka açıklama ekleme):
 
         // Call Gemini API
         const models = [
+            'gemini-1.5-flash-8b',
             'gemini-1.5-flash',
-            'gemini-1.5-flash-002',
-            'gemini-1.5-flash-latest',
+            'gemini-1.5-pro',
         ];
 
         let aiContent = null;
