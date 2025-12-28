@@ -31,6 +31,7 @@ import TeacherInbox from './components/TeacherInbox';
 import { syncOfflineData } from './services/api';
 import { startAutoSync, stopAutoSync } from './services/syncService';
 import { t } from './constants.clean';
+import { ImageViewerProvider } from './components/ImageViewerContext';
 // import { Analytics } from "@vercel/analytics/react";
 // Sentry geçici olarak devre dışı (beyaz ekran sorunu için)
 // import { initSentry, setSentryUser, clearSentryUser } from './sentry.config';
@@ -239,16 +240,18 @@ const App: React.FC = () => {
   // 0. ÖNCELİKLİ: Şifre sıfırlama modu aktifse, session olsa bile bu sayfayı göster
   if (isPasswordRecovery) {
     return (
-      <ResetPasswordPage
-        onSuccess={() => {
-          setIsPasswordRecovery(false);
-          navigate('dashboard');
-        }}
-        onBack={() => {
-          setIsPasswordRecovery(false);
-          navigate('login');
-        }}
-      />
+      <ImageViewerProvider>
+        <ResetPasswordPage
+          onSuccess={() => {
+            setIsPasswordRecovery(false);
+            navigate('dashboard');
+          }}
+          onBack={() => {
+            setIsPasswordRecovery(false);
+            navigate('login');
+          }}
+        />
+      </ImageViewerProvider>
     );
   }
 
@@ -258,7 +261,9 @@ const App: React.FC = () => {
     if (userRole === 'family') {
       return (
         <AuthContext.Provider value={{ session, user: session?.user ?? null, userRole }}>
-          <FamilyDashboard />
+          <ImageViewerProvider>
+            <FamilyDashboard />
+          </ImageViewerProvider>
         </AuthContext.Provider>
       );
     }
@@ -266,12 +271,14 @@ const App: React.FC = () => {
     // Öğretmen için mevcut arayüz
     return (
       <AuthContext.Provider value={{ session, user: session?.user ?? null, userRole }}>
-        <div className="min-h-screen bg-gray-100 dark:bg-gray-900">
-          <Layout navigate={navigate} currentPage={view.page || 'dashboard'}>
-            {renderContent()}
-          </Layout>
-        </div>
-        {/* <Analytics /> */}
+        <ImageViewerProvider>
+          <div className="min-h-screen bg-gray-100 dark:bg-gray-900">
+            <Layout navigate={navigate} currentPage={view.page || 'dashboard'}>
+              {renderContent()}
+            </Layout>
+          </div>
+          {/* <Analytics /> */}
+        </ImageViewerProvider>
       </AuthContext.Provider>
     );
   }
@@ -279,73 +286,83 @@ const App: React.FC = () => {
   // 2. Durum: Kullanıcı giriş yapmış ve 'login' sayfasında
   if (view.page === 'login') {
     return (
-      <div className="min-h-screen bg-gray-100 dark:bg-gray-900">
-        <Auth
-          initialMode={view.params?.mode === 'signup' ? 'signup' : 'login'}
-          emailConfirmed={emailConfirmed}
-          onEmailConfirmedDismiss={() => setEmailConfirmed(false)}
-        />
-      </div>
+      <ImageViewerProvider>
+        <div className="min-h-screen bg-gray-100 dark:bg-gray-900">
+          <Auth
+            initialMode={view.params?.mode === 'signup' ? 'signup' : 'login'}
+            emailConfirmed={emailConfirmed}
+            onEmailConfirmedDismiss={() => setEmailConfirmed(false)}
+          />
+        </div>
+      </ImageViewerProvider>
     );
   }
 
   // Şifre sıfırlama sayfası (email linki ile gelindi veya isPasswordRecovery true)
   if (view.page === 'reset-password' || isPasswordRecovery) {
     return (
-      <ResetPasswordPage
-        onSuccess={() => {
-          setIsPasswordRecovery(false);
-          navigate('dashboard');
-        }}
-        onBack={() => {
-          setIsPasswordRecovery(false);
-          navigate('login');
-        }}
-      />
+      <ImageViewerProvider>
+        <ResetPasswordPage
+          onSuccess={() => {
+            setIsPasswordRecovery(false);
+            navigate('dashboard');
+          }}
+          onBack={() => {
+            setIsPasswordRecovery(false);
+            navigate('login');
+          }}
+        />
+      </ImageViewerProvider>
     );
   }
 
   // 3. Durum: Kullanıcı giriş yapmamış
 
   if (view.page === 'about') {
-    return <AboutPage onBack={() => navigate('landing')} />;
+    return <ImageViewerProvider><AboutPage onBack={() => navigate('landing')} /></ImageViewerProvider>;
   }
 
   if (view.page === 'contact') {
-    return <ContactPage onBack={() => navigate('landing')} />;
+    return <ImageViewerProvider><ContactPage onBack={() => navigate('landing')} /></ImageViewerProvider>;
   }
 
   if (view.page === 'privacy') {
-    return <PrivacyPage onBack={() => navigate('landing')} />;
+    return <ImageViewerProvider><PrivacyPage onBack={() => navigate('landing')} /></ImageViewerProvider>;
   }
 
   if (view.page === 'features') {
-    return <FeaturesPage onBack={() => navigate('landing')} onSignup={() => navigate('login', { mode: 'signup' })} />;
+    return <ImageViewerProvider><FeaturesPage onBack={() => navigate('landing')} onSignup={() => navigate('login', { mode: 'signup' })} /></ImageViewerProvider>;
   }
 
   if (view.page === 'pricing') {
-    return <PricingPage onBack={() => navigate('landing')} onSignup={() => navigate('login', { mode: 'signup' })} />;
+    return <ImageViewerProvider><PricingPage onBack={() => navigate('landing')} onSignup={() => navigate('login', { mode: 'signup' })} /></ImageViewerProvider>;
   }
 
   if (view.page === 'faq') {
-    return <FAQPage onBack={() => navigate('landing')} />;
+    return <ImageViewerProvider><FAQPage onBack={() => navigate('landing')} /></ImageViewerProvider>;
   }
 
   // Varsayılan: Landing Page (sadece web için) veya Login (mobil için)
   // Mobil uygulamada landing page gösterme, direkt login aç
   if (Capacitor.isNativePlatform()) {
     return (
-      <div className="min-h-screen bg-gray-100 dark:bg-gray-900">
-        <Auth initialMode="login" />
-      </div>
+      <ImageViewerProvider>
+        <div className="min-h-screen bg-gray-100 dark:bg-gray-900">
+          <Auth initialMode="login" />
+        </div>
+      </ImageViewerProvider>
     );
   }
 
-  return <LandingPage
-    navigate={navigate}
-    onLoginClick={() => navigate('login')}
-    onSignupClick={() => navigate('login', { mode: 'signup' })}
-  />;
+  return (
+    <ImageViewerProvider>
+      <LandingPage
+        navigate={navigate}
+        onLoginClick={() => navigate('login')}
+        onSignupClick={() => navigate('login', { mode: 'signup' })}
+      />
+    </ImageViewerProvider>
+  );
 };
 
 export default App;

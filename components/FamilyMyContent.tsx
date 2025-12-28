@@ -6,6 +6,7 @@ import React, { useState, useEffect } from 'react';
 import { supabase } from '../services/supabase';
 import { getSignedUrlForMedia } from '../services/api';
 import { getDomains, t } from '../constants.clean';
+import { useImageViewer } from './ImageViewerContext';
 import { TrashIcon, PencilIcon } from '@heroicons/react/24/outline';
 
 interface FamilyMyContentProps {
@@ -35,6 +36,7 @@ interface FamilyMedia {
 type Tab = 'observations' | 'media';
 
 const FamilyMyContent: React.FC<FamilyMyContentProps> = ({ childId, childName, onClose, onRefresh }) => {
+    const { openImage } = useImageViewer();
     const [activeTab, setActiveTab] = useState<Tab>('observations');
     const [observations, setObservations] = useState<FamilyObservation[]>([]);
     const [media, setMedia] = useState<FamilyMedia[]>([]);
@@ -179,8 +181,8 @@ const FamilyMyContent: React.FC<FamilyMyContentProps> = ({ childId, childName, o
                     <button
                         onClick={() => setActiveTab('observations')}
                         className={`flex-1 py-3 px-4 font-medium transition-colors ${activeTab === 'observations'
-                                ? 'text-teal-600 border-b-2 border-teal-600 bg-teal-50 dark:bg-teal-900/20'
-                                : 'text-gray-500 hover:text-gray-700 dark:text-gray-400'
+                            ? 'text-teal-600 border-b-2 border-teal-600 bg-teal-50 dark:bg-teal-900/20'
+                            : 'text-gray-500 hover:text-gray-700 dark:text-gray-400'
                             }`}
                     >
                         📝 {t('myObservations')} ({observations.length})
@@ -188,8 +190,8 @@ const FamilyMyContent: React.FC<FamilyMyContentProps> = ({ childId, childName, o
                     <button
                         onClick={() => setActiveTab('media')}
                         className={`flex-1 py-3 px-4 font-medium transition-colors ${activeTab === 'media'
-                                ? 'text-teal-600 border-b-2 border-teal-600 bg-teal-50 dark:bg-teal-900/20'
-                                : 'text-gray-500 hover:text-gray-700 dark:text-gray-400'
+                            ? 'text-teal-600 border-b-2 border-teal-600 bg-teal-50 dark:bg-teal-900/20'
+                            : 'text-gray-500 hover:text-gray-700 dark:text-gray-400'
                             }`}
                     >
                         📷 {t('myPhotos')} ({media.length})
@@ -292,7 +294,12 @@ const FamilyMyContent: React.FC<FamilyMyContentProps> = ({ childId, childName, o
                                         {m.type === 'video' ? (
                                             <video src={mediaUrls[m.id]} className="w-full h-32 object-cover" controls />
                                         ) : (
-                                            <img src={mediaUrls[m.id]} alt={m.name} className="w-full h-32 object-cover" />
+                                            <img
+                                                src={mediaUrls[m.id]}
+                                                alt={m.name}
+                                                className="w-full h-32 object-cover cursor-pointer hover:opacity-90 transition-opacity"
+                                                onClick={() => openImage(mediaUrls[m.id], m.name)}
+                                            />
                                         )}
                                         <div className="p-2">
                                             <div className="flex justify-between items-start">

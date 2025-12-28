@@ -272,73 +272,76 @@ const FamilyDashboard: React.FC = () => {
                                     className="group bg-[#2D3B5E] rounded-2xl p-5 border border-white/10 hover:border-[#F97B5C]/50 transition-all duration-300 hover:shadow-lg hover:shadow-[#F97B5C]/10"
                                     style={{ animationDelay: `${index * 100}ms` }}
                                 >
-                                    <div className="flex items-center gap-4">
-                                        {/* Avatar */}
-                                        <div className="relative">
-                                            <div className="absolute -inset-1 bg-gradient-to-r from-[#F97B5C] to-[#FF9472] rounded-full opacity-50 group-hover:opacity-100 transition-opacity blur-sm"></div>
-                                            <div className="relative w-16 h-16 rounded-full bg-gradient-to-br from-[#F97B5C] to-[#FF9472] p-0.5">
-                                                <div className="w-full h-full rounded-full bg-[#1E2A4A] flex items-center justify-center overflow-hidden">
-                                                    {child.photo_url ? (
-                                                        <img src={child.photo_url} alt={child.first_name} className="w-full h-full object-cover" />
-                                                    ) : (
-                                                        <span className="text-xl font-bold text-white">
-                                                            {child.first_name.charAt(0)}{child.last_name.charAt(0)}
+                                    <div className="flex flex-col sm:flex-row sm:items-center gap-4">
+                                        {/* Avatar & Info Wrapper */}
+                                        <div className="flex items-center gap-4 w-full sm:w-auto flex-grow">
+                                            {/* Avatar */}
+                                            <div className="relative flex-shrink-0">
+                                                <div className="absolute -inset-1 bg-gradient-to-r from-[#F97B5C] to-[#FF9472] rounded-full opacity-50 group-hover:opacity-100 transition-opacity blur-sm"></div>
+                                                <div className="relative w-16 h-16 rounded-full bg-gradient-to-br from-[#F97B5C] to-[#FF9472] p-0.5">
+                                                    <div className="w-full h-full rounded-full bg-[#1E2A4A] flex items-center justify-center overflow-hidden">
+                                                        {child.photo_url ? (
+                                                            <img src={child.photo_url} alt={child.first_name} className="w-full h-full object-cover" />
+                                                        ) : (
+                                                            <span className="text-xl font-bold text-white">
+                                                                {child.first_name.charAt(0)}{child.last_name.charAt(0)}
+                                                            </span>
+                                                        )}
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            {/* Info */}
+                                            <div className="min-w-0">
+                                                <h3 className="text-lg font-bold text-white truncate">
+                                                    {child.first_name} {child.last_name}
+                                                </h3>
+                                                <div className="flex flex-wrap items-center gap-2 mt-1">
+                                                    <span className="text-sm text-white/50 flex items-center gap-1">
+                                                        <span className="text-[#F97B5C]">📅</span> {calculateAge(child.dob)}
+                                                    </span>
+                                                    {child.classroom && (
+                                                        <span className="text-xs bg-white/10 text-white/70 px-2 py-0.5 rounded-full">
+                                                            {child.classroom}
                                                         </span>
                                                     )}
                                                 </div>
                                             </div>
                                         </div>
 
-                                        {/* Info */}
-                                        <div className="flex-grow min-w-0">
-                                            <h3 className="text-lg font-bold text-white truncate">
-                                                {child.first_name} {child.last_name}
-                                            </h3>
-                                            <div className="flex flex-wrap items-center gap-2 mt-1">
-                                                <span className="text-sm text-white/50 flex items-center gap-1">
-                                                    <span className="text-[#F97B5C]">📅</span> {calculateAge(child.dob)}
-                                                </span>
-                                                {child.classroom && (
-                                                    <span className="text-xs bg-white/10 text-white/70 px-2 py-0.5 rounded-full">
-                                                        {child.classroom}
-                                                    </span>
-                                                )}
-                                            </div>
-                                        </div>
-
                                         {/* Actions */}
-                                        <div className="flex items-center gap-2">
+                                        <div className="flex items-center justify-between sm:justify-start gap-2 w-full sm:w-auto pt-3 border-t border-white/10 sm:pt-0 sm:border-t-0">
                                             <button
                                                 onClick={() => setObservationChild(child)}
-                                                className="w-10 h-10 rounded-xl bg-orange-500/20 text-orange-400 hover:bg-orange-500/30 transition-colors flex items-center justify-center"
+                                                className="flex-1 sm:flex-none h-10 rounded-xl bg-orange-500/20 text-orange-400 hover:bg-orange-500/30 transition-colors flex items-center justify-center"
                                                 title="Gözlem Ekle"
                                             >
                                                 <PencilSquareIcon className="w-5 h-5" />
                                             </button>
                                             <button
                                                 onClick={() => setMediaUploadChild(child)}
-                                                className="w-10 h-10 rounded-xl bg-purple-500/20 text-purple-400 hover:bg-purple-500/30 transition-colors flex items-center justify-center"
+                                                className="flex-1 sm:flex-none h-10 rounded-xl bg-purple-500/20 text-purple-400 hover:bg-purple-500/30 transition-colors flex items-center justify-center"
                                                 title="Fotoğraf/Video Ekle"
                                             >
                                                 <CameraIcon className="w-5 h-5" />
                                             </button>
                                             <button
                                                 onClick={() => setMyContentChild(child)}
-                                                className="w-10 h-10 rounded-xl bg-teal-500/20 text-teal-400 hover:bg-teal-500/30 transition-colors flex items-center justify-center"
+                                                className="flex-1 sm:flex-none h-10 rounded-xl bg-teal-500/20 text-teal-400 hover:bg-teal-500/30 transition-colors flex items-center justify-center"
                                                 title="Eklediklerim"
                                             >
                                                 <FolderOpenIcon className="w-5 h-5" />
                                             </button>
                                             <button
                                                 onClick={() => setChatChild(child)}
-                                                className="w-10 h-10 rounded-xl bg-[#F97B5C]/20 text-[#F97B5C] hover:bg-[#F97B5C]/30 transition-colors flex items-center justify-center"
+                                                className="flex-1 sm:flex-none h-10 rounded-xl bg-[#F97B5C]/20 text-[#F97B5C] hover:bg-[#F97B5C]/30 transition-colors flex items-center justify-center"
                                                 title={t('sendMessageToTeacher')}
                                             >
                                                 <ChatBubbleLeftEllipsisIcon className="w-5 h-5" />
                                             </button>
                                             <button
                                                 onClick={() => setSelectedChild(child)}
-                                                className="w-10 h-10 rounded-xl bg-white/10 text-white/70 hover:bg-white/20 transition-colors flex items-center justify-center"
+                                                className="flex-1 sm:flex-none h-10 rounded-xl bg-white/10 text-white/70 hover:bg-white/20 transition-colors flex items-center justify-center"
                                             >
                                                 <ChevronRightIcon className="w-5 h-5" />
                                             </button>

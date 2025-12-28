@@ -6,6 +6,7 @@
 import React, { useState, useEffect } from 'react';
 import { getFamilyAddedObservations, getFamilyAddedMedia, getSignedUrlForMedia } from '../services/api';
 import { getDomains, t } from '../constants.clean';
+import { useImageViewer } from './ImageViewerContext';
 
 interface FamilyAddedContentProps {
     childId: string;
@@ -41,6 +42,7 @@ interface FamilyMedia {
 }
 
 const FamilyAddedContent: React.FC<FamilyAddedContentProps> = ({ childId, childName, onClose }) => {
+    const { openImage } = useImageViewer();
     const [activeTab, setActiveTab] = useState<Tab>('observations');
     const [observations, setObservations] = useState<FamilyObservation[]>([]);
     const [media, setMedia] = useState<FamilyMedia[]>([]);
@@ -213,7 +215,8 @@ const FamilyAddedContent: React.FC<FamilyAddedContentProps> = ({ childId, childN
                                             <img
                                                 src={mediaUrls[m.id]}
                                                 alt={m.name}
-                                                className="w-full h-40 object-cover"
+                                                className="w-full h-40 object-cover cursor-pointer hover:opacity-90 transition-opacity"
+                                                onClick={() => openImage(mediaUrls[m.id], m.name)}
                                             />
                                         )}
                                         <div className="p-3">
