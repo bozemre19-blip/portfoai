@@ -135,11 +135,12 @@ JSON formatında döndür (sadece JSON, başka açıklama ekleme):
 }
 `;
 
-        // Call Gemini API with multiple version/model combinations
+        // Call Gemini API with multiple version/model combinations (matching ai_evaluate)
         const attempts: Array<{ version: string; model: string }> = [
-            { version: 'v1', model: 'gemini-2.0-flash-001' },
-            { version: 'v1', model: 'gemini-2.0-flash' },
-            { version: 'v1', model: 'gemini-2.5-flash' },
+            { version: 'v1beta', model: 'gemini-1.5-flash-002' },
+            { version: 'v1', model: 'gemini-1.5-flash-002' },
+            { version: 'v1beta', model: 'gemini-1.5-flash-latest' },
+            { version: 'v1', model: 'gemini-1.5-flash' },
         ];
 
         let aiContent = null;
