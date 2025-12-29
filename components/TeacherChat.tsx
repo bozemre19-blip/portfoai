@@ -259,7 +259,7 @@ const TeacherChat: React.FC<{ navigate: (page: string, params?: any) => void; ch
         {/* Chat Area - Hidden on mobile when viewing threads */}
         <main className={`flex-1 bg-white dark:bg-[#1a1a2e] rounded-2xl shadow-lg border border-gray-100 dark:border-gray-700 flex flex-col overflow-hidden transition-colors relative ${mobileView === 'threads' ? 'hidden md:flex' : 'flex'}`}>
           {/* Header */}
-          <div className="p-4 border-b border-gray-100 dark:border-gray-700 bg-white/80 dark:bg-[#1a1a2e]/80 backdrop-blur-md z-10 flex items-center justify-between sticky top-0">
+          <div className="p-4 border-b border-gray-100 dark:border-gray-700 bg-white/80 dark:bg-[#1a1a2e]/80 backdrop-blur-md z-10 flex flex-col md:flex-row md:items-center md:justify-between gap-3 sticky top-0">
             <div className="flex items-center gap-3">
               {/* Mobile Back Button */}
               <button
@@ -268,31 +268,31 @@ const TeacherChat: React.FC<{ navigate: (page: string, params?: any) => void; ch
               >
                 <ArrowLeftIcon className="w-5 h-5" />
               </button>
-              <h1 className="text-xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
-                <span className="w-8 h-8 rounded-lg bg-orange-100 dark:bg-orange-900/30 text-orange-600 dark:text-orange-400 flex items-center justify-center">
+              <h1 className="text-lg md:text-xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
+                <span className="w-7 h-7 md:w-8 md:h-8 rounded-lg bg-orange-100 dark:bg-orange-900/30 text-orange-600 dark:text-orange-400 flex items-center justify-center text-sm md:text-base">
                   ✨
                 </span>
                 {t('aiAssistant')}
               </h1>
             </div>
 
-            {/* Context Filters */}
-            <div className="flex items-center gap-2 text-sm bg-gray-50 dark:bg-gray-800/50 p-1 rounded-lg">
+            {/* Context Filters - Full width on mobile */}
+            <div className="flex items-center gap-1 md:gap-2 text-xs md:text-sm bg-gray-50 dark:bg-gray-800/50 p-1 rounded-lg w-full md:w-auto">
               <button
                 onClick={() => setMode('general')}
-                className={`px-3 py-1.5 rounded-md transition-all ${mode === 'general' ? 'bg-white dark:bg-gray-700 shadow-sm text-gray-900 dark:text-white font-medium' : 'text-gray-500 dark:text-gray-400 hover:text-gray-700'}`}
+                className={`flex-1 md:flex-none px-2 md:px-3 py-1.5 rounded-md transition-all text-center ${mode === 'general' ? 'bg-white dark:bg-gray-700 shadow-sm text-gray-900 dark:text-white font-medium' : 'text-gray-500 dark:text-gray-400 hover:text-gray-700'}`}
               >
                 {t('general')}
               </button>
               <button
                 onClick={() => setMode('class')}
-                className={`px-3 py-1.5 rounded-md transition-all ${mode === 'class' ? 'bg-white dark:bg-gray-700 shadow-sm text-gray-900 dark:text-white font-medium' : 'text-gray-500 dark:text-gray-400 hover:text-gray-700'}`}
+                className={`flex-1 md:flex-none px-2 md:px-3 py-1.5 rounded-md transition-all text-center ${mode === 'class' ? 'bg-white dark:bg-gray-700 shadow-sm text-gray-900 dark:text-white font-medium' : 'text-gray-500 dark:text-gray-400 hover:text-gray-700'}`}
               >
                 {t('classroom')}
               </button>
               <button
                 onClick={() => setMode('child')}
-                className={`px-3 py-1.5 rounded-md transition-all ${mode === 'child' ? 'bg-white dark:bg-gray-700 shadow-sm text-gray-900 dark:text-white font-medium' : 'text-gray-500 dark:text-gray-400 hover:text-gray-700'}`}
+                className={`flex-1 md:flex-none px-2 md:px-3 py-1.5 rounded-md transition-all text-center ${mode === 'child' ? 'bg-white dark:bg-gray-700 shadow-sm text-gray-900 dark:text-white font-medium' : 'text-gray-500 dark:text-gray-400 hover:text-gray-700'}`}
               >
                 {t('child')}
               </button>
