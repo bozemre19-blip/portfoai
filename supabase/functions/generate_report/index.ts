@@ -172,15 +172,29 @@ JSON formatında döndür (sadece JSON, başka açıklama ekleme):
                     throw new Error('Empty response from Gemini');
                 }
 
-                // Extract JSON from response
+                // Log raw response for debugging
+                console.log(`Raw Gemini response (first 500 chars):`, text.substring(0, 500));
+
+                // Extract JSON from response - try multiple strategies
                 let jsonText = text.trim();
+
+                // Remove markdown code blocks
                 if (jsonText.startsWith('```')) {
                     jsonText = jsonText.replace(/```json\n?/g, '').replace(/```\n?/g, '');
                 }
 
-                const jsonMatch = jsonText.match(/\{[\s\S]*\}/);
+                // Try to find JSON object
+                let jsonMatch = jsonText.match(/\{[\s\S]*\}/);
                 if (!jsonMatch) {
-                    throw new Error('Failed to parse AI response');
+                    // Maybe it's just plain JSON without any wrapper
+                    try {
+                        aiContent = JSON.parse(jsonText);
+                        console.log('Parsed JSON directly');
+                        break;
+                    } catch (e) {
+                        console.error('Failed to parse as direct JSON:', e);
+                        throw new Error(`Failed to parse AI response. Response: ${text.substring(0, 200)}`);
+                    }
                 }
 
                 aiContent = JSON.parse(jsonMatch[0]);

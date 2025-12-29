@@ -3,7 +3,7 @@ import { useAuth } from '../App';
 import { supabase } from '../services/supabase';
 import { askTeacherAssistant, addChatMessage, createChatThread, getChatMessages, listChatThreads, updateChatThread, deleteChatThread } from '../services/api';
 import { t, getDateLocale } from '../constants.clean';
-import { PlusIcon, TrashIcon, PencilSquareIcon, PaperAirplaneIcon, ChatBubbleLeftIcon, EllipsisHorizontalIcon, XMarkIcon, CheckIcon } from '@heroicons/react/24/outline';
+import { PlusIcon, TrashIcon, PencilSquareIcon, PaperAirplaneIcon, ChatBubbleLeftIcon, EllipsisHorizontalIcon, XMarkIcon, CheckIcon, ArrowLeftIcon } from '@heroicons/react/24/outline';
 
 type Msg = { role: 'user' | 'assistant' | 'system'; content: string; at: string };
 type Thread = { id: string; title: string; mode: 'general' | 'class' | 'child'; classroom?: string | null; child_id?: string | null; updated_at: string };
@@ -26,6 +26,9 @@ const TeacherChat: React.FC<{ navigate: (page: string, params?: any) => void; ch
     // Edit/Delete states
     const [editingThreadId, setEditingThreadId] = useState<string | null>(null);
     const [editTitle, setEditTitle] = useState('');
+
+    // Mobile view state: 'threads' shows thread list, 'chat' shows chat area
+    const [mobileView, setMobileView] = useState<'threads' | 'chat'>('threads');
 
     useEffect(() => {
       (async () => {
@@ -54,6 +57,7 @@ const TeacherChat: React.FC<{ navigate: (page: string, params?: any) => void; ch
       try {
         const msgs = await getChatMessages(thr.id);
         setHistory((msgs || []).map(m => ({ role: m.role, content: m.content, at: m.created_at })) as any);
+        setMobileView('chat'); // Switch to chat view on mobile
       } finally { setLoadingMsgs(false); }
     };
 
@@ -106,6 +110,7 @@ const TeacherChat: React.FC<{ navigate: (page: string, params?: any) => void; ch
       setMode(childId ? 'child' : classroom ? 'class' : 'general');
       setSelChild(childId);
       setSelClass(classroom);
+      setMobileView('chat'); // Switch to chat view on mobile
     };
 
     const handleEditStart = (thr: Thread, e: React.MouseEvent) => {
@@ -166,8 +171,8 @@ const TeacherChat: React.FC<{ navigate: (page: string, params?: any) => void; ch
 
     return (
       <div className="max-w-7xl mx-auto h-[calc(100vh-140px)] flex gap-6">
-        {/* Sidebar */}
-        <aside className="w-80 flex-shrink-0 bg-white dark:bg-[#1a1a2e] rounded-2xl shadow-lg border border-gray-100 dark:border-gray-700 flex flex-col overflow-hidden transition-colors">
+        {/* Sidebar - Hidden on mobile when viewing chat */}
+        <aside className={`w-full md:w-80 flex-shrink-0 bg-white dark:bg-[#1a1a2e] rounded-2xl shadow-lg border border-gray-100 dark:border-gray-700 flex flex-col overflow-hidden transition-colors ${mobileView === 'chat' ? 'hidden md:flex' : 'flex'}`}>
           <div className="p-4 border-b border-gray-100 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-800/50">
             <button
               onClick={newChat}
@@ -251,11 +256,18 @@ const TeacherChat: React.FC<{ navigate: (page: string, params?: any) => void; ch
           </div>
         </aside>
 
-        {/* Chat Area */}
-        <main className="flex-1 bg-white dark:bg-[#1a1a2e] rounded-2xl shadow-lg border border-gray-100 dark:border-gray-700 flex flex-col overflow-hidden transition-colors relative">
+        {/* Chat Area - Hidden on mobile when viewing threads */}
+        <main className={`flex-1 bg-white dark:bg-[#1a1a2e] rounded-2xl shadow-lg border border-gray-100 dark:border-gray-700 flex flex-col overflow-hidden transition-colors relative ${mobileView === 'threads' ? 'hidden md:flex' : 'flex'}`}>
           {/* Header */}
           <div className="p-4 border-b border-gray-100 dark:border-gray-700 bg-white/80 dark:bg-[#1a1a2e]/80 backdrop-blur-md z-10 flex items-center justify-between sticky top-0">
-            <div>
+            <div className="flex items-center gap-3">
+              {/* Mobile Back Button */}
+              <button
+                onClick={() => setMobileView('threads')}
+                className="md:hidden p-2 -ml-2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
+              >
+                <ArrowLeftIcon className="w-5 h-5" />
+              </button>
               <h1 className="text-xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
                 <span className="w-8 h-8 rounded-lg bg-orange-100 dark:bg-orange-900/30 text-orange-600 dark:text-orange-400 flex items-center justify-center">
                   ✨
