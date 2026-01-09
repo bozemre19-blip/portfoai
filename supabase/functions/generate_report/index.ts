@@ -1,8 +1,8 @@
 // Supabase Edge Function: Generate Development Report
 // Handles AI-powered report content generation securely on server-side
 
-import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+import { serve } from 'https://deno.land/std@0.224.0/http/server.ts';
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.45.4';
 
 const corsHeaders = {
     'Access-Control-Allow-Origin': '*',
@@ -66,27 +66,7 @@ serve(async (req) => {
 
         if (obsError) throw obsError;
 
-        // Get goals
-        const { data: goals, error: goalsError } = await supabase
-            .from('goals')
-            .select('*')
-            .eq('child_id', childId);
-
-        if (goalsError) throw goalsError;
-
-        // Calculate age
-        const calculateAge = (birthDate: string): number => {
-            const birth = new Date(birthDate);
-            const today = new Date();
-            let age = today.getFullYear() - birth.getFullYear();
-            const monthDiff = today.getMonth() - birth.getMonth();
-            if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birth.getDate())) {
-                age--;
-            }
-            return age;
-        };
-
-        // Build AI prompt - Keep it SHORT for Gemini Free limits
+        // Build AI prompt - Keep it SHORT
         const observationText = (observations || []).slice(0, 5).map((o: any) => o.note).join('. ');
 
         const prompt = `Okul öncesi öğretmenisin. Bu gözlemlere dayanarak çocuk gelişim raporu yaz.
@@ -98,28 +78,28 @@ Her alan için 1 cümle yaz. Gözlem yoksa "Yeterli gözlem yok" yaz.
 JSON döndür:
 {"alanBecerileri":"...","sosyalDuygusal":"...","kavramsal":"...","okuryazarlik":"...","degerler":"...","egilimler":"...","genelDegerlendirme":"..."}`;
 
-
-        // Call Gemini API with Gemini 2.5 models (matching teacher_chat)
-        const models = [
-            'gemini-2.5-flash',
-            'gemini-2.5-flash-lite',
-            'gemini-2.0-flash-lite-001',
+        // Call Gemini API using EXACT pattern from working ai_evaluate function
+        const attempts: Array<{ version: string; model: string }> = [
+            { version: 'v1beta', model: 'gemini-1.5-flash-002' },
+            { version: 'v1', model: 'gemini-1.5-flash-002' },
+            { version: 'v1beta', model: 'gemini-1.5-flash-latest' },
+            { version: 'v1', model: 'gemini-1.5-flash' },
         ];
 
         let aiContent = null;
-        let lastError = null;
+        let lastError: unknown = null;
 
-        for (const model of models) {
+        for (const { version, model } of attempts) {
             try {
-                const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${encodeURIComponent(GEMINI_API_KEY)}`;
+                const url = `https://generativelanguage.googleapis.com/${version}/models/${model}:generateContent?key=${encodeURIComponent(GEMINI_API_KEY)}`;
                 const response = await fetch(url, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
-                        contents: [{ parts: [{ text: prompt }] }],
-                        generationConfig: {
-                            temperature: 0.7,
-                            maxOutputTokens: 8192,
+                        contents: [{ role: 'user', parts: [{ text: prompt }] }],
+                        generation_config: {
+                            temperature: 0.5,
+                            response_mime_type: 'application/json',  // CRITICAL: This guarantees JSON output!
                         },
                     }),
                 });
@@ -130,48 +110,27 @@ JSON döndür:
                 }
 
                 const data = await response.json();
-                const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
+                const text = data?.candidates?.[0]?.content?.parts?.[0]?.text ?? '';
 
-                if (!text) {
-                    throw new Error('Empty response from Gemini');
+                if (!text || typeof text !== 'string') {
+                    throw new Error('Gemini returned empty content');
                 }
 
-                // Log raw response for debugging
-                console.log(`Raw Gemini response (first 500 chars):`, text.substring(0, 500));
+                console.log(`Success with ${version}/${model}. Response:`, text.substring(0, 200));
 
-                // Extract JSON from response - try multiple strategies
-                let jsonText = text.trim();
-
-                // Remove markdown code blocks
-                if (jsonText.startsWith('```')) {
-                    jsonText = jsonText.replace(/```json\n?/g, '').replace(/```\n?/g, '');
-                }
-
-                // Try to find JSON object
-                let jsonMatch = jsonText.match(/\{[\s\S]*\}/);
-                if (!jsonMatch) {
-                    // Maybe it's just plain JSON without any wrapper
-                    try {
-                        aiContent = JSON.parse(jsonText);
-                        console.log('Parsed JSON directly');
-                        break;
-                    } catch (e) {
-                        console.error('Failed to parse as direct JSON:', e);
-                        throw new Error(`Failed to parse AI response. Response: ${text.substring(0, 200)}`);
-                    }
-                }
-
-                aiContent = JSON.parse(jsonMatch[0]);
-                break; // Success, exit loop
-            } catch (error) {
-                lastError = error;
-                console.error(`Failed with ${model}:`, error);
-                continue; // Try next model
+                // Clean and parse JSON
+                const cleaned = text.trim().replace(/^```json\n?|```$/g, '');
+                aiContent = JSON.parse(cleaned);
+                break; // Success!
+            } catch (e) {
+                lastError = e;
+                console.error(`Failed with ${version}/${model}:`, e);
+                // try next combination
             }
         }
 
         if (!aiContent) {
-            throw new Error(`All Gemini models failed. Last error: ${lastError}`);
+            throw lastError instanceof Error ? lastError : new Error(String(lastError));
         }
 
         // Format date helper
