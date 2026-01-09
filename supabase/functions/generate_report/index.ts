@@ -26,7 +26,7 @@ serve(async (req) => {
         const GEMINI_API_KEY = Deno.env.get('GEMINI_API_KEY') || Deno.env.get('API_KEY') || '';
 
         if (!GEMINI_API_KEY) {
-            throw new Error('GEMINI_API_KEY not configured in Edge Function secrets');
+            throw new Error('GEMINI_API_KEY not configured');
         }
 
         // Create Supabase client
@@ -34,139 +34,86 @@ serve(async (req) => {
 
         // Parse request
         const { childId }: ReportRequest = await req.json();
-
-        if (!childId) {
-            throw new Error('childId is required');
-        }
+        if (!childId) throw new Error('childId is required');
 
         // Collect child data
         const { data: child, error: childError } = await supabase
-            .from('children')
-            .select('*')
-            .eq('id', childId)
-            .single();
-
+            .from('children').select('*').eq('id', childId).single();
         if (childError) throw childError;
 
         // Get teacher info
         const { data: teacher, error: teacherError } = await supabase
-            .from('profiles')
-            .select('first_name, last_name')
-            .eq('id', child.user_id)
-            .single();
-
+            .from('profiles').select('first_name, last_name').eq('id', child.user_id).single();
         if (teacherError) throw teacherError;
 
         // Get observations
         const { data: observations, error: obsError } = await supabase
-            .from('observations')
-            .select('note, domains, created_at, context')
-            .eq('child_id', childId)
+            .from('observations').select('note, domains').eq('child_id', childId)
             .order('created_at', { ascending: false });
-
         if (obsError) throw obsError;
 
-        // Build AI prompt - Keep it SHORT
+        // Build AI prompt
         const observationText = (observations || []).slice(0, 5).map((o: any) => o.note).join('. ');
-
         const prompt = `Okul öncesi öğretmenisin. Bu gözlemlere dayanarak çocuk gelişim raporu yaz.
-
 GÖZLEMLER: ${observationText || 'Gözlem yok'}
-
 Her alan için 1 cümle yaz. Gözlem yoksa "Yeterli gözlem yok" yaz.
-
-JSON döndür:
+Sadece JSON döndür, başka metin yazma:
 {"alanBecerileri":"...","sosyalDuygusal":"...","kavramsal":"...","okuryazarlik":"...","degerler":"...","egilimler":"...","genelDegerlendirme":"..."}`;
 
-        // Call Gemini API using EXACT pattern from working ai_evaluate function
-        const attempts: Array<{ version: string; model: string }> = [
-            { version: 'v1beta', model: 'gemini-1.5-flash-002' },
-            { version: 'v1', model: 'gemini-1.5-flash-002' },
-            { version: 'v1beta', model: 'gemini-1.5-flash-latest' },
-            { version: 'v1', model: 'gemini-1.5-flash' },
-        ];
-
+        // Call Gemini API - simple approach like teacher_chat
+        const models = ['gemini-2.5-flash', 'gemini-2.0-flash', 'gemini-1.5-flash'];
         let aiContent = null;
         let lastError: unknown = null;
 
-        for (const { version, model } of attempts) {
+        for (const model of models) {
             try {
-                const url = `https://generativelanguage.googleapis.com/${version}/models/${model}:generateContent?key=${encodeURIComponent(GEMINI_API_KEY)}`;
-                const response = await fetch(url, {
+                const url = `https://generativelanguage.googleapis.com/v1/models/${model}:generateContent?key=${encodeURIComponent(GEMINI_API_KEY)}`;
+                const resp = await fetch(url, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
                         contents: [{ role: 'user', parts: [{ text: prompt }] }],
-                        generation_config: {
-                            temperature: 0.5,
-                            response_mime_type: 'application/json',  // CRITICAL: This guarantees JSON output!
-                        },
-                    }),
+                        generationConfig: { temperature: 0.5 }
+                    })
                 });
-
-                if (!response.ok) {
-                    const errorText = await response.text();
-                    throw new Error(`Gemini API error: ${response.status} - ${errorText}`);
-                }
-
-                const data = await response.json();
-                const text = data?.candidates?.[0]?.content?.parts?.[0]?.text ?? '';
-
-                if (!text || typeof text !== 'string') {
-                    throw new Error('Gemini returned empty content');
-                }
-
-                console.log(`Success with ${version}/${model}. Response:`, text.substring(0, 200));
-
-                // Clean and parse JSON
+                if (!resp.ok) throw new Error(`${resp.status} ${await resp.text()}`);
+                const data = await resp.json();
+                const text = data?.candidates?.[0]?.content?.parts?.[0]?.text || '';
+                if (!text) throw new Error('empty');
+                console.log('Gemini response:', text.substring(0, 300));
+                // Parse JSON
                 const cleaned = text.trim().replace(/^```json\n?|```$/g, '');
-                aiContent = JSON.parse(cleaned);
-                break; // Success!
+                const jsonMatch = cleaned.match(/\{[\s\S]*\}/);
+                if (!jsonMatch) throw new Error('No JSON found');
+                aiContent = JSON.parse(jsonMatch[0]);
+                break;
             } catch (e) {
                 lastError = e;
-                console.error(`Failed with ${version}/${model}:`, e);
-                // try next combination
+                console.error(`Failed ${model}:`, e);
             }
         }
 
-        if (!aiContent) {
-            throw lastError instanceof Error ? lastError : new Error(String(lastError));
-        }
+        if (!aiContent) throw lastError instanceof Error ? lastError : new Error(String(lastError));
 
-        // Format date helper
-        const formatDate = (dateStr: string): string => {
-            const date = new Date(dateStr);
-            return date.toLocaleDateString('tr-TR', {
-                day: '2-digit',
-                month: '2-digit',
-                year: 'numeric',
-            });
-        };
+        // Format date
+        const formatDate = (d: string) => new Date(d).toLocaleDateString('tr-TR', { day: '2-digit', month: '2-digit', year: 'numeric' });
 
-        // Prepare final report data
         const reportData = {
             childName: `${child.first_name} ${child.last_name}`,
             birthDate: formatDate(child.dob),
             teacherName: `${teacher.first_name} ${teacher.last_name}`,
             schoolStartDate: child.created_at ? formatDate(child.created_at) : '',
             reportDate: formatDate(new Date().toISOString()),
-            ...aiContent,
+            ...aiContent
         };
 
         return new Response(JSON.stringify({ success: true, data: reportData }), {
-            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' }
         });
     } catch (error) {
-        console.error('Error generating report:', error);
-        return new Response(
-            JSON.stringify({
-                success: false,
-                error: error instanceof Error ? error.message : 'Unknown error',
-            }),
-            {
-                status: 500,
-                headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-            }
-        );
+        console.error('Error:', error);
+        return new Response(JSON.stringify({ success: false, error: error instanceof Error ? error.message : 'Unknown error' }), {
+            status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        });
     }
 });
