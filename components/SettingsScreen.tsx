@@ -25,11 +25,16 @@ const SettingsScreen: React.FC<SettingsProps> = ({ navigate }) => {
   const [error, setError] = useState<string>('');
   const [seeding, setSeeding] = useState(false);
   const [seedMsg, setSeedMsg] = useState('');
-  const [childrenPerClass, setChildrenPerClass] = useState(15);
-  const [obsPerChild, setObsPerChild] = useState(7);
+  const [childrenPerClass, setChildrenPerClass] = useState(10);
+  const [obsPerChild, setObsPerChild] = useState(50);
   const [mediaPerChild, setMediaPerChild] = useState(2);
   const [classCount, setClassCount] = useState(2);
-  const [classNames, setClassNames] = useState<string[]>(['Class A', 'Class B', 'Class C', 'Class D', 'Class E']);
+  const [classNames, setClassNames] = useState<string[]>(() => {
+    const lang = getLanguage();
+    return lang === 'en'
+      ? ['Class A', 'Class B', 'Class C', 'Class D', 'Class E']
+      : ['Sınıf A', 'Sınıf B', 'Sınıf C', 'Sınıf D', 'Sınıf E'];
+  });
   const [removing, setRemoving] = useState(false);
   const [deletingAccount, setDeletingAccount] = useState(false);
   const [deleteAccountMsg, setDeleteAccountMsg] = useState('');

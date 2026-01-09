@@ -52,12 +52,18 @@ serve(async (req) => {
             .order('created_at', { ascending: false });
         if (obsError) throw obsError;
 
-        // Build AI prompt
-        const observationText = (observations || []).slice(0, 5).map((o: any) => o.note).join('. ');
-        const prompt = `Okul öncesi öğretmenisin. Bu gözlemlere dayanarak çocuk gelişim raporu yaz.
+        // Build AI prompt - request more detailed content
+        const observationText = (observations || []).slice(0, 10).map((o: any) => o.note).join('. ');
+        const prompt = `Okul öncesi öğretmenisin. Aşağıdaki gözlemlere dayanarak çocuk gelişim raporu yaz.
+
 GÖZLEMLER: ${observationText || 'Gözlem yok'}
-Her alan için 1 cümle yaz. Gözlem yoksa "Yeterli gözlem yok" yaz.
-Sadece JSON döndür, başka metin yazma:
+
+TALİMATLAR:
+- Her alan için 2-3 cümle yaz. Somut örnekler ve gözlemlere dayalı içerik kullan.
+- Gözlem yoksa "Bu alan için yeterli gözlem bulunmamaktadır." yaz.
+- genelDegerlendirme alanının SONUNDA mutlaka öğretmen ağzından sıcak bir kapanış cümlesi ekle (örn: "Çocuğumuzun gelişimini sevgiyle takip ediyor, başarılarını desteklemeye devam edeceğiz." gibi iyi dilekler).
+
+Sadece JSON döndür:
 {"alanBecerileri":"...","sosyalDuygusal":"...","kavramsal":"...","okuryazarlik":"...","degerler":"...","egilimler":"...","genelDegerlendirme":"..."}`;
 
         // Call Gemini API - simple approach like teacher_chat
