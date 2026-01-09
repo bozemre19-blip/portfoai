@@ -86,51 +86,18 @@ serve(async (req) => {
             return age;
         };
 
-        // Build AI prompt
-        const prompt = `
-Sen bir okul öncesi eğitim uzmanısın. Aşağıdaki çocuğa ait gözlem ve değerlendirmeleri analiz ederek gelişim raporunu doldur.
+        // Build AI prompt - Keep it SHORT for Gemini Free limits
+        const observationText = (observations || []).slice(0, 5).map((o: any) => o.note).join('. ');
 
-ÇOCUK BİLGİLERİ:
-İsim: ${child.first_name} ${child.last_name}
-Doğum Tarihi: ${child.dob}
-Yaş: ${calculateAge(child.dob)} yaş
-Sınıf: ${child.classroom || 'Belirtilmemiş'}
+        const prompt = `Okul öncesi öğretmenisin. Bu gözlemlere dayanarak çocuk gelişim raporu yaz.
 
-GÖZLEMLER (${observations?.length || 0} adet, son 15 gösteriliyor):
-${(observations || []).slice(0, 15).map((o: any, i: number) =>
-            `${i + 1}. ${o.note} (${o.domains?.join(', ') || 'Yok'})`
-        ).join('\n')}
+GÖZLEMLER: ${observationText || 'Gözlem yok'}
 
-HEDEFLER:
-${(goals || []).length > 0 ? goals.map((g: any) => `- ${g.description}`).join('\n') : 'Henüz hedef belirlenmemiş'}
+Her alan için 1 cümle yaz. Gözlem yoksa "Yeterli gözlem yok" yaz.
 
-DOLDURULMASI GEREKEN ALANLAR:
-1. Alan Becerileri (Fiziksel gelişim, motor beceriler, sanat, müzik, oyun becerileri)
-2. Sosyal-Duygusal Öğrenme Becerileri (Duygularını tanıma ve ifade etme, empati, arkadaşlık ilişkileri, grup çalışması)
-3. Kavramsal Beceriler (Matematik kavramları, fen ve doğa, problem çözme, mantıksal düşünme)
-4. Okuryazarlık Becerileri (Dil gelişimi, kelime hazinesi, dinleme becerileri, okuma-yazma hazırlığı)
-5. Değerler (Saygı, sorumluluk, dürüstlük, paylaşma, yardımseverlik)
-6. Eğilimler (Merak, yaratıcılık, sebat, bağımsızlık, öz güven)
-7. Genel Değerlendirme ve Öneriler (Çocuğun genel gelişimi, güçlü yönleri, gelişim alanları, aileye öneriler)
+JSON döndür:
+{"alanBecerileri":"...","sosyalDuygusal":"...","kavramsal":"...","okuryazarlik":"...","degerler":"...","egilimler":"...","genelDegerlendirme":"..."}`;
 
-ÖNEMLİ TALİMATLAR:
-- Her alan için gözlemlere dayalı somut örnekler ver
-- Güçlü yönleri vurgula, geliştirilecek alanları yapıcı bir dille belirt
-- Her alan için 2-3 cümle yaz (kısa ve öz)
-- Sade Türkçe kullan
-- Eğer bir alan için yeterli gözlem yoksa, o alan için "Bu alan için henüz yeterli gözlem bulunmamaktadır." yaz
-
-JSON formatında döndür (sadece JSON, başka açıklama ekleme):
-{
-  "alanBecerileri": "...",
-  "sosyalDuygusal": "...",
-  "kavramsal": "...",
-  "okuryazarlik": "...",
-  "degerler": "...",
-  "egilimler": "...",
-  "genelDegerlendirme": "..."
-}
-`;
 
         // Call Gemini API with Gemini 2.5 models (matching teacher_chat)
         const models = [
@@ -144,7 +111,7 @@ JSON formatında döndür (sadece JSON, başka açıklama ekleme):
 
         for (const model of models) {
             try {
-                const url = `https://generativelanguage.googleapis.com/v1/models/${model}:generateContent?key=${encodeURIComponent(GEMINI_API_KEY)}`;
+                const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${encodeURIComponent(GEMINI_API_KEY)}`;
                 const response = await fetch(url, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
