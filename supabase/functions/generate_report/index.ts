@@ -114,14 +114,11 @@ DOLDURULMASI GEREKEN ALANLAR:
 7. Genel Değerlendirme ve Öneriler (Çocuğun genel gelişimi, güçlü yönleri, gelişim alanları, aileye öneriler)
 
 ÖNEMLİ TALİMATLAR:
-- Her alan için gözlemlere dayalı SOMUT ÖRNEKLER ver
-- Gelişim sürecini kronolojik olarak açıkla
-- Güçlü yönleri vurgula ve övgüyle bahset
-- Geliştirilmesi gereken alanları yapıcı bir dille belirt
-- Profesyonel, olumlu ve teşvik edici bir dil kullan
-- Her alan için 4-6 cümle yaz (çok kısa olmasın)
-- Ailelerin anlayabileceği sade bir Türkçe kullan
-- Teknik terimlerden kaçın, günlük dil kullan
+- Her alan için gözlemlere dayalı somut örnekler ver
+- Güçlü yönleri vurgula, geliştirilecek alanları yapıcı bir dille belirt
+- Her alan için 2-3 cümle yaz (kısa ve öz)
+- Sade Türkçe kullan
+- Eğer bir alan için yeterli gözlem yoksa, o alan için "Bu alan için henüz yeterli gözlem bulunmamaktadır." yaz
 
 JSON formatında döndür (sadece JSON, başka açıklama ekleme):
 {
@@ -155,7 +152,7 @@ JSON formatında döndür (sadece JSON, başka açıklama ekleme):
                         contents: [{ parts: [{ text: prompt }] }],
                         generationConfig: {
                             temperature: 0.7,
-                            maxOutputTokens: 2048,
+                            maxOutputTokens: 8192,
                         },
                     }),
                 });
