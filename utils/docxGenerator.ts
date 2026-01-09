@@ -1,11 +1,15 @@
 /**
  * DOCX Report Generator
  * Fills the development report template and generates downloadable DOCX file
+ * Supports both web (file-saver) and native mobile (Capacitor Filesystem + Share)
  */
 
 import Docxtemplater from 'docxtemplater';
 import PizZip from 'pizzip';
 import { saveAs } from 'file-saver';
+import { Capacitor } from '@capacitor/core';
+import { Filesystem, Directory } from '@capacitor/filesystem';
+import { Share } from '@capacitor/share';
 
 interface ReportData {
     childName: string;
@@ -20,6 +24,23 @@ interface ReportData {
     degerler: string;
     egilimler: string;
     genelDegerlendirme: string;
+}
+
+/**
+ * Convert Blob to base64 string
+ */
+async function blobToBase64(blob: Blob): Promise<string> {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => {
+            const result = reader.result as string;
+            // Remove data URL prefix to get pure base64
+            const base64 = result.split(',')[1];
+            resolve(base64);
+        };
+        reader.onerror = reject;
+        reader.readAsDataURL(blob);
+    });
 }
 
 /**
@@ -47,15 +68,40 @@ export async function generateReportDocx(reportData: ReportData, childName: stri
         // Render document with data
         doc.render(reportData);
 
-        // Generate output
-        const output = doc.getZip().generate({
+        // Generate output as blob
+        const output: Blob = doc.getZip().generate({
             type: 'blob',
             mimeType: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
         });
 
-        // Download file
         const fileName = `${childName.replace(/\s+/g, '_')}_Gelisim_Raporu_${new Date().toISOString().split('T')[0]}.docx`;
-        saveAs(output, fileName);
+
+        // Check if running on native mobile (iOS/Android)
+        if (Capacitor.isNativePlatform()) {
+            // Mobile: Use Capacitor Filesystem + Share
+            const base64Data = await blobToBase64(output);
+
+            // Write file to cache directory
+            const writeResult = await Filesystem.writeFile({
+                path: fileName,
+                data: base64Data,
+                directory: Directory.Cache,
+            });
+
+            // Get the full file URI for sharing
+            const fileUri = writeResult.uri;
+
+            // Open share dialog
+            await Share.share({
+                title: 'Gelişim Raporu',
+                text: `${childName} - Gelişim Raporu`,
+                url: fileUri,
+                dialogTitle: 'Raporu Paylaş veya Kaydet',
+            });
+        } else {
+            // Web: Use file-saver
+            saveAs(output, fileName);
+        }
 
     } catch (error) {
         console.error('Error generating DOCX:', error);

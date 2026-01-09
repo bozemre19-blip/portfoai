@@ -2,5 +2,8 @@
 	"appId": "com.lukidai.app",
 	"appName": "Lukid AI",
 	"webDir": "dist",
-	"packageClassList": []
+	"packageClassList": [
+		"FilesystemPlugin",
+		"SharePlugin"
+	]
 }

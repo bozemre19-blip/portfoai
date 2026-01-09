@@ -19,6 +19,14 @@ export default defineConfig(({ mode }) => {
       alias: {
         '@': path.resolve(__dirname, '.'),
       }
+    },
+    optimizeDeps: {
+      include: ['pizzip', 'docxtemplater']
+    },
+    build: {
+      commonjsOptions: {
+        transformMixedEsModules: true
+      }
     }
   };
 });
