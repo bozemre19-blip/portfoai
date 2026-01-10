@@ -49,6 +49,13 @@ const SettingsScreen: React.FC<SettingsProps> = ({ navigate }) => {
   const [offlineQueueCount, setOfflineQueueCount] = useState(0);
   const [currentLang, setCurrentLang] = useState<Language>(getLanguage());
 
+  // Password Change State
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [passwordChanging, setPasswordChanging] = useState(false);
+  const [passwordMsg, setPasswordMsg] = useState('');
+  const [passwordError, setPasswordError] = useState('');
+
   // Theme State
   const [theme, setTheme] = useState<string>(() => {
     try { return localStorage.getItem('theme') || 'light'; } catch { return 'light'; }
@@ -94,6 +101,34 @@ const SettingsScreen: React.FC<SettingsProps> = ({ navigate }) => {
       setError(e?.message || t('errorOccurred'));
     } finally {
       setSaving(false);
+    }
+  };
+
+  const handleChangePassword = async () => {
+    setPasswordMsg(''); setPasswordError('');
+    if (!newPassword || !confirmPassword) {
+      setPasswordError(t('fillAllFields') || 'Tüm alanları doldurun');
+      return;
+    }
+    if (newPassword.length < 6) {
+      setPasswordError(t('passwordTooShort') || 'Şifre en az 6 karakter olmalı');
+      return;
+    }
+    if (newPassword !== confirmPassword) {
+      setPasswordError(t('passwordsDoNotMatch') || 'Şifreler eşleşmiyor');
+      return;
+    }
+    setPasswordChanging(true);
+    try {
+      const { error } = await supabase.auth.updateUser({ password: newPassword });
+      if (error) throw error;
+      setPasswordMsg(t('passwordChangeSuccess') || 'Şifre başarıyla değiştirildi!');
+      setNewPassword('');
+      setConfirmPassword('');
+    } catch (e: any) {
+      setPasswordError(e?.message || t('errorOccurred'));
+    } finally {
+      setPasswordChanging(false);
     }
   };
 
@@ -166,6 +201,36 @@ const SettingsScreen: React.FC<SettingsProps> = ({ navigate }) => {
               {saving ? t('loading') : t('save')}
             </button>
           </div>
+        </div>
+
+        {/* Password Change */}
+        <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow space-y-4 transition-colors">
+          <h2 className="text-xl font-semibold text-gray-800 dark:text-white">{t('changePassword') || 'Şifre Değiştir'}</h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <input
+              type="password"
+              placeholder={t('newPassword') || 'Yeni Şifre'}
+              value={newPassword}
+              onChange={(e) => setNewPassword(e.target.value)}
+              className="p-2 border rounded w-full dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+            />
+            <input
+              type="password"
+              placeholder={t('confirmPassword') || 'Şifre Tekrar'}
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              className="p-2 border rounded w-full dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+            />
+          </div>
+          {passwordMsg && <p className="text-green-600 bg-green-100 dark:bg-green-900/30 dark:text-green-400 p-2 rounded">{passwordMsg}</p>}
+          {passwordError && <p className="text-red-600 bg-red-100 dark:bg-red-900/30 dark:text-red-400 p-2 rounded">{passwordError}</p>}
+          <button
+            onClick={handleChangePassword}
+            disabled={passwordChanging}
+            className="px-4 py-2 bg-orange-500 text-white rounded hover:bg-orange-600 disabled:opacity-50"
+          >
+            {passwordChanging ? t('loading') : (t('changePassword') || 'Şifre Değiştir')}
+          </button>
         </div>
 
         {/* Create Demo Data */}

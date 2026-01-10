@@ -396,7 +396,13 @@ const translations: Record<Language, Record<string, string>> = {
 
 
     profileUpdateSuccess: 'Profil güncellendi.',
-    // Getting Started
+    changePassword: 'Şifre Değiştir',
+    newPassword: 'Yeni Şifre',
+    confirmPassword: 'Şifre Tekrar',
+    passwordChangeSuccess: 'Şifre başarıyla değiştirildi!',
+    passwordTooShort: 'Şifre en az 6 karakter olmalı',
+    passwordsDoNotMatch: 'Şifreler eşleşmiyor',
+    fillAllFields: 'Tüm alanları doldurun',
     gettingStarted: 'Başlarken',
     // New translations for i18n
     language: 'Dil',
@@ -985,6 +991,13 @@ const translations: Record<Language, Record<string, string>> = {
 
 
     profileUpdateSuccess: 'Profile updated.',
+    changePassword: 'Change Password',
+    newPassword: 'New Password',
+    confirmPassword: 'Confirm Password',
+    passwordChangeSuccess: 'Password changed successfully!',
+    passwordTooShort: 'Password must be at least 6 characters',
+    passwordsDoNotMatch: 'Passwords do not match',
+    fillAllFields: 'Please fill all fields',
     // Getting Started
     gettingStarted: 'Getting Started',
     // New translations for i18n

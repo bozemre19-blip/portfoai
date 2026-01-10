@@ -17,7 +17,8 @@ import {
     PhotoIcon,
     XMarkIcon,
     PencilSquareIcon,
-    CameraIcon
+    CameraIcon,
+    KeyIcon
 } from '@heroicons/react/24/outline';
 import { getLinkedChildren, getFamilySharedMedia, getSignedUrlForMedia } from '../services/api';
 import FamilyLinkCode from './FamilyLinkCode';
@@ -67,6 +68,43 @@ const FamilyDashboard: React.FC = () => {
     const [observationChild, setObservationChild] = useState<Child | null>(null);
     const [mediaUploadChild, setMediaUploadChild] = useState<Child | null>(null);
     const [myContentChild, setMyContentChild] = useState<Child | null>(null);
+
+    // Password Change State
+    const [showPasswordModal, setShowPasswordModal] = useState(false);
+    const [newPassword, setNewPassword] = useState('');
+    const [confirmPassword, setConfirmPassword] = useState('');
+    const [passwordChanging, setPasswordChanging] = useState(false);
+    const [passwordMsg, setPasswordMsg] = useState('');
+    const [passwordError, setPasswordError] = useState('');
+
+    const handleChangePassword = async () => {
+        setPasswordMsg(''); setPasswordError('');
+        if (!newPassword || !confirmPassword) {
+            setPasswordError(t('fillAllFields') || 'Tüm alanları doldurun');
+            return;
+        }
+        if (newPassword.length < 6) {
+            setPasswordError(t('passwordTooShort') || 'Şifre en az 6 karakter olmalı');
+            return;
+        }
+        if (newPassword !== confirmPassword) {
+            setPasswordError(t('passwordsDoNotMatch') || 'Şifreler eşleşmiyor');
+            return;
+        }
+        setPasswordChanging(true);
+        try {
+            const { error } = await supabase.auth.updateUser({ password: newPassword });
+            if (error) throw error;
+            setPasswordMsg(t('passwordChangeSuccess') || 'Şifre başarıyla değiştirildi!');
+            setNewPassword('');
+            setConfirmPassword('');
+            setTimeout(() => setShowPasswordModal(false), 2000);
+        } catch (e: any) {
+            setPasswordError(e?.message || t('errorOccurred') || 'Bir hata oluştu');
+        } finally {
+            setPasswordChanging(false);
+        }
+    };
 
     const loadData = async () => {
         setLoading(true);
@@ -534,10 +572,73 @@ const FamilyDashboard: React.FC = () => {
                 </div>
             )}
 
+            {/* Password Change Modal */}
+            {showPasswordModal && (
+                <div
+                    className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+                    onClick={() => setShowPasswordModal(false)}
+                >
+                    <div
+                        className="bg-[#2D3B5E] rounded-3xl p-6 w-full max-w-md border border-white/20"
+                        onClick={e => e.stopPropagation()}
+                    >
+                        <div className="flex items-center justify-between mb-6">
+                            <h2 className="text-xl font-bold text-white flex items-center gap-2">
+                                <KeyIcon className="w-6 h-6 text-[#F97B5C]" />
+                                {t('changePassword') || 'Şifre Değiştir'}
+                            </h2>
+                            <button
+                                onClick={() => setShowPasswordModal(false)}
+                                className="p-2 bg-white/10 hover:bg-white/20 rounded-full transition-colors"
+                            >
+                                <XMarkIcon className="w-5 h-5 text-white/70" />
+                            </button>
+                        </div>
+                        <div className="space-y-4">
+                            <input
+                                type="password"
+                                placeholder={t('newPassword') || 'Yeni Şifre'}
+                                value={newPassword}
+                                onChange={(e) => setNewPassword(e.target.value)}
+                                className="w-full p-3 bg-[#1E2A4A] border border-white/20 rounded-xl text-white placeholder-white/40 focus:border-[#F97B5C] focus:outline-none"
+                            />
+                            <input
+                                type="password"
+                                placeholder={t('confirmPassword') || 'Şifre Tekrar'}
+                                value={confirmPassword}
+                                onChange={(e) => setConfirmPassword(e.target.value)}
+                                className="w-full p-3 bg-[#1E2A4A] border border-white/20 rounded-xl text-white placeholder-white/40 focus:border-[#F97B5C] focus:outline-none"
+                            />
+                            {passwordMsg && <p className="text-green-400 bg-green-500/20 p-3 rounded-xl text-sm">{passwordMsg}</p>}
+                            {passwordError && <p className="text-red-400 bg-red-500/20 p-3 rounded-xl text-sm">{passwordError}</p>}
+                            <button
+                                onClick={handleChangePassword}
+                                disabled={passwordChanging}
+                                className="w-full py-3 bg-[#F97B5C] text-white rounded-xl hover:bg-[#FF9472] disabled:opacity-50 font-medium transition-colors"
+                            >
+                                {passwordChanging ? (t('loading') || 'Yükleniyor...') : (t('changePassword') || 'Şifre Değiştir')}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
             {/* Mobile Bottom Bar */}
             <div className="fixed bottom-0 left-0 right-0 z-50 md:hidden">
                 <div className="absolute inset-0 bg-[#1E2A4A]/95 backdrop-blur-xl border-t border-white/10"></div>
-                <div className="relative flex justify-around items-center h-[80px] pb-[env(safe-area-inset-bottom)] px-8">
+                <div className="relative flex justify-around items-center h-[80px] pb-[env(safe-area-inset-bottom)] px-4">
+                    <button
+                        onClick={() => setShowPasswordModal(true)}
+                        className="flex flex-col items-center gap-1.5 active:scale-95 transition-transform"
+                    >
+                        <div className="w-12 h-12 rounded-2xl bg-[#F97B5C]/20 flex items-center justify-center border border-[#F97B5C]/30">
+                            <KeyIcon className="w-5 h-5 text-[#F97B5C]" />
+                        </div>
+                        <span className="text-[10px] font-medium text-[#F97B5C]/70">
+                            {t('changePassword') || 'Şifre'}
+                        </span>
+                    </button>
+
                     <button
                         onClick={() => {
                             const newLang = currentLang === 'tr' ? 'en' : 'tr';
