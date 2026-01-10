@@ -25,8 +25,8 @@ const SettingsScreen: React.FC<SettingsProps> = ({ navigate }) => {
   const [error, setError] = useState<string>('');
   const [seeding, setSeeding] = useState(false);
   const [seedMsg, setSeedMsg] = useState('');
-  const [childrenPerClass, setChildrenPerClass] = useState(10);
-  const [obsPerChild, setObsPerChild] = useState(50);
+  const [childrenPerClass, setChildrenPerClass] = useState(5);
+  const [obsPerChild, setObsPerChild] = useState(150);
   const [mediaPerChild, setMediaPerChild] = useState(2);
   const [classCount, setClassCount] = useState(2);
   const [classNames, setClassNames] = useState<string[]>(() => {

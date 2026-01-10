@@ -53,7 +53,7 @@ export async function generateReportDocx(reportData: ReportData, childName: stri
         const response = await fetch(templatePath);
 
         if (!response.ok) {
-            throw new Error('Template file not found. Please ensure "Gelişim Raporu Şablonu.docx" is in the public folder.');
+            throw new Error('Template file not found. Please ensure "Beceri Edinim Raporu Şablonu.docx" is in the public folder.');
         }
 
         const templateBuffer = await response.arrayBuffer();
@@ -74,7 +74,7 @@ export async function generateReportDocx(reportData: ReportData, childName: stri
             mimeType: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
         });
 
-        const fileName = `${childName.replace(/\s+/g, '_')}_Gelisim_Raporu_${new Date().toISOString().split('T')[0]}.docx`;
+        const fileName = `${childName.replace(/\s+/g, '_')}_Beceri_Edinim_Raporu_${new Date().toISOString().split('T')[0]}.docx`;
 
         // Check if running on native mobile (iOS/Android)
         if (Capacitor.isNativePlatform()) {
@@ -93,8 +93,8 @@ export async function generateReportDocx(reportData: ReportData, childName: stri
 
             // Open share dialog
             await Share.share({
-                title: 'Gelişim Raporu',
-                text: `${childName} - Gelişim Raporu`,
+                title: 'Beceri Edinim Raporu',
+                text: `${childName} - Beceri Edinim Raporu`,
                 url: fileUri,
                 dialogTitle: 'Raporu Paylaş veya Kaydet',
             });

@@ -40,7 +40,7 @@ export const getClasses = async (userId: string): Promise<ClassItem[]> => {
       }
       throw error;
     }
-    
+
     // Başarılı yanıt gelirse cache'i güncelle
     const classes = (data || []) as ClassItem[];
     setCache(`${CACHED_CLASSES_KEY}:${userId}`, classes);
@@ -94,4 +94,3 @@ export const createClass = async (userId: string, name: string): Promise<ClassIt
   dispatchDataChangedEvent();
   return data as ClassItem;
 };
-

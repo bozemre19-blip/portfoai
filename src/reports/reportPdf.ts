@@ -2,7 +2,7 @@ import { printToFileAsync } from 'expo-print';
 import * as Sharing from 'expo-sharing';
 
 // Types (exactly as requested)
-export type Risk = 'low'|'medium'|'high';
+export type Risk = 'low' | 'medium' | 'high';
 export type Child = {
   firstName: string; lastName: string; dob: string; classroom?: string; photoUrl?: string;
 };
@@ -131,7 +131,7 @@ function buildHtml(args: {
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Gelişim Raporu</title>
+  <title>Beceri Edinim Raporu</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet" />
   <style>
     @page { size: A4; margin: 18mm 14mm; }
@@ -187,7 +187,7 @@ function buildHtml(args: {
 <body>
   <main>
     <header class="header">
-      <h1 class="title">Gelişim Raporu</h1>
+      <h1 class="title">Beceri Edinim Raporu</h1>
       <p class="subtitle">${escapeHtml(head)}</p>
     </header>
 
@@ -208,7 +208,7 @@ export async function exportChildReportPDF(args: {
   schoolName?: string;
   reportDate?: string;              // ISO; defaults to now
   share?: boolean;                  // default true
-}): Promise<{ uri: string }>{
+}): Promise<{ uri: string }> {
   const { child, observations, assessments, teacherName, schoolName, reportDate, share = true } = args;
 
   const html = buildHtml({ child, observations, assessments, teacherName, schoolName, reportDate });

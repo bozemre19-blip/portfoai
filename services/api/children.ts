@@ -79,7 +79,7 @@ export const updateChild = async (childId: string, updates: Partial<Child>) => {
   return data as Child;
 };
 
-// Çocuğu ve ilişkili tüm verileri sil (gözlemler, medya, avatar)
+// Çocuğu ve ilişkili tüm verileri sil (gözlemler, medya, avatar, mesajlar, veli bağlantıları)
 export const deleteChild = async (childId: string) => {
   // 1. İlişkili medya ve fotoğraf yollarını almadan ÖNCE al
   const { data: mediaToDelete, error: mediaError } = await supabase
@@ -130,7 +130,32 @@ export const deleteChild = async (childId: string) => {
     }
   }
 
-  // 3. Çocuk kaydını veritabanından sil (cascade olarak gözlemleri vb. silecektir)
+  // 3. İlişkili kayıtları veritabanından sil (foreign key constraint'ler için)
+  // Mesajları sil (child_id ile ilişkili)
+  const { error: msgError } = await supabase.from('messages').delete().eq('child_id', childId);
+  if (msgError) console.warn('Mesajlar silinirken hata:', msgError.message);
+
+  // Aile bağlantılarını sil
+  const { error: famError } = await supabase.from('family_links').delete().eq('child_id', childId);
+  if (famError) console.warn('Aile bağlantıları silinirken hata:', famError.message);
+
+  // Hedefleri sil
+  const { error: goalsError } = await supabase.from('goals').delete().eq('child_id', childId);
+  if (goalsError) console.warn('Hedefler silinirken hata:', goalsError.message);
+
+  // Değerlendirmeleri sil
+  const { error: assError } = await supabase.from('assessments').delete().eq('child_id', childId);
+  if (assError) console.warn('Değerlendirmeler silinirken hata:', assError.message);
+
+  // Gözlemleri sil
+  const { error: obsError } = await supabase.from('observations').delete().eq('child_id', childId);
+  if (obsError) console.warn('Gözlemler silinirken hata:', obsError.message);
+
+  // Medyayı sil
+  const { error: medError } = await supabase.from('media').delete().eq('child_id', childId);
+  if (medError) console.warn('Medya silinirken hata:', medError.message);
+
+  // 4. Çocuk kaydını veritabanından sil (artık foreign key sorunu olmayacak)
   const { error: deleteError } = await supabase
     .from('children')
     .delete()
@@ -141,7 +166,7 @@ export const deleteChild = async (childId: string) => {
     throw deleteError;
   }
 
-  // 4. Arayüzü yenilemek için event tetikle
+  // 5. Arayüzü yenilemek için event tetikle
   dispatchDataChangedEvent();
 };
 
