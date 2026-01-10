@@ -49,12 +49,26 @@ serve(async (req) => {
         .single();
       const childName = childData ? `${childData.first_name} ${childData.last_name}` : 'Çocuk';
 
+      // First check total observation count
+      const { count } = await supa
+        .from('observations')
+        .select('*', { count: 'exact', head: true })
+        .eq('child_id', childId);
+
+      const MIN_OBS_REQUIRED = 15;
+      if ((count || 0) < MIN_OBS_REQUIRED) {
+        return json({
+          reply: `${childName} için henüz yeterli gözlem kaydı bulunmuyor (mevcut: ${count || 0}, gerekli: ${MIN_OBS_REQUIRED}). Daha sağlıklı bir değerlendirme yapabilmem için çocuğun farklı alanlarda ve bağlamlarda biraz daha gözlemlenmesi önerilir. Gözlem sayısı arttığında daha kapsamlı bir analiz sunabilirim.`,
+          used_model: 'system',
+        });
+      }
+
       const { data } = await supa
         .from('observations')
         .select('created_at, note, domains, assessments(summary, risk)')
         .eq('child_id', childId)
         .order('created_at', { ascending: false })
-        .limit(15);
+        .limit(50);
       for (const row of (data || [])) {
         const date = new Date(row.created_at).toLocaleDateString('tr-TR');
         const doms = Array.isArray(row.domains) ? row.domains.join(', ') : '';
@@ -79,13 +93,29 @@ serve(async (req) => {
 
       const ids = childList.map((k: any) => k.id);
       if (ids.length > 0) {
-        const { data } = await supa
-          .from('observations')
-          .select('child_id, created_at, note, domains, assessments(summary, risk)')
-          .in('child_id', ids as any)
-          .order('created_at', { ascending: false })
-          .limit(30);
-        for (const row of (data || [])) {
+        // Get balanced observations from each child (not just latest 100 which may all be from one child)
+        const obsPerChildLimit = Math.max(5, Math.floor(100 / ids.length));
+        let allObs: any[] = [];
+
+        for (const cid of ids) {
+          const { data: childObs } = await supa
+            .from('observations')
+            .select('child_id, created_at, note, domains, assessments(summary, risk)')
+            .eq('child_id', cid)
+            .order('created_at', { ascending: false })
+            .limit(obsPerChildLimit);
+          if (childObs) allObs.push(...childObs);
+        }
+
+        // Debug: count observations per child
+        const obsPerChild: Record<string, number> = {};
+        for (const row of allObs) {
+          const cid = (row as any).child_id;
+          obsPerChild[cid] = (obsPerChild[cid] || 0) + 1;
+        }
+        console.log('[teacher_chat] class:', classroom, 'children:', ids.length, 'obs count:', allObs.length, 'per child:', obsPerChild);
+
+        for (const row of allObs) {
           const childName = childIdToName[(row as any).child_id] || 'Bilinmiyor';
           const date = new Date(row.created_at).toLocaleDateString('tr-TR');
           const doms = Array.isArray(row.domains) ? row.domains.join(', ') : '';
@@ -96,9 +126,17 @@ serve(async (req) => {
       }
     }
 
+    // Debug: Log what we're sending to AI
+    console.log('[teacher_chat] mode:', mode, 'childrenNames:', childrenNames.length, 'ctxNotes:', ctxNotes.length);
+
     // System primer with mode-specific guidance
     const modeGuidance = mode === 'class'
-      ? `Bu sınıftaki ${childrenNames.length} çocuğun (${childrenNames.slice(0, 5).join(', ')}${childrenNames.length > 5 ? '...' : ''}) GENEL GELİŞİM DURUMUNU analiz et. Tek bir çocuğa odaklanma, SINIF genelinde trendler, ortak güçlü/zayıf yönler ve sınıf düzeyinde öneriler sun.`
+      ? `ÖNEMLİ: Bu bir SINIF ANALİZİ isteğidir. Sınıfta ${childrenNames.length} çocuk var: ${childrenNames.join(', ')}. 
+TÜM çocukların gözlemlerini birlikte değerlendir ve SINIF GENELİNDE şunları analiz et:
+- Sınıfın ortak güçlü yönleri
+- Geliştirilmesi gereken ortak alanlar
+- Sınıf düzeyinde etkinlik önerileri
+TEK BİR ÇOCUĞA ODAKLANMA! Tüm çocukları kapsayan genel bir değerlendirme yap.`
       : mode === 'child' && childrenNames[0]
         ? `${childrenNames[0]} isimli bu çocuğun gelişim durumunu analiz et.`
         : '';
@@ -107,11 +145,13 @@ serve(async (req) => {
       'ROL: 0-6 yaş erken çocukluk gelişimi uzmanısın; cevapları TÜRKÇE ver.',
       modeGuidance,
       'HEDEF: Öğretmene sınıf içi uygulanabilir, güvenli, kısa ve somut öneriler sun.',
-      'KURALLAR: Tıbbi tanı koyma; riskli etkinlik önerme. Gerekirse netleştirici 1-2 soru sor.',
+      'KURALLAR: Tıbbi tanı koyma; riskli etkinlik önerme. Sonda imza veya selamlama EKLEME (Saygılarımla, vb. yazma).',
       'BİÇİM: Kısa paragraf + madde işaretli öneriler. Gerekirse örnek etkinlik başlıkları.',
     ].filter(Boolean).join('\n');
 
-    const ctxHeader = ctxNotes.length ? `BAĞLAM (${mode === 'class' ? 'Sınıf: ' + classroom : 'Çocuk'}):\n${ctxNotes.slice(0, 25).join('\n')}` : 'BAĞLAM: (yok)';
+    const ctxHeader = ctxNotes.length
+      ? `BAĞLAM (${mode === 'class' ? 'Sınıf: ' + classroom + ' - ' + childrenNames.length + ' çocuk' : 'Çocuk'}):\n${ctxNotes.slice(0, 25).join('\n')}`
+      : 'BAĞLAM: (yok)';
     const histText = history.map(h => `${h.role === 'assistant' ? 'ASİSTAN' : h.role === 'user' ? 'ÖĞRETMEN' : 'SİSTEM'}: ${h.content}`).join('\n');
     const prompt = [system, ctxHeader, histText ? `GEÇMİŞ:\n${histText}` : '', `ÖĞRETMEN: ${message}`, 'ASİSTAN:'].filter(Boolean).join('\n\n');
 
