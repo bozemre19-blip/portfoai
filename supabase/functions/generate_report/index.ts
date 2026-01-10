@@ -33,7 +33,7 @@ serve(async (req) => {
         const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
 
         // Parse request
-        const { childId }: ReportRequest = await req.json();
+        const { childId, language = 'tr' }: { childId: string; language?: string } = await req.json();
         if (!childId) throw new Error('childId is required');
 
         // Collect child data
@@ -52,22 +52,43 @@ serve(async (req) => {
             .order('created_at', { ascending: false });
         if (obsError) throw obsError;
 
-        // Build AI prompt - request more detailed content
+        // Build AI prompt based on language
         const observationText = (observations || []).slice(0, 10).map((o: any) => o.note).join('. ');
-        const prompt = `Okul öncesi öğretmenisin. Aşağıdaki gözlemlere dayanarak çocuk gelişim raporu yaz.
+
+        const promptTR = `Okul öncesi öğretmenisin. Aşağıdaki gözlemlere dayanarak çocuk gelişim raporu yaz.
 
 GÖZLEMLER: ${observationText || 'Gözlem yok'}
 
 TALİMATLAR:
 - Her alan için 2-3 cümle yaz. Somut örnekler ve gözlemlere dayalı içerik kullan.
 - Gözlem yoksa "Bu alan için yeterli gözlem bulunmamaktadır." yaz.
-- genelDegerlendirme alanının SONUNDA mutlaka öğretmen ağzından sıcak bir kapanış cümlesi ekle (örn: "Çocuğumuzun gelişimini sevgiyle takip ediyor, başarılarını desteklemeye devam edeceğiz." gibi iyi dilekler).
+- genelDegerlendirme alanının SONUNDA mutlaka öğretmen ağzından sıcak bir kapanış cümlesi ekle.
 
 Sadece JSON döndür:
 {"alanBecerileri":"...","sosyalDuygusal":"...","kavramsal":"...","okuryazarlik":"...","degerler":"...","egilimler":"...","genelDegerlendirme":"..."}`;
 
-        // Call Gemini API - simple approach like teacher_chat
-        const models = ['gemini-2.5-flash', 'gemini-2.0-flash', 'gemini-1.5-flash'];
+        const promptEN = `You are a preschool teacher. Write a child development report based on the following observations.
+
+OBSERVATIONS: ${observationText || 'No observations'}
+
+INSTRUCTIONS:
+- Write 2-3 sentences for each field. Use concrete examples based on the observations.
+- If no observation is available, write "Insufficient observations for this area."
+- At the END of genelDegerlendirme, include a warm closing message from the teacher's perspective.
+
+Return only JSON:
+{"alanBecerileri":"...","sosyalDuygusal":"...","kavramsal":"...","okuryazarlik":"...","degerler":"...","egilimler":"...","genelDegerlendirme":"..."}`;
+
+        const prompt = language === 'en' ? promptEN : promptTR;
+
+        // Call Gemini API - use same pattern as teacher_chat
+        const models = [
+            'gemini-2.5-flash',
+            'gemini-2.5-pro',
+            'gemini-2.5-flash-lite',
+            'gemini-2.0-flash',
+            'gemini-2.0-flash-001',
+        ];
         let aiContent = null;
         let lastError: unknown = null;
 

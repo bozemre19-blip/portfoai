@@ -179,9 +179,10 @@ interface ChildProfileCardProps {
   onOpenMedia?: () => void;
   onOpenObservations?: () => void;
   onGenerateReport?: (childId: string) => void;
+  isGeneratingReport?: boolean;
 }
 
-const ChildProfileCard: React.FC<ChildProfileCardProps> = ({ data, onAddObservation, onExportPdf, onEdit, onChangePhoto, onRefreshInsights, onOpenMedia, onOpenObservations, onGenerateReport }) => {
+const ChildProfileCard: React.FC<ChildProfileCardProps> = ({ data, onAddObservation, onExportPdf, onEdit, onChangePhoto, onRefreshInsights, onOpenMedia, onOpenObservations, onGenerateReport, isGeneratingReport }) => {
   return (
     <div className="max-w-7xl mx-auto space-y-6">
       {/* Hero */}
@@ -213,24 +214,33 @@ const ChildProfileCard: React.FC<ChildProfileCardProps> = ({ data, onAddObservat
               </button>
             </div>
             <div className="flex gap-2 w-full sm:w-auto">
-              <button onClick={() => onExportPdf(data.id)} title="PDF indir" aria-label="Raporu PDF olarak dışa aktar" className="flex-1 sm:flex-auto px-3 py-2 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-200 rounded-md hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors">
-                <DocumentArrowDownIcon className="w-5 h-5 mx-auto" />
-              </button>
-              <button onClick={onEdit} aria-label="Çocuk profilini {t('edit')}" className="flex-1 sm:flex-auto px-3 py-2 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-200 rounded-md hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors">
+              <button onClick={onEdit} aria-label={t('edit')} className="flex-1 sm:flex-auto px-3 py-2 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-200 rounded-md hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors">
                 {t('edit')}
               </button>
-              <button onClick={onRefreshInsights} aria-label="Yapay Zeka analizini yenile" className="flex-1 sm:flex-auto px-3 py-2 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-200 rounded-md hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors">
+              <button onClick={onRefreshInsights} aria-label={t('refresh')} className="flex-1 sm:flex-auto px-3 py-2 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-200 rounded-md hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors">
                 {t('refresh')}
               </button>
             </div>
             <div className="w-full">
               <button
                 onClick={() => onGenerateReport && onGenerateReport(data.id)}
-                disabled={data.stats.observations === 0}
+                disabled={data.stats.observations === 0 || isGeneratingReport}
                 className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-gradient-to-r from-purple-500 to-indigo-600 text-white rounded-md shadow-sm hover:from-purple-600 hover:to-indigo-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                <DocumentArrowDownIcon className="w-5 h-5" />
-                {data.stats.observations === 0 ? 'Gelişim Raporu (Gözlem Gerekli)' : 'Gelişim Raporu Oluştur'}
+                {isGeneratingReport ? (
+                  <>
+                    <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    {t('generating')}
+                  </>
+                ) : (
+                  <>
+                    <DocumentArrowDownIcon className="w-5 h-5" />
+                    {t('generateReport')}
+                  </>
+                )}
               </button>
             </div>
           </div>
@@ -471,14 +481,14 @@ const ChildDetailScreen: React.FC<ChildDetailScreenProps> = ({ childId, navigate
       // Import docx generator
       const { generateReportDocx } = await import('../utils/docxGenerator');
 
-      // Generate AI content and collect data
-      const reportData = await generateDevelopmentReportData(childId);
+      // Generate AI content and collect data (pass current language)
+      const reportData = await generateDevelopmentReportData(childId, getLanguage());
 
       // Generate and download DOCX
       await generateReportDocx(reportData, `${child.first_name} ${child.last_name}`);
 
       // Success notification
-      alert('Gelişim raporu başarıyla oluşturuldu ve indirildi!');
+      alert(t('reportSuccess') || 'Report generated successfully!');
 
     } catch (error: any) {
       console.error('Report generation error:', error);
@@ -505,6 +515,7 @@ const ChildDetailScreen: React.FC<ChildDetailScreenProps> = ({ childId, navigate
         onOpenMedia={() => navigate('media', { childId })}
         onOpenObservations={() => navigate('child-observations', { childId })}
         onGenerateReport={handleGenerateReport}
+        isGeneratingReport={isGeneratingReport}
       />
 
       {/* Alt Bilgiler */}

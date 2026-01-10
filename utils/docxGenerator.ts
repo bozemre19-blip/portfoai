@@ -49,7 +49,7 @@ async function blobToBase64(blob: Blob): Promise<string> {
 export async function generateReportDocx(reportData: ReportData, childName: string): Promise<void> {
     try {
         // Fetch template file
-        const templatePath = '/Gelişim Raporu Şablonu.docx';
+        const templatePath = '/gelisim_raporu_sablonu.docx';
         const response = await fetch(templatePath);
 
         if (!response.ok) {

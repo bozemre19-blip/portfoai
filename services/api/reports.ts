@@ -26,11 +26,11 @@ interface ReportData extends ReportContent {
 /**
  * Generate complete development report data using Edge Function
  */
-export async function generateDevelopmentReportData(childId: string): Promise<ReportData> {
+export async function generateDevelopmentReportData(childId: string, language: string = 'tr'): Promise<ReportData> {
     try {
         // Call Edge Function for secure server-side generation
         const { data, error } = await (supabase as any).functions.invoke('generate_report', {
-            body: { childId }
+            body: { childId, language }
         });
 
         if (error) {
