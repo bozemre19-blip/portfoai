@@ -14,7 +14,7 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
-type Msg = { role: 'user'|'assistant'|'system'; content: string; at?: string };
+type Msg = { role: 'user' | 'assistant' | 'system'; content: string; at?: string };
 
 serve(async (req) => {
   // Handle CORS preflight requests
@@ -28,7 +28,7 @@ serve(async (req) => {
     const userJwt = auth.replace(/^Bearer\s+/i, '');
     const body = await req.json();
     const message = String(body?.message || '').trim();
-    const mode = (body?.mode || 'general') as 'general'|'class'|'child';
+    const mode = (body?.mode || 'general') as 'general' | 'class' | 'child';
     const classroom = body?.classroom ? String(body.classroom) : undefined;
     const childId = body?.childId ? String(body.childId) : undefined;
     const history: Msg[] = Array.isArray(body?.history) ? body.history.slice(-6) : [];
@@ -39,7 +39,16 @@ serve(async (req) => {
 
     // Build context from DB
     let ctxNotes: string[] = [];
+    let childrenNames: string[] = [];
     if (mode === 'child' && childId) {
+      // Get child name
+      const { data: childData } = await supa
+        .from('children')
+        .select('first_name, last_name')
+        .eq('id', childId)
+        .single();
+      const childName = childData ? `${childData.first_name} ${childData.last_name}` : 'Çocuk';
+
       const { data } = await supa
         .from('observations')
         .select('created_at, note, domains, assessments(summary, risk)')
@@ -53,35 +62,56 @@ serve(async (req) => {
         const sum = Array.isArray(row.assessments) && row.assessments[0]?.summary ? String(row.assessments[0].summary) : '';
         ctxNotes.push(`- (${date}) [${doms}] Not: ${row.note}${sum ? ` | AI Özet: ${sum}` : ''}${risk ? ` | Risk: ${risk}` : ''}`);
       }
+      childrenNames = [childName];
     } else if (mode === 'class' && classroom) {
-      const kids = await supa.from('children').select('id').eq('classroom', classroom);
-      const ids = (kids.data || []).map((k: any) => k.id);
+      // Get all children in class with their names
+      const { data: kids } = await supa
+        .from('children')
+        .select('id, first_name, last_name')
+        .eq('classroom', classroom);
+
+      const childList = kids || [];
+      childrenNames = childList.map((k: any) => `${k.first_name} ${k.last_name}`);
+      const childIdToName: Record<string, string> = {};
+      for (const k of childList) {
+        childIdToName[k.id] = `${k.first_name} ${k.last_name}`;
+      }
+
+      const ids = childList.map((k: any) => k.id);
       if (ids.length > 0) {
         const { data } = await supa
           .from('observations')
-          .select('created_at, note, domains, assessments(summary, risk)')
+          .select('child_id, created_at, note, domains, assessments(summary, risk)')
           .in('child_id', ids as any)
           .order('created_at', { ascending: false })
-          .limit(20);
+          .limit(30);
         for (const row of (data || [])) {
+          const childName = childIdToName[(row as any).child_id] || 'Bilinmiyor';
           const date = new Date(row.created_at).toLocaleDateString('tr-TR');
           const doms = Array.isArray(row.domains) ? row.domains.join(', ') : '';
           const risk = Array.isArray(row.assessments) && row.assessments[0]?.risk ? String(row.assessments[0].risk) : '';
           const sum = Array.isArray(row.assessments) && row.assessments[0]?.summary ? String(row.assessments[0].summary) : '';
-          ctxNotes.push(`- (${date}) [${doms}] Not: ${row.note}${sum ? ` | AI Özet: ${sum}` : ''}${risk ? ` | Risk: ${risk}` : ''}`);
+          ctxNotes.push(`- [${childName}] (${date}) [${doms}] Not: ${row.note}${sum ? ` | AI Özet: ${sum}` : ''}${risk ? ` | Risk: ${risk}` : ''}`);
         }
       }
     }
 
-    // System primer ("eğitme" / kurallar)
+    // System primer with mode-specific guidance
+    const modeGuidance = mode === 'class'
+      ? `Bu sınıftaki ${childrenNames.length} çocuğun (${childrenNames.slice(0, 5).join(', ')}${childrenNames.length > 5 ? '...' : ''}) GENEL GELİŞİM DURUMUNU analiz et. Tek bir çocuğa odaklanma, SINIF genelinde trendler, ortak güçlü/zayıf yönler ve sınıf düzeyinde öneriler sun.`
+      : mode === 'child' && childrenNames[0]
+        ? `${childrenNames[0]} isimli bu çocuğun gelişim durumunu analiz et.`
+        : '';
+
     const system = [
       'ROL: 0-6 yaş erken çocukluk gelişimi uzmanısın; cevapları TÜRKÇE ver.',
+      modeGuidance,
       'HEDEF: Öğretmene sınıf içi uygulanabilir, güvenli, kısa ve somut öneriler sun.',
       'KURALLAR: Tıbbi tanı koyma; riskli etkinlik önerme. Gerekirse netleştirici 1-2 soru sor.',
       'BİÇİM: Kısa paragraf + madde işaretli öneriler. Gerekirse örnek etkinlik başlıkları.',
-    ].join('\n');
+    ].filter(Boolean).join('\n');
 
-    const ctxHeader = ctxNotes.length ? `BAĞLAM (${mode}):\n${ctxNotes.slice(0, 20).join('\n')}` : 'BAĞLAM: (yok)';
+    const ctxHeader = ctxNotes.length ? `BAĞLAM (${mode === 'class' ? 'Sınıf: ' + classroom : 'Çocuk'}):\n${ctxNotes.slice(0, 25).join('\n')}` : 'BAĞLAM: (yok)';
     const histText = history.map(h => `${h.role === 'assistant' ? 'ASİSTAN' : h.role === 'user' ? 'ÖĞRETMEN' : 'SİSTEM'}: ${h.content}`).join('\n');
     const prompt = [system, ctxHeader, histText ? `GEÇMİŞ:\n${histText}` : '', `ÖĞRETMEN: ${message}`, 'ASİSTAN:'].filter(Boolean).join('\n\n');
 
@@ -93,9 +123,9 @@ serve(async (req) => {
 });
 
 function json(data: unknown, status = 200) {
-  return new Response(JSON.stringify(data), { 
-    status, 
-    headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+  return new Response(JSON.stringify(data), {
+    status,
+    headers: { ...corsHeaders, 'Content-Type': 'application/json' }
   });
 }
 
